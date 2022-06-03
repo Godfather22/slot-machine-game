@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class GameConfig<T extends Card<?>, M extends Number> {
+public class GameConfig<T extends Card, M extends Number> {
 
     // thread-safe singleton
     private GameConfig() {}

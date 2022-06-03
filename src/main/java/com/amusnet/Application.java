@@ -2,7 +2,8 @@ package com.amusnet;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.game.Game;
-import com.amusnet.game.NumberCard;
+import com.amusnet.game.impl.NumberCard;
+import com.amusnet.game.impl.IntegerCard;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -66,33 +67,34 @@ public class Application {
             );
 
             var tableData = Map.of(
-                    new NumberCard(0), Map.of(  3, 10,
+                    new IntegerCard(0), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new NumberCard(1), Map.of(  3, 10,
+                    new IntegerCard(1), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new NumberCard(2), Map.of(  3, 10,
+                    new IntegerCard(2), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new NumberCard(3), Map.of(  3, 20,
+                    new IntegerCard(3), Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new NumberCard(4), Map.of(  3, 20,
+                    new IntegerCard(4), Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new NumberCard(5), Map.of(  3, 20,
+                    new IntegerCard(5), Map.of(  3, 20,
                             4, 80,
                             5, 400),
-                    new NumberCard(6), Map.of(  3, 40,
+                    new IntegerCard(6), Map.of(  3, 40,
                             4, 400,
                             5, 1000),
-                    new NumberCard(7, true), Map.of(  3, 5,
+                    new IntegerCard(7, true), Map.of(  3, 5,
                             4, 20,
                             5, 500)
             );
 
-            configuration.setupTable(columnIndexes, tableData);
+            // TODO troubleshoot generic shenanigans
+//            configuration.setupTable(columnIndexes, tableData);
         }
 
         // set starting balance
@@ -104,7 +106,7 @@ public class Application {
         log.info(configuration.toString());
 
         @SuppressWarnings("unchecked")
-        var game = (Game<NumberCard, Integer>) Game.getInstance();
+        var game = (Game<IntegerCard, Integer>) Game.getInstance();
 
         Scanner sc = new Scanner(System.in);
 

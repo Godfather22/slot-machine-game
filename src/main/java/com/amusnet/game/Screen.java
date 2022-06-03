@@ -1,9 +1,9 @@
 package com.amusnet.game;
 
+import com.amusnet.exception.InvalidOperationException;
 import com.amusnet.game.impl.IntegerCard;
-import lombok.AllArgsConstructor;
+import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
-import lombok.NonNull;
 
 import java.util.List;
 
@@ -29,6 +29,18 @@ public class Screen {
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < columns; j++)
                 view[i][j] = new IntegerCard(metaList.get(i).get(j));
+    }
+
+    public Card getCardAt(int row, int column) {
+        return view[row][column];
+    }
+
+    public Number getCardValueAt(int row, int column) throws InvalidOperationException {
+        var card = view[row][column];
+        if (card instanceof NumberCard<?>)
+            return ((NumberCard<?>) card).getValue();
+        else
+            throw new InvalidOperationException("Card element is not a NumberCard");
     }
 
 }

@@ -2,6 +2,9 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.InvalidCurrencyFormatException;
+import com.amusnet.exception.InvalidOperationException;
+import com.amusnet.game.impl.IntegerCard;
+import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
@@ -80,18 +83,31 @@ public class Game<C extends Card, M extends Number> {
         }
     }
 
+    // TODO research generic methods
     public M calculateWinAmount() {
+
+        double totalWinAmount = 0;
+
+        // TODO migrate from configuration to property-based
+        int numOfLines = configuration.getLines().size();
+        for (int i = 0; i < numOfLines; i++) {
+            var currentLine = configuration.getLines().get(i);
+            var occurs = getOccurrencesForLine(currentLine);
+            if (occurs != null) {
+                var winningCard = occurs.getValue0();
+                var winningCardValue = winningCard.getValue();
+                var winningCardOccurrences = occurs.getValue1();
+                // TODO calculate current win amount
+                double currentWinAmount = 0;
+                totalWinAmount += currentWinAmount;
+                // TODO consider scatters
+                System.out.printf("Line %d, Card %s x%d, win amount %s",
+                        winningCardValue, winningCardOccurrences, currentWinAmount);
+            }
+        }
+
+        // TODO return type
         return null;
-//        for (var row : screen) {
-//            for (C card : row) {
-//                var lines = configuration.getLines();
-//                for (int i = 0; i < lines.size(); i++) {
-//                    Pair<C, Integer> occurs = getOccurrencesForLine(lines.get(i));
-//                    // TODO finish algorithm
-//
-//                }
-//            }
-//        }
     }
 
     public void quit() {
@@ -108,8 +124,33 @@ public class Game<C extends Card, M extends Number> {
         System.out.println("Please enter lines you want to play on and a bet per line:");
     }
 
-    private Pair<C, Integer> getOccurrencesForLine(List<C> line) {
-        return null;
+    // Note: 'line' in this method's vocabulary is meant in the context of the game
+    private Pair<IntegerCard, Integer> getOccurrencesForLine(List<Integer> line) {
+        // check if there is a streak, starting from the beginning
+        boolean streak = true;
+
+        Integer previousCardValue = line.get(0);
+        Integer currentCardValue;
+        int index = 0, streakCount = 0;
+        while (streak) {
+            try {
+                currentCardValue = (Integer) screen.getCardValueAt(line.get(index), index);
+                ++index;
+            } catch (InvalidOperationException e) {
+                log.error("Cannot call method for non NumberCard Cards", e);
+                throw new RuntimeException(e);
+            }
+            if (currentCardValue.equals(previousCardValue))
+                ++streakCount;
+            else
+                streak = false;
+        }
+
+        if (streakCount == 0)
+            return null;
+        else
+            return new Pair<>(new IntegerCard(previousCardValue), streakCount);
+
     }
 
     public List<List<Integer>> generateScreen() {
