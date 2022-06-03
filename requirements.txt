@@ -1,0 +1,22 @@
+Requirements
+
+1. As a player, I want to be able to specify the number of lines I want to play,
+and bet a certain amount on them.
+
+Example
+
+Given: 20 lines to be played with a bet of 5
+
+When: A screen with the following numbers is generated:
+
+1 1 0 1 5 
+7 1 0 1 5 
+4 7 1 7 0
+
+Then: The resulting screen should be:
+
+Line 3, Card 1 x4, win amount 100
+Scatters 7 x3, win amount 500
+Balance: 100500
+
+and 600 should be added to the balance
