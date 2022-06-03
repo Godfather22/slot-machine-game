@@ -1,30 +1,67 @@
 package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
+import com.amusnet.exception.InvalidCurrencyFormatException;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
-public class Game<C extends Card<?>, M extends Number> {
+@Slf4j
+public class Game<C extends Card, M extends Number> {
 
+    private Properties properties;
+
+    // TODO eventually replace this with the above properties implementation
     private GameConfig<C, M> configuration;
+
+    private Card[][] screen;
 
     private M currentBalance;
 
     private Integer linesPlayed;
     private M betAmount;
 
-    private List<List<C>> screen;
-
     private M lastWinFromLines, lastWinFromScatters;
     private boolean gameOver;
 
-    // thread-safe singleton
+    // private constructor, because Game class is a thread-safe singleton
     private Game() {
-        this.screen = new CopyOnWriteArrayList<>();
+
+        // retrieve game properties
+        properties = new Properties();
+        try {
+            properties.load(new InputStreamReader(new FileInputStream("game.properties")));
+        } catch (IOException e) {
+            log.error("Error reading .properties file", e);
+            throw new RuntimeException(e);
+        }
+
+        // set up screen size
+        int rowSize = Integer.parseInt(properties.getProperty("screen_rows"));
+        int columnSize = Integer.parseInt(properties.getProperty("screen_columns"));
+        this.screen = new Card[rowSize][columnSize];
+
+        // set up initial balance
+        String initialBalanceProp = properties.getProperty("starting_balance");
+        try {
+            initializeGenericSum(this.currentBalance, initialBalanceProp);
+        } catch (InvalidCurrencyFormatException e) {
+            log.error("Cannot parse '{}' as Number type", initialBalanceProp);
+            throw new RuntimeException(e);
+        }
+
+        // game isn't over from the beginning, this isn't life
         this.gameOver = false;
     }
 
@@ -76,4 +113,24 @@ public class Game<C extends Card<?>, M extends Number> {
         return null;
     }
 
+    public List<List<Integer>> generateScreen() {
+        return generateScreen(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+    }
+
+    public List<List<Integer>> generateScreen(long seed) {
+        Random rnd = new Random(seed);
+        // TODO generate screen algorithm
+        return null;
+    }
+
+    private void initializeGenericSum(Number sum, String value) throws InvalidCurrencyFormatException {
+        if (sum instanceof Integer)
+            sum = Integer.parseInt(value);
+        else if (sum instanceof Long)
+            sum = Long.parseLong(value);
+        else if (sum instanceof Double)
+            sum = Double.parseDouble(value);
+        else
+            throw new InvalidCurrencyFormatException("Error parsing property type");
+    }
 }

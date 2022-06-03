@@ -1,7 +1,9 @@
 package com.amusnet;
 
 import com.amusnet.game.Game;
+import com.amusnet.game.NumberCard;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -9,7 +11,7 @@ public class GameBehaviourTest {
 
     // Testing a game of Integer cards with Integer currency (money) type
     @SuppressWarnings("unchecked")
-    private static final Game<Integer, Integer> game = (Game<Integer, Integer>) Game.getInstance();
+    private static final Game<NumberCard, Integer> game = (Game<NumberCard, Integer>) Game.getInstance();
 
     @Test
     void play20LinesFor5_win100FromLinesAnd500FromScatters() {
@@ -24,10 +26,14 @@ public class GameBehaviourTest {
     }
 
     private void WhenLine4HasFourInitial_1_s() {
-        game.setScreen(List.of( List.of(1, 1, 0, 1, 5),
-                                List.of(7, 1, 0, 1, 5),
-                                List.of(4, 7, 1, 7, 0)
-        ));
+        // enforce non-random generation
+        Mockito.when(game.generateScreen()).thenReturn(
+                List.of(
+                        List.of(1, 1, 0, 1, 5),
+                        List.of(7, 1, 0, 1, 5),
+                        List.of(4, 7, 1, 7, 0)
+                )
+        );
     }
 
     private void ThenShouldWin100FromLinesAnd500FromScatters() {

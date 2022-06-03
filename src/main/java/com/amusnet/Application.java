@@ -2,12 +2,14 @@ package com.amusnet;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.game.Game;
-import com.amusnet.game.impl.NumberCard;
+import com.amusnet.game.NumberCard;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+@Slf4j
 public class Application {
     public static void main(String[] args) {
 
@@ -93,17 +95,13 @@ public class Application {
             configuration.setupTable(columnIndexes, tableData);
         }
 
-        // set up calculation table
-        {
-            // TODO Set up templates
-
-        }
-
         // set starting balance
         configuration.setStartingBalance(100000);
 
         // set max bet amount
         configuration.setMaxBetAmount(10);
+
+        log.info(configuration.toString());
 
         @SuppressWarnings("unchecked")
         var game = (Game<NumberCard, Integer>) Game.getInstance();
