@@ -2,15 +2,17 @@ package com.amusnet;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.game.Game;
+import com.amusnet.game.impl.NumberCard;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Application {
     public static void main(String[] args) {
 
         @SuppressWarnings("unchecked")
-        var configuration = (GameConfig<Integer, Integer>) GameConfig.getInstance();
+        var configuration = (GameConfig<NumberCard, Integer>) GameConfig.getInstance();
 
         //  Temporary manual setup of configuration
 
@@ -53,35 +55,48 @@ public class Application {
             ));
         }
 
-        // set up multipliers
+        // set up table
+        {
+            var columnIndexes = Map.of(
+                    "x3", 3,
+                    "x4", 4,
+                    "x5", 5
+            );
+
+            var tableData = Map.of(
+                    new NumberCard(0), Map.of(  3, 10,
+                            4, 20,
+                            5, 100),
+                    new NumberCard(1), Map.of(  3, 10,
+                            4, 20,
+                            5, 100),
+                    new NumberCard(2), Map.of(  3, 10,
+                            4, 20,
+                            5, 100),
+                    new NumberCard(3), Map.of(  3, 20,
+                            4, 40,
+                            5, 200),
+                    new NumberCard(4), Map.of(  3, 20,
+                            4, 40,
+                            5, 200),
+                    new NumberCard(5), Map.of(  3, 20,
+                            4, 80,
+                            5, 400),
+                    new NumberCard(6), Map.of(  3, 40,
+                            4, 400,
+                            5, 1000),
+                    new NumberCard(7, true), Map.of(  3, 5,
+                            4, 20,
+                            5, 500)
+            );
+
+            configuration.setupTable(columnIndexes, tableData);
+        }
+
+        // set up calculation table
         {
             // TODO Set up templates
-            configuration.setMultipliers(Map.of(
-                    0, Map.of(  3, 10,
-                                    4, 20,
-                                    5, 100),
-                    1, Map.of(  3, 10,
-                                    4, 20,
-                                    5, 100),
-                    2, Map.of(  3, 10,
-                                    4, 20,
-                                    5, 100),
-                    3, Map.of(  3, 20,
-                                    4, 40,
-                                    5, 200),
-                    4, Map.of(  3, 20,
-                                    4, 40,
-                                    5, 200),
-                    5, Map.of(  3, 20,
-                                    4, 80,
-                                    5, 400),
-                    6, Map.of(  3, 40,
-                                    4, 400,
-                                    5, 1000),
-                    7, Map.of(  3, 5,
-                                    4, 20,
-                                    5, 500)
-            ));
+
         }
 
         // set starting balance
@@ -91,11 +106,15 @@ public class Application {
         configuration.setMaxBetAmount(10);
 
         @SuppressWarnings("unchecked")
-        var game = (Game<Integer, Integer>) Game.getInstance();
+        var game = (Game<NumberCard, Integer>) Game.getInstance();
+
+        Scanner sc = new Scanner(System.in);
 
         // main game loop
-        while (true) {
-
+        while (!game.isGameOver()) {
+            String input = sc.nextLine();
+            if (input.equalsIgnoreCase("quit"))
+                game.quit();
         }
     }
 }

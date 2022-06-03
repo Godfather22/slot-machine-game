@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
-public class Game<C, M extends Number> {
+public class Game<C extends Card<?>, M extends Number> {
 
     private GameConfig<C, M> configuration;
 
@@ -45,15 +45,21 @@ public class Game<C, M extends Number> {
     }
 
     public M calculateWinAmount() {
-        for (var row : screen) {
-            for (C card : row) {
-                var lines = configuration.getLines();
-                for (int i = 0; i < lines.size(); i++) {
-                    Pair<C, Integer> occurs = getOccurrencesForLine(lines.get(i));
-                    // TODO finish algorithm
-                }
-            }
-        }
+        return null;
+//        for (var row : screen) {
+//            for (C card : row) {
+//                var lines = configuration.getLines();
+//                for (int i = 0; i < lines.size(); i++) {
+//                    Pair<C, Integer> occurs = getOccurrencesForLine(lines.get(i));
+//                    // TODO finish algorithm
+//
+//                }
+//            }
+//        }
+    }
+
+    public void quit() {
+        this.gameOver = true;
     }
 
     //*******************
@@ -67,7 +73,7 @@ public class Game<C, M extends Number> {
     }
 
     private Pair<C, Integer> getOccurrencesForLine(List<C> line) {
-
+        return null;
     }
 
 }
