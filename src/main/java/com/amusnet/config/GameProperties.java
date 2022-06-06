@@ -14,7 +14,7 @@ public class GameProperties {
     static {
         properties = new Properties();
         try {
-            properties.load(new InputStreamReader(new FileInputStream("game.properties")));
+            properties.load(new InputStreamReader(new FileInputStream("src/main/resources/game.properties")));
         } catch (IOException e) {
             log.error("Error reading .properties file", e);
             throw new RuntimeException(e);

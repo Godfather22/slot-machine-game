@@ -3,7 +3,6 @@ package com.amusnet.game;
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.InvalidCurrencyFormatException;
 import com.amusnet.exception.InvalidOperationException;
-import com.amusnet.game.impl.IntegerCard;
 import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -20,30 +19,34 @@ import java.util.Random;
 
 @Data
 @Slf4j
-public class Game<C extends Card, M extends Number> {
+public class Game<C extends Card> {
 
     private Properties properties;
 
     // TODO eventually replace this with the above properties implementation
-    private GameConfig<C, M> configuration;
+    private GameConfig<C> configuration;
 
     private Screen screen;
 
-    private M currentBalance;
+    private double currentBalance;
 
     private Integer linesPlayed;
-    private M betAmount;
+    private double betAmount;
 
-    private M lastWinFromLines, lastWinFromScatters;
+    String currencyFormat;
+    private double lastWinFromLines, lastWinFromScatters;
     private boolean gameOver;
 
     // private constructor, because Game class is a thread-safe singleton
+    @SuppressWarnings("unchecked")
     private Game() {
+
+        this.configuration = (GameConfig<C>) GameConfig.getInstance();
 
         // retrieve game properties
         properties = new Properties();
         try {
-            properties.load(new InputStreamReader(new FileInputStream("game.properties")));
+            properties.load(new InputStreamReader(new FileInputStream("src/main/resources/game.properties")));
         } catch (IOException e) {
             log.error("Error reading .properties file", e);
             throw new RuntimeException(e);
@@ -62,6 +65,9 @@ public class Game<C extends Card, M extends Number> {
             log.error("Cannot parse '{}' as Number type", initialBalanceProp);
             throw new RuntimeException(e);
         }
+
+        // set currency format (whole numbers or floating-point)
+        this.currencyFormat = (properties.getProperty("round_currency").equals("true") ? "%d" : "%f.2");
 
         // game isn't over from the beginning, this isn't life
         this.gameOver = false;
@@ -83,8 +89,8 @@ public class Game<C extends Card, M extends Number> {
         }
     }
 
-    // TODO research generic methods
-    public M calculateWinAmount() {
+    @SuppressWarnings("unchecked")
+    public double calculateWinAmount() {
 
         double totalWinAmount = 0;
 
@@ -97,17 +103,45 @@ public class Game<C extends Card, M extends Number> {
                 var winningCard = occurs.getValue0();
                 var winningCardValue = winningCard.getValue();
                 var winningCardOccurrences = occurs.getValue1();
-                // TODO calculate current win amount
-                double currentWinAmount = 0;
+                var currentWinAmount =  calculateWinAmount(occurs);
                 totalWinAmount += currentWinAmount;
-                // TODO consider scatters
-                System.out.printf("Line %d, Card %s x%d, win amount %s",
-                        winningCardValue, winningCardOccurrences, currentWinAmount);
+                System.out.printf("Line %d, Card %s x%d, win amount " + this.currencyFormat,
+                        i + 1, winningCardValue, winningCardOccurrences, currentWinAmount);
             }
+            // for the sake of extensibility: in case there are more than one "scatter cards"
+            for (var s : configuration.getScatters())
+                totalWinAmount += winAmountFromScatters((C) s);
         }
+        return totalWinAmount;
+    }
 
-        // TODO return type
-        return null;
+    private double winAmountFromScatters(C scatterCard) {
+        var screenView = this.screen.getView();
+
+        // Count the amount of scatters on screen
+        int scatterCount = 0;
+        for (int i = 0; i < this.screen.getRowCount(); i++)
+            for (int j = 0; j < this.screen.getColumnCount(); j++)
+                if (screenView[i][j].equals(scatterCard))
+                    ++scatterCount;
+
+        var calcTable = configuration.getTable();
+
+        // If the amount of scatters on screen is a valid win amount
+        if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
+            // then calculate and return the win amount.
+            Integer multiplier = calcTable.getData().get(scatterCard).get(scatterCount);
+            var totalBet = this.betAmount * this.linesPlayed;
+            return totalBet * multiplier;
+        }
+        return 0.0; // not enough scatters or none at all
+    }
+
+    private <R extends Number, T extends NumberCard<R>> double calculateWinAmount(Pair<T, Integer> occurs) {
+        var tableData = configuration.getTable().getData();
+        var row = tableData.get((occurs.getValue0()));
+        var multiplier = row.get(occurs.getValue1());
+        return this.betAmount * multiplier;
     }
 
     public void quit() {
@@ -125,7 +159,7 @@ public class Game<C extends Card, M extends Number> {
     }
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<IntegerCard, Integer> getOccurrencesForLine(List<Integer> line) {
+    private Pair<NumberCard<Integer>, Integer> getOccurrencesForLine(List<Integer> line) {
         // check if there is a streak, starting from the beginning
         boolean streak = true;
 
@@ -149,7 +183,7 @@ public class Game<C extends Card, M extends Number> {
         if (streakCount == 0)
             return null;
         else
-            return new Pair<>(new IntegerCard(previousCardValue), streakCount);
+            return new Pair<>(new NumberCard<Integer>(previousCardValue), streakCount);
 
     }
 

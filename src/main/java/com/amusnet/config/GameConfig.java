@@ -1,13 +1,16 @@
 package com.amusnet.config;
 
 import com.amusnet.game.Card;
+import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
-public class GameConfig<T extends Card, M extends Number> {
+public class GameConfig<T extends Card> {
 
     // thread-safe singleton
     private GameConfig() {}
@@ -29,20 +32,20 @@ public class GameConfig<T extends Card, M extends Number> {
     }
 
     @Data
-    static class MultipliersTable<T> {
+    public static class MultipliersTable<T> {
 
-        private Map<String, Integer> columnIndexes;
+        private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
         private Map<T, Map<Integer, Integer>> data;
 
+        // TODO fix formatting
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
 
             sb.append(String.format("%s-10", "card")).append(" ");
 
-            var columnIndexesKeySet = getColumnIndexes().keySet();
-            for (var key : columnIndexesKeySet)
-                sb.append(String.format("%s-5", key));
+            for (var m : occurrenceCounts)
+                sb.append(String.format("%s-5", m));
 
             sb.append("\n");
 
@@ -60,13 +63,15 @@ public class GameConfig<T extends Card, M extends Number> {
     private List<List<Integer>> reels;
     private List<List<Integer>> lines;
 
-    MultipliersTable<T> table;
+    private MultipliersTable<T> table = new MultipliersTable<>();
 
     private Integer startingBalance;
-    private M maxBetAmount;
+    private double maxBetAmount;
 
-    public void setupTable(Map<String, Integer> columnIndexes, Map<T, Map<Integer, Integer>> data) {
-        table.columnIndexes = columnIndexes;
+    private Set<Card> scatters;
+
+    public void setupTable(List<Integer> occurrenceCounts, Map<T, Map<Integer, Integer>> data) {
+        table.occurrenceCounts = occurrenceCounts;
         table.data = data;
     }
 
@@ -74,21 +79,19 @@ public class GameConfig<T extends Card, M extends Number> {
     public String toString() {
         StringBuilder sb = new StringBuilder("Current configuration:\n\n");
 
-        sb.append("Starting balance: ").append(startingBalance).append("\n\n");
+        sb.append("Starting balance: ").append(startingBalance).append("\n");
 
-        sb.append("Max Bet Amount: ").append(maxBetAmount).append("\n\n");
+        sb.append("Max Bet Amount: ").append(maxBetAmount).append("\n");
 
         sb.append("Reel arrays:\n");
-        reels.forEach(sb::append);
-        sb.append("\n\n");
+        reels.forEach(ra -> sb.append(ra).append("\n"));
 
         sb.append("Line arrays:\n");
-        lines.forEach(sb::append);
-        sb.append("\n\n");
+        lines.forEach(la -> sb.append(la).append("\n"));
 
         sb.append("Multipliers Table:\n");
-        sb.append(table);
-        sb.append("\n\n");
+        sb.append(table).append("\n");
+        sb.append("\n");
 
         return sb.toString();
     }

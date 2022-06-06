@@ -17,6 +17,6 @@ public class NumberCard<T extends Number> implements Card {
 
     @Override
     public boolean isScatter() {
-        return false;
+        return scatter;
     }
 }

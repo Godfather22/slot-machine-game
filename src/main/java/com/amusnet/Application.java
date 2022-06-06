@@ -3,19 +3,19 @@ package com.amusnet;
 import com.amusnet.config.GameConfig;
 import com.amusnet.game.Game;
 import com.amusnet.game.impl.NumberCard;
-import com.amusnet.game.impl.IntegerCard;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 @Slf4j
 public class Application {
     public static void main(String[] args) {
 
         @SuppressWarnings("unchecked")
-        var configuration = (GameConfig<NumberCard, Integer>) GameConfig.getInstance();
+        var configuration = (GameConfig<NumberCard<Integer>>) GameConfig.getInstance();
 
         //  Temporary manual setup of configuration
 
@@ -60,42 +60,40 @@ public class Application {
 
         // set up table
         {
-            var columnIndexes = Map.of(
-                    "x3", 3,
-                    "x4", 4,
-                    "x5", 5
-            );
+            var occurrenceCounts = List.of(3, 4, 5);
 
-            var tableData = Map.of(
-                    new IntegerCard(0), Map.of(  3, 10,
+            Map<NumberCard<Integer>, Map<Integer, Integer>> tableData = Map.of(
+                    new NumberCard<>(0), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new IntegerCard(1), Map.of(  3, 10,
+                    new NumberCard<>(1), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new IntegerCard(2), Map.of(  3, 10,
+                    new NumberCard<>(2), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new IntegerCard(3), Map.of(  3, 20,
+                    new NumberCard<>(3), Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new IntegerCard(4), Map.of(  3, 20,
+                    new NumberCard<>(4), Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new IntegerCard(5), Map.of(  3, 20,
+                    new NumberCard<>(5), Map.of(  3, 20,
                             4, 80,
                             5, 400),
-                    new IntegerCard(6), Map.of(  3, 40,
+                    new NumberCard<>(6), Map.of(  3, 40,
                             4, 400,
                             5, 1000),
-                    new IntegerCard(7, true), Map.of(  3, 5,
+                    new NumberCard<>(7, true), Map.of(  3, 5,
                             4, 20,
                             5, 500)
             );
 
-            // TODO troubleshoot generic shenanigans
-//            configuration.setupTable(columnIndexes, tableData);
+            configuration.setupTable(occurrenceCounts, tableData);
         }
+
+        // set scatters
+        configuration.setScatters(Set.of(new NumberCard<Integer>(7, true)));
 
         // set starting balance
         configuration.setStartingBalance(100000);
@@ -106,7 +104,7 @@ public class Application {
         log.info(configuration.toString());
 
         @SuppressWarnings("unchecked")
-        var game = (Game<IntegerCard, Integer>) Game.getInstance();
+        var game = (Game<NumberCard<Integer>>) Game.getInstance();
 
         Scanner sc = new Scanner(System.in);
 
