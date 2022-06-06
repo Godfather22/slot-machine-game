@@ -18,7 +18,23 @@ public class Application {
         var configuration = (GameConfig<NumberCard<Integer>>) GameConfig.getInstance();
 
         //  Temporary manual setup of configuration
+        setupConfiguration(configuration);
 
+        @SuppressWarnings("unchecked")
+        var game = (Game<NumberCard<Integer>>) Game.getInstance();
+
+        Scanner sc = new Scanner(System.in);
+
+        // main game loop
+        while (!game.isGameOver()) {
+            String input = sc.nextLine();
+            if (input.equalsIgnoreCase("quit"))
+                game.quit();
+        }
+    }
+
+    @Deprecated
+    private static void setupConfiguration(GameConfig<NumberCard<Integer>> configuration) {
         // set up reel arrays
         {
             configuration.setReels(List.of(
@@ -102,17 +118,6 @@ public class Application {
         configuration.setMaxBetAmount(10);
 
         log.info(configuration.toString());
-
-        @SuppressWarnings("unchecked")
-        var game = (Game<NumberCard<Integer>>) Game.getInstance();
-
-        Scanner sc = new Scanner(System.in);
-
-        // main game loop
-        while (!game.isGameOver()) {
-            String input = sc.nextLine();
-            if (input.equalsIgnoreCase("quit"))
-                game.quit();
-        }
     }
+
 }
