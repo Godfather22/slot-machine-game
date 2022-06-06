@@ -20,3 +20,23 @@ Scatters 7 x3, win amount 500
 Balance: 100500
 
 and 600 should be added to the balance
+
+2. As a developer, I want my program to be able to handle invalid user input,
+by informing the user of his error and prompting him to try again, and to
+log the information for me and other developers of the project.
+
+Example
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
+When: User input for lines played and bet amount is: aa bb
+
+Then: The user gets this message displayed:
+
+Invalid input!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Invalid user input '[input]'
