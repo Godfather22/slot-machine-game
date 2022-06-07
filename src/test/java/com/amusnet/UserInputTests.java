@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
@@ -22,10 +24,15 @@ public class UserInputTests {
     private static final PrintStream OLD_STANDARD_ERR = System.err;
 
     private static InputStream newStandardIn;
+
+    private static OutputStream newOutput;
     private static PrintStream newStandardOut;
+
+    private static OutputStream newError;
     private static PrintStream newStandardErr;
 
-    private UserInputTests() {
+    @BeforeAll
+    static void changeStandardInputAndOutput() {
         try {
             PROPERTIES.load(new FileInputStream("src/main/resources/game.properties"));
         } catch (IOException e) {
@@ -52,15 +59,16 @@ public class UserInputTests {
             sb2.append(invalidInputSeed.charAt(rnd.nextInt(invalidInputSeed.length())));
 
         String invalidUserInput = String.format("%s%s%s%s%s", sb1, System.lineSeparator(), sb2,
-                                                System.lineSeparator(), EXIT_STRING);
+                System.lineSeparator(), EXIT_STRING);
 
         newStandardIn = new ByteArrayInputStream(invalidUserInput.getBytes(StandardCharsets.UTF_8));
-        newStandardOut = new PrintStream(new ByteArrayOutputStream());
-        newStandardErr = new PrintStream(new ByteArrayOutputStream());
-    }
 
-    @BeforeAll
-    static void changeStandardInputAndOutput() {
+        newOutput = new ByteArrayOutputStream();
+        newStandardOut = new PrintStream(newOutput);
+
+        newError = new ByteArrayOutputStream();
+        newStandardErr = new PrintStream(newError);
+
         System.setIn(newStandardIn);
         System.setOut(newStandardOut);
         System.setErr(newStandardErr);
@@ -73,6 +81,7 @@ public class UserInputTests {
 //        thenThrowExceptionRePromptUserAndLogError();
 
         Application.main(null);
+        assertThat(newError.toString()).isEqualTo("Invalid input!" + System.lineSeparator() + "Invalid input!" + System.lineSeparator());
     }
 
     private void givenWaitingForUserInput() {

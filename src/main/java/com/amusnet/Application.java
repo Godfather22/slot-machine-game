@@ -28,18 +28,33 @@ public class Application {
         final int maxBetAmount = Integer.parseInt(game.getProperties().getProperty("max_bet_amount"));
 
         // main game loop
-        while (!game.isGameOver()) {
+        while (game.getCurrentBalance() >= 0.0) {
 
             game.prompt();
 
             String firstInput = sc.next();
-            if (firstInput.equalsIgnoreCase("quit")) {
-                game.quit();
+            if (firstInput.equalsIgnoreCase("quit"))
                 break;
+
+            int linesInput = -1;
+            try {
+                linesInput = Integer.parseInt(firstInput);
+            }
+            catch (NumberFormatException e) {
+                System.err.println("Invalid input!");
+                log.error("Invalid user input: {}", linesInput);
             }
 
-            int linesInput = Integer.parseInt(firstInput);
-            int betInput = Integer.parseInt(sc.next());
+            int betInput = -1;
+            try {
+                betInput = Integer.parseInt(sc.next());
+            }
+            catch (NumberFormatException e) {
+                System.err.println("Invalid input!");
+                log.error("Invalid user input: {}", betInput);
+            }
+
+            // TODO checks for valid input
 
             game.setLinesPlayed(linesInput);
             game.setBetAmount(betInput);
