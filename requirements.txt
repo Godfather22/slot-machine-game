@@ -3,7 +3,7 @@ Requirements
 1. As a player, I want to be able to specify the number of lines I want to play,
 and bet a certain amount on them.
 
-Example
+Example A
 
 Given: 20 lines to be played with a bet of 5
 
@@ -24,7 +24,7 @@ and 600 should be added to the balance
 2. As a developer, I want my program to predictably generate a screen of reels,
 given a 'generation number' (which during normal gameplay will be random)
 
-Example
+Example A
 
 Given: 5 reel arrays with size 30, and 15 as the generation number
 
@@ -34,7 +34,7 @@ Then: the generated reels should be populated with numbers from
 their respective reel arrays as follows: ra[15], ra[15+1], ..., ra[15+n-1],
 where 'ra' is the respective reel array, and n is the size of the screen reel
 
-Example
+Example B
 
 Given: 5 reel arrays with size 30, and 29 as the generation number
 
@@ -49,7 +49,7 @@ the screen reel.
 by informing the user of his error and prompting him to try again, and to
 log the information for me and other developers of the project.
 
-Example
+Example A
 
 Given: A prompt for the user to input the lines he wants to play, and the amount he bets
 
