@@ -55,7 +55,7 @@ Given: A prompt for the user to input the lines he wants to play, and the amount
 
 When: User input for lines played and bet amount is: aa bb
 
-Then: The user gets this message displayed:
+Then: The user gets this message displayed to him:
 
 Invalid input!
 Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
@@ -64,3 +64,19 @@ Please enter lines you want to play on and a bet per line:
 The following message is logged:
 
 Error: Invalid user input '[input]'
+
+Example B
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
+When: User input for lines played is greater than the available lines
+
+Then: The user gets this message displayed to him:
+
+You don't have [input amount] in your balance!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Number of lines input [input amount] greater than lines available ([max_lines])
