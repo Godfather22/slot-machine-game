@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.Random;
 
 @Slf4j
-public class UserInputTests {
+public class UserInputTest {
 
     private static final int RANDOM_STRING_MAX_LENGTH = 30;
     private static final String EXIT_STRING = "quit";
