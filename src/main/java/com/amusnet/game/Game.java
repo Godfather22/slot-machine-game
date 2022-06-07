@@ -34,7 +34,6 @@ public class Game<C extends Card> {
 
     DecimalFormat currencyFormat;
     private double lastWinFromLines, lastWinFromScatters;
-    private boolean gameOver;
 
     // private constructor, because Game class is a thread-safe singleton
     @SuppressWarnings("unchecked")
@@ -69,8 +68,6 @@ public class Game<C extends Card> {
         // set currency format (whole numbers or floating-point)
         this.currencyFormat = new DecimalFormat("#.##");
 
-        // game isn't over from the beginning, this isn't life
-        this.gameOver = false;
     }
 
     @SuppressWarnings("rawtypes")
@@ -131,26 +128,22 @@ public class Game<C extends Card> {
                 var currentWinAmount =  calculateRegularWins(occurs);
                 if (currentWinAmount != 0.0) {
                     totalWinAmount += currentWinAmount;
-                    System.out.printf("Line %d, Card %s x%d, win amount %s",
+                    System.out.printf("Line %d, Card %s x%d, win amount %s%n",
                             i + 1, winningCardValue, winningCardOccurrences, currencyFormat.format(currentWinAmount));
                 }
             }
-            // for the sake of extensibility: in case there are more than one "scatter cards"
-            for (var s : configuration.getScatters()) {
-                int scatterCount = 0;
-                double scatterWinAmount = calculateScatterWins((C) s, scatterCount);
-                if (scatterWinAmount != 0.0) {
-                    totalWinAmount += scatterWinAmount;
-                    System.out.printf("Scatters %s x%d, win amount %s",
-                            s.toString(), scatterCount, this.currencyFormat.format(scatterWinAmount));
-                }
+        }
+        // for the sake of extensibility: in case there are more than one "scatter cards"
+        for (var s : configuration.getScatters()) {
+            int scatterCount = 0;
+            double scatterWinAmount = calculateScatterWins(s, scatterCount);
+            if (scatterWinAmount != 0.0) {
+                totalWinAmount += scatterWinAmount;
+                System.out.printf("Scatters %s x%d, win amount %s%n",
+                        s.toString(), scatterCount, this.currencyFormat.format(scatterWinAmount));
             }
         }
         return totalWinAmount;
-    }
-
-    public void quit() {
-        this.gameOver = true;
     }
 
     //*******************
@@ -162,11 +155,11 @@ public class Game<C extends Card> {
         // check if there is a streak, starting from the beginning
         boolean streak = true;
 
-        Integer previousCardValue = line.get(0);
-        Integer currentCardValue;
-        int index = 0, streakCount = 0;
-        while (streak) {
+        Integer previousCardValue, currentCardValue;
+        int index = 1, streakCount = 0;
+        do {
             try {
+                previousCardValue = (Integer) screen.getCardValueAt(line.get(0), 0);
                 currentCardValue = (Integer) screen.getCardValueAt(line.get(index), index);
                 ++index;
             } catch (InvalidOperationException e) {
@@ -177,9 +170,13 @@ public class Game<C extends Card> {
                 ++streakCount;
             else
                 streak = false;
-        }
 
-        if (streakCount == 0)
+            if (index >= line.size())
+                break;
+        }
+        while (streak);
+
+        if (streakCount < configuration.getTable().getOccurrenceCounts().get(0))
             return null;
         else
             return new Pair<>(new NumberCard<Integer>(previousCardValue), streakCount);
@@ -193,12 +190,12 @@ public class Game<C extends Card> {
         return this.betAmount * multiplier;
     }
 
-    private double calculateScatterWins(C scatterCard, int scatterCount) {
+    private double calculateScatterWins(Card scatterCard, int scatterCount) {
         var screenView = this.screen.getView();
 
         for (int i = 0; i < this.screen.getRowCount(); i++)
             for (int j = 0; j < this.screen.getColumnCount(); j++)
-                if (screenView[i][j].equals(scatterCard))
+                if ((screenView[i][j].toString()).equals(scatterCard.toString()))
                     ++scatterCount;
 
         var calcTable = configuration.getTable();
