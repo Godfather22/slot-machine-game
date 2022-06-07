@@ -1,7 +1,6 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
-import com.amusnet.game.Card;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
 import com.amusnet.game.impl.NumberCard;
@@ -117,13 +116,48 @@ public class GameBehaviourTest {
         int generationNumber;
 
         @Test
-        void feedScreenGeneratorConcreteNumber_correctScreenGenerates() {
+        void feedScreenGeneratorNumber29_correctScreenGenerates() {
+            Given5Size30ReelArraysAndGenerationNumber29();
+            WhenGenerationNumberIsFedToGenerator();
+            ThenScreenGeneratesWithPredictedContents(List.of(
+                    List.of(2, 5, 5, 4, 5),
+                    List.of(6, 6, 6, 6, 6),
+                    List.of(6, 6, 6, 6, 6)
+            ));
+        }
+
+        private void Given5Size30ReelArraysAndGenerationNumber29() {
+            set5Size30ReelArrays();
+            this.generationNumber = 29;
+        }
+
+        @Test
+        void feedScreenGeneratorNumber15_correctScreenGenerates() {
             Given5Size30ReelArraysAndGenerationNumber15();
             WhenGenerationNumberIsFedToGenerator();
-            ThenScreenGeneratesWithPredictedElements();
+            ThenScreenGeneratesWithPredictedContents(List.of(
+                    List.of(2, 1, 2, 3, 0),
+                    List.of(2, 1, 2, 3, 0),
+                    List.of(2, 1, 2, 3, 0)
+            ));
         }
 
         private void Given5Size30ReelArraysAndGenerationNumber15() {
+            set5Size30ReelArrays();
+            this.generationNumber = 15;
+        }
+
+        private void WhenGenerationNumberIsFedToGenerator() {
+            game.generateScreen(this.generationNumber);
+        }
+
+        private void ThenScreenGeneratesWithPredictedContents(List<List<Integer>> predictedContents) {
+            var actual = game.getScreen();
+            var prediction = new Screen(predictedContents);
+            assertThat(actual).isEqualTo(prediction);
+        }
+
+        private void set5Size30ReelArrays() {
             config.setReels(List.of(
                     List.of(6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2),
                     List.of(6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5),
@@ -131,22 +165,6 @@ public class GameBehaviourTest {
                     List.of(6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4),
                     List.of(6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5)
             ));
-            this.generationNumber = 15;
-        }
-
-        private void WhenGenerationNumberIsFedToGenerator() {
-            game.generateScreen(generationNumber);
-        }
-
-        private void ThenScreenGeneratesWithPredictedElements() {
-            var predictedContents = List.of(
-                    List.of(2, 1, 2, 3, 0),
-                    List.of(2, 1, 2, 3, 0),
-                    List.of(2, 1, 2, 3, 0)
-            );
-            var actual = game.getScreen();
-            var prediction = new Screen(predictedContents);
-            assertThat(actual).isEqualTo(prediction);
         }
     }
 
