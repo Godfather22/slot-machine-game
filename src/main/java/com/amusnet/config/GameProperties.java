@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
+// TODO constraints
 @Slf4j
 public class GameProperties {
     public static Properties properties;    // read-only

@@ -11,8 +11,7 @@ import org.javatuples.Pair;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -33,7 +32,7 @@ public class Game<C extends Card> {
     private Integer linesPlayed;
     private double betAmount;
 
-    String currencyFormat;
+    DecimalFormat currencyFormat;
     private double lastWinFromLines, lastWinFromScatters;
     private boolean gameOver;
 
@@ -66,8 +65,9 @@ public class Game<C extends Card> {
             throw new RuntimeException(e);
         }
 
+        // TODO not thread-safe
         // set currency format (whole numbers or floating-point)
-        this.currencyFormat = (properties.getProperty("round_currency").equals("true") ? "%d" : "%f.2");
+        this.currencyFormat = new DecimalFormat("#.##");
 
         // game isn't over from the beginning, this isn't life
         this.gameOver = false;
@@ -89,8 +89,33 @@ public class Game<C extends Card> {
         }
     }
 
+    public void prompt() {
+        System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
+                currentBalance, configuration.getLines().size(), configuration.getMaxBetAmount());
+        System.out.println("Please enter lines you want to play on and a bet per line:");
+    }
+
+    public void generateScreen() {
+        generateScreen(new Random().nextInt(configuration.getReels().get(0).size()));
+    }
+
+    public void generateScreen(int diceRoll) {
+        var reelArrays = configuration.getReels();
+        int screenReelSize = Integer.parseInt(properties.getProperty("screen_rows"));
+        int screenRowsSize = Integer.parseInt(properties.getProperty("screen_columns"));
+        for (int i = 0; i < screenRowsSize; i++) {
+            int index = diceRoll;
+            for (int j = 0; j < screenReelSize; j++) {
+                index += 1;
+                if (index >= reelArrays.get(i).size())
+                    index = 0;
+                screen.getView()[i][j] = new NumberCard<Integer>(reelArrays.get(i).get(diceRoll + j));
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    public double calculateWinAmount() {
+    public double calculateTotalWin() {
 
         double totalWinAmount = 0;
 
@@ -103,45 +128,25 @@ public class Game<C extends Card> {
                 var winningCard = occurs.getValue0();
                 var winningCardValue = winningCard.getValue();
                 var winningCardOccurrences = occurs.getValue1();
-                var currentWinAmount =  calculateWinAmount(occurs);
-                totalWinAmount += currentWinAmount;
-                System.out.printf("Line %d, Card %s x%d, win amount " + this.currencyFormat,
-                        i + 1, winningCardValue, winningCardOccurrences, currentWinAmount);
+                var currentWinAmount =  calculateRegularWins(occurs);
+                if (currentWinAmount != 0.0) {
+                    totalWinAmount += currentWinAmount;
+                    System.out.printf("Line %d, Card %s x%d, win amount %s",
+                            i + 1, winningCardValue, winningCardOccurrences, currencyFormat.format(currentWinAmount));
+                }
             }
             // for the sake of extensibility: in case there are more than one "scatter cards"
-            for (var s : configuration.getScatters())
-                totalWinAmount += winAmountFromScatters((C) s);
+            for (var s : configuration.getScatters()) {
+                int scatterCount = 0;
+                double scatterWinAmount = calculateScatterWins((C) s, scatterCount);
+                if (scatterWinAmount != 0.0) {
+                    totalWinAmount += scatterWinAmount;
+                    System.out.printf("Scatters %s x%d, win amount %s",
+                            s.toString(), scatterCount, this.currencyFormat.format(scatterWinAmount));
+                }
+            }
         }
         return totalWinAmount;
-    }
-
-    private double winAmountFromScatters(C scatterCard) {
-        var screenView = this.screen.getView();
-
-        // Count the amount of scatters on screen
-        int scatterCount = 0;
-        for (int i = 0; i < this.screen.getRowCount(); i++)
-            for (int j = 0; j < this.screen.getColumnCount(); j++)
-                if (screenView[i][j].equals(scatterCard))
-                    ++scatterCount;
-
-        var calcTable = configuration.getTable();
-
-        // If the amount of scatters on screen is a valid win amount
-        if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
-            // then calculate and return the win amount.
-            Integer multiplier = calcTable.getData().get(scatterCard).get(scatterCount);
-            var totalBet = this.betAmount * this.linesPlayed;
-            return totalBet * multiplier;
-        }
-        return 0.0; // not enough scatters or none at all
-    }
-
-    private <R extends Number, T extends NumberCard<R>> double calculateWinAmount(Pair<T, Integer> occurs) {
-        var tableData = configuration.getTable().getData();
-        var row = tableData.get((occurs.getValue0()));
-        var multiplier = row.get(occurs.getValue1());
-        return this.betAmount * multiplier;
     }
 
     public void quit() {
@@ -151,12 +156,6 @@ public class Game<C extends Card> {
     //*******************
     //* UTILITY METHODS *
     //*******************
-
-    public void prompt() {
-        System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
-                currentBalance, configuration.getLines().size(), configuration.getMaxBetAmount());
-        System.out.println("Please enter lines you want to play on and a bet per line:");
-    }
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
     private Pair<NumberCard<Integer>, Integer> getOccurrencesForLine(List<Integer> line) {
@@ -187,14 +186,31 @@ public class Game<C extends Card> {
 
     }
 
-    public List<List<Integer>> generateScreen() {
-        return generateScreen(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+    private <R extends Number, T extends NumberCard<R>> double calculateRegularWins(Pair<T, Integer> occurs) {
+        var tableData = configuration.getTable().getData();
+        var row = tableData.get((occurs.getValue0()));
+        var multiplier = row.get(occurs.getValue1());
+        return this.betAmount * multiplier;
     }
 
-    public List<List<Integer>> generateScreen(long seed) {
-        Random rnd = new Random(seed);
-        // TODO generate screen algorithm
-        return null;
+    private double calculateScatterWins(C scatterCard, int scatterCount) {
+        var screenView = this.screen.getView();
+
+        for (int i = 0; i < this.screen.getRowCount(); i++)
+            for (int j = 0; j < this.screen.getColumnCount(); j++)
+                if (screenView[i][j].equals(scatterCard))
+                    ++scatterCount;
+
+        var calcTable = configuration.getTable();
+
+        // If the amount of scatters on screen is a valid win amount
+        if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
+            // then calculate and return the win amount.
+            Integer multiplier = calcTable.getData().get(scatterCard).get(scatterCount);
+            var totalBet = this.betAmount * this.linesPlayed;
+            return totalBet * multiplier;
+        }
+        return 0.0; // not enough scatters or none at all
     }
 
     private void initializeGenericSum(Number sum, String value) throws InvalidCurrencyFormatException {

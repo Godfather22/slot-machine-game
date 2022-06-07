@@ -19,4 +19,9 @@ public class NumberCard<T extends Number> implements Card {
     public boolean isScatter() {
         return scatter;
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO constraints
 @Data
 public class GameConfig<T extends Card> {
 
@@ -42,18 +43,18 @@ public class GameConfig<T extends Card> {
         public String toString() {
             StringBuilder sb = new StringBuilder();
 
-            sb.append(String.format("%s-10", "card")).append(" ");
+            sb.append(String.format("%-10s", "card")).append(" ");
 
             for (var m : occurrenceCounts)
-                sb.append(String.format("%s-5", m));
+                sb.append(String.format("%-5s", m));
 
             sb.append("\n");
 
             var keys = data.keySet();
             keys.forEach(key -> {
-                sb.append(String.format("%s-10", key)).append(" ");
+                sb.append(String.format("%-10s", key)).append(" ");
                 var rightCells = data.get(key).values();
-                rightCells.forEach(cell -> sb.append(String.format("%s-10.2", cell)).append(" "));
+                rightCells.forEach(cell -> sb.append(String.format("%-10.2s", cell)).append(" "));
             });
             return sb.toString();
         }

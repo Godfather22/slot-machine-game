@@ -128,7 +128,7 @@ public class GameBehaviourTest {
     }
 
     private void ThenShouldWin100FromLinesAnd500FromScatters() {
-        Double winAmount = game.calculateWinAmount();
+        Double winAmount = game.calculateTotalWin();
     }
 
 }

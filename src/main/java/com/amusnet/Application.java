@@ -24,12 +24,29 @@ public class Application {
         var game = (Game<NumberCard<Integer>>) Game.getInstance();
 
         Scanner sc = new Scanner(System.in);
+        final int maxLines = Integer.parseInt(game.getProperties().getProperty("max_lines"));
+        final int maxBetAmount = Integer.parseInt(game.getProperties().getProperty("max_bet_amount"));
 
         // main game loop
         while (!game.isGameOver()) {
-            String input = sc.nextLine();
-            if (input.equalsIgnoreCase("quit"))
+
+            game.prompt();
+
+            String firstInput = sc.next();
+            if (firstInput.equalsIgnoreCase("quit")) {
                 game.quit();
+                break;
+            }
+
+            int linesInput = Integer.parseInt(firstInput);
+            int betInput = Integer.parseInt(sc.next());
+
+            game.setLinesPlayed(linesInput);
+            game.setBetAmount(betInput);
+
+            game.setCurrentBalance(game.getCurrentBalance() - betInput);
+            game.generateScreen();
+            game.setCurrentBalance(game.getCurrentBalance() + game.calculateTotalWin());
         }
     }
 
