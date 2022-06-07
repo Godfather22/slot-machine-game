@@ -106,10 +106,10 @@ public class Game<C extends Card> {
         for (int i = 0; i < screenRowsSize; i++) {
             int index = diceRoll;
             for (int j = 0; j < screenReelSize; j++) {
-                index += 1;
                 if (index >= reelArrays.get(i).size())
                     index = 0;
-                screen.getView()[i][j] = new NumberCard<Integer>(reelArrays.get(i).get(diceRoll + j));
+                screen.getView()[j][i] = new NumberCard<Integer>(reelArrays.get(i).get(index));
+                index += 1;
             }
         }
     }

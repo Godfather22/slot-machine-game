@@ -1,11 +1,16 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
+import com.amusnet.game.Card;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
 import com.amusnet.game.impl.NumberCard;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 import java.util.Map;
@@ -103,6 +108,46 @@ public class GameBehaviourTest {
 
         // set max bet amount
         config.setMaxBetAmount(10);
+    }
+
+    @Nested
+    @DisplayName("Tests for the correct generation of screen reels")
+    class ScreenGenerationTest {
+
+        int generationNumber;
+
+        @Test
+        void feedScreenGeneratorConcreteNumber_correctScreenGenerates() {
+            Given5Size30ReelArraysAndGenerationNumber15();
+            WhenGenerationNumberIsFedToGenerator();
+            ThenScreenGeneratesWithPredictedElements();
+        }
+
+        private void Given5Size30ReelArraysAndGenerationNumber15() {
+            config.setReels(List.of(
+                    List.of(6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2),
+                    List.of(6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5),
+                    List.of(6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5),
+                    List.of(6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4),
+                    List.of(6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5)
+            ));
+            this.generationNumber = 15;
+        }
+
+        private void WhenGenerationNumberIsFedToGenerator() {
+            game.generateScreen(generationNumber);
+        }
+
+        private void ThenScreenGeneratesWithPredictedElements() {
+            var predictedContents = List.of(
+                    List.of(2, 1, 2, 3, 0),
+                    List.of(2, 1, 2, 3, 0),
+                    List.of(2, 1, 2, 3, 0)
+            );
+            var actual = game.getScreen();
+            var prediction = new Screen(predictedContents);
+            assertThat(actual).isEqualTo(prediction);
+        }
     }
 
     @Test
