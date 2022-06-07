@@ -21,7 +21,31 @@ Balance: 100500
 
 and 600 should be added to the balance
 
-2. As a developer, I want my program to be able to handle invalid user input,
+2. As a developer, I want my program to predictably generate a screen of reels,
+given a 'generation number' (which during normal gameplay will be random)
+
+Example
+
+Given: 5 reel arrays with size 30, and 15 as the generation number
+
+When: screen (reels) generation is executed with that number
+
+Then: the generated reels should be populated with numbers from
+their respective reel arrays as follows: ra[15], ra[15+1], ..., ra[15+n-1],
+where 'ra' is the respective reel array, and n is the size of the screen reel
+
+Example
+
+Given: 5 reel arrays with size 30, and 29 as the generation number
+
+When: screen (reels) generation is executed with that number
+
+Then: the generated reels should be populated with numbers from
+their respective reel arrays as follows: ra[29], ra[0], ra[1] ..., ra[i],
+where 'ra' is the respective reel array, 0<i<n, where n is the size of
+the screen reel.
+
+3. As a developer, I want my program to be able to handle invalid user input,
 by informing the user of his error and prompting him to try again, and to
 log the information for me and other developers of the project.
 
