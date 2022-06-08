@@ -45,16 +45,23 @@ public class Application {
                 log.error("Invalid user input: {}", linesInput);
             }
 
-            int betInput = -1;
+            double betInput = -1.0;
             try {
-                betInput = Integer.parseInt(sc.next());
+                betInput = Double.parseDouble(sc.next());
             }
             catch (NumberFormatException e) {
                 System.err.println("Invalid input!");
                 log.error("Invalid user input: {}", betInput);
             }
 
-            // TODO checks for valid input
+            if (linesInput < 1 || linesInput > maxLines) {
+                System.err.println("Invalid number of lines chosen!");
+                continue;
+            }
+            if (betInput < 1 || betInput > maxBetAmount) {
+                System.err.println("Invalid bet amount!");
+                continue;
+            }
 
             game.setLinesPlayed(linesInput);
             game.setBetAmount(betInput);
