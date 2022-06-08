@@ -1,5 +1,6 @@
 package com.amusnet;
 
+import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import java.util.Properties;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 
 @Slf4j
 public class UserInputTest {
@@ -21,6 +23,7 @@ public class UserInputTest {
     private static final String INVALID_INPUT_SEED = "H1e2l3l4o5W6o7r8l9d";
 
     private static final Properties PROPERTIES = new Properties();
+    private static final ErrorMessages ERROR_MESSAGES = ErrorMessages.getInstance();
 
     private static final InputStream OLD_STANDARD_IN = System.in;
     private static final PrintStream OLD_STANDARD_OUT = System.out;
@@ -42,15 +45,6 @@ public class UserInputTest {
             log.error("Error loading properties file");
             throw new RuntimeException(e);
         }
-
-//        int maxLinesPlayed = Integer.parseInt(PROPERTIES.getProperty("max_lines"));
-//        int maxBetAmount = Integer.parseInt(PROPERTIES.getProperty("max_bet_amount"));
-//
-//        String validUserInput = String.format("%d%s%d%s%s",
-//                rnd.nextInt(maxLinesPlayed + 1), System.lineSeparator(), rnd.nextInt(maxBetAmount + 1),
-//                System.lineSeparator(), EXIT_STRING);
-
-
     }
 
     @Nested
@@ -64,8 +58,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid input for number of lines played!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INVALID_LINES_INPUT) + System.lineSeparator());
         }
 
         @Test
@@ -75,8 +69,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid input for bet amount!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INVALID_BET_INPUT) + System.lineSeparator());
         }
 
         @Test
@@ -86,8 +80,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid input for number of lines played!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INVALID_LINES_INPUT) + System.lineSeparator());
         }
 
         @Test
@@ -97,8 +91,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid number of lines chosen!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_LINES_INPUT) + System.lineSeparator());
         }
 
         @Test
@@ -108,8 +102,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid number of lines chosen!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_LINES_INPUT) + System.lineSeparator());
         }
 
         @Test
@@ -119,8 +113,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid bet amount!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_BET_INPUT) + System.lineSeparator());
         }
 
         @Test
@@ -130,8 +124,8 @@ public class UserInputTest {
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
-            // TODO dynamic field name
-            assertThat(newError.toString()).isEqualTo("Invalid bet amount!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo
+                    (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_BET_INPUT) + System.lineSeparator());
         }
 
         private static String generateValidInputString(String field) throws IllegalArgumentException {

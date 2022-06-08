@@ -3,12 +3,15 @@ package com.amusnet;
 import com.amusnet.config.GameConfig;
 import com.amusnet.game.Game;
 import com.amusnet.game.impl.NumberCard;
+import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+
+import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 
 @Slf4j
 public class Application {
@@ -19,6 +22,8 @@ public class Application {
 
         //  Temporary manual setup of configuration
         setupConfiguration(configuration);
+
+        ErrorMessages errorMessages = ErrorMessages.getInstance();
 
         @SuppressWarnings("unchecked")
         var game = (Game<NumberCard<Integer>>) Game.getInstance();
@@ -46,7 +51,8 @@ public class Application {
                 try {
                     linesInput = Integer.parseInt(firstInput);
                 } catch (NumberFormatException e) {
-                    System.err.println("Invalid input for number of lines played!");
+                    System.err.println(errorMessages.message
+                            (TITLE_EMSG_INVALID_LINES_INPUT, "Invalid input for number of lines played!"));
                     log.error("Invalid user input for number of lines played: {}", linesInput);
                     continue;
                 }
@@ -54,7 +60,8 @@ public class Application {
                 try {
                     betInput = Double.parseDouble(sc.next());
                 } catch (NumberFormatException e) {
-                    System.err.println("Invalid input for bet amount!");
+                    System.err.println(errorMessages.message
+                            (TITLE_EMSG_INVALID_BET_INPUT, "Invalid input for bet amount!"));
                     log.error("Invalid user input for bet amount: {}", betInput);
                     continue;
                 }
@@ -63,13 +70,15 @@ public class Application {
             // bound checks
             {
                 if (linesInput < 1 || linesInput > maxLines) {
-                    System.err.println("Invalid number of lines chosen!");
+                    System.err.println(errorMessages.message
+                            (TITLE_EMSG_INCORRECT_LINES_INPUT, "Incorrect number of lines chosen!"));
                     log.error("Error: Number of lines input {} out of bounds for available values: 1-{}",
                             linesInput, maxLines);
                     continue;
                 }
                 if (betInput < 1 || betInput > betLimit) {
-                    System.err.println("Invalid bet amount!");
+                    System.err.println(errorMessages.message
+                            (TITLE_EMSG_INCORRECT_BET_INPUT, "Incorrect bet amount placed!"));
                     log.error("Error: Bet amount input {} out of bounds for available values: 1-{}",
                             betInput, betLimit);
                     continue;
