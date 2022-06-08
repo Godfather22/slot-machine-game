@@ -25,7 +25,7 @@ public class Application {
 
         Scanner sc = new Scanner(System.in);
         final int maxLines = Integer.parseInt(game.getProperties().getProperty("max_lines"));
-        final int maxBetAmount = Integer.parseInt(game.getProperties().getProperty("max_bet_amount"));
+        final int betLimit = Integer.parseInt(game.getProperties().getProperty("max_bet_amount"));
 
         // main game loop
         while (game.getCurrentBalance() >= 0.0) {
@@ -60,10 +60,10 @@ public class Application {
                                     linesInput, maxLines);
                 continue;
             }
-            if (betInput < 1 || betInput > maxBetAmount) {
+            if (betInput < 1 || betInput > betLimit) {
                 System.err.println("Invalid bet amount!");
                 log.error("Error: Bet amount input {} out of bounds for available values: 1-{}",
-                        betInput, maxBetAmount);
+                        betInput, betLimit);
                 continue;
             }
 
@@ -158,7 +158,7 @@ public class Application {
         configuration.setStartingBalance(100000);
 
         // set max bet amount
-        configuration.setMaxBetAmount(10);
+        configuration.setBetLimit(10);
 
         log.info(configuration.toString());
     }

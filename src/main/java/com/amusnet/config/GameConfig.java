@@ -65,7 +65,7 @@ public class GameConfig<T extends Card> {
     private MultipliersTable<T> table = new MultipliersTable<>();
 
     private double startingBalance;
-    private double maxBetAmount;
+    private double betLimit;
 
     private Set<Card> scatters;
 
@@ -80,7 +80,7 @@ public class GameConfig<T extends Card> {
 
         sb.append("Starting balance: ").append(startingBalance).append("\n");
 
-        sb.append("Max Bet Amount: ").append(maxBetAmount).append("\n");
+        sb.append("Max Bet Amount: ").append(betLimit).append("\n");
 
         sb.append("Reel arrays:\n");
         reels.forEach(ra -> sb.append(ra).append("\n"));

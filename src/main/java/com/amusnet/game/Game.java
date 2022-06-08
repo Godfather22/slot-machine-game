@@ -88,7 +88,7 @@ public class Game<C extends Card> {
 
     public void prompt() {
         System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
-                currentBalance, configuration.getLines().size(), configuration.getMaxBetAmount());
+                currentBalance, configuration.getLines().size(), configuration.getBetLimit());
         System.out.println("Please enter lines you want to play on and a bet per line:");
     }
 

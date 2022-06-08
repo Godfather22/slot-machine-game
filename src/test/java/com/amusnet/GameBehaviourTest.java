@@ -218,7 +218,7 @@ public class GameBehaviourTest {
     }
 
     private static void setMaxBetAmount(int amount) {
-        config.setMaxBetAmount(amount);
+        config.setBetLimit(amount);
     }
 
 }
