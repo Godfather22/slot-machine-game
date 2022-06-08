@@ -35,18 +35,104 @@ public class UserInputTest {
     private static OutputStream newError;
     private static PrintStream newStandardErr;
 
+    @BeforeAll
+    static void loadProperties() {
+        try {
+            PROPERTIES.load(new FileInputStream("src/main/resources/game.properties"));
+        } catch (IOException e) {
+            log.error("Error loading properties file");
+            throw new RuntimeException(e);
+        }
+
+//        int maxLinesPlayed = Integer.parseInt(PROPERTIES.getProperty("max_lines"));
+//        int maxBetAmount = Integer.parseInt(PROPERTIES.getProperty("max_bet_amount"));
+//
+//        String validUserInput = String.format("%d%s%d%s%s",
+//                rnd.nextInt(maxLinesPlayed + 1), System.lineSeparator(), rnd.nextInt(maxBetAmount + 1),
+//                System.lineSeparator(), EXIT_STRING);
+
+
+    }
+
     @Nested
     @DisplayName("Test invalid user input")
     class InvalidInputTests {
 
         @Test
-        void userGivesInvalidInputForLinesPlayed_CheckForCorrectErrorStreamContents() {
+        void userGivesInvalidInputForLinesPlayed_errorStreamHasCorrectContents() {
             // get input string with incorrect data for lines played
             String input = getInputString(new boolean[]{false, true});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
             Application.main(null);
+            // TODO dynamic field name
             assertThat(newError.toString()).isEqualTo("Invalid input for number of lines played!" + System.lineSeparator());
+        }
+
+        @Test
+        void userGivesInvalidInputForBetAmount_errorStreamHasCorrectContents() {
+            // get input string with incorrect data for lines played
+            String input = getInputString(new boolean[]{true, false});
+            log.info("Generated input string:\n'{}'", input);
+            rewireStandardInputAndOutput(input);
+            Application.main(null);
+            // TODO dynamic field name
+            assertThat(newError.toString()).isEqualTo("Invalid input for bet amount!" + System.lineSeparator());
+        }
+
+        @Test
+        void userGivesInvalidInputForBothInputFields_errorStreamHasCorrectContents() {
+            // get input string with incorrect data for lines played
+            String input = getInputString(new boolean[]{false, false});
+            log.info("Generated input string:\n'{}'", input);
+            rewireStandardInputAndOutput(input);
+            Application.main(null);
+            // TODO dynamic field name
+            assertThat(newError.toString()).isEqualTo("Invalid input for number of lines played!" + System.lineSeparator());
+        }
+
+        @Test
+        void userInputsMoreLinesPlayedThanAvailable_errorStreamHasCorrectContents() {
+            // get input string with incorrect data for lines played
+            String input = getInputString(new int[]{1, 0});
+            log.info("Generated input string:\n'{}'", input);
+            rewireStandardInputAndOutput(input);
+            Application.main(null);
+            // TODO dynamic field name
+            assertThat(newError.toString()).isEqualTo("Invalid number of lines chosen!" + System.lineSeparator());
+        }
+
+        @Test
+        void userInputsLessThan1LinesPlayed_errorStreamHasCorrectContents() {
+            // get input string with incorrect data for lines played
+            String input = getInputString(new int[]{-1, 0});
+            log.info("Generated input string:\n'{}'", input);
+            rewireStandardInputAndOutput(input);
+            Application.main(null);
+            // TODO dynamic field name
+            assertThat(newError.toString()).isEqualTo("Invalid number of lines chosen!" + System.lineSeparator());
+        }
+
+        @Test
+        void userInputsBetGreaterThanBetLimit_errorStreamHasCorrectContents() {
+            // get input string with incorrect data for lines played
+            String input = getInputString(new int[]{0, 1});
+            log.info("Generated input string:\n'{}'", input);
+            rewireStandardInputAndOutput(input);
+            Application.main(null);
+            // TODO dynamic field name
+            assertThat(newError.toString()).isEqualTo("Invalid bet amount!" + System.lineSeparator());
+        }
+
+        @Test
+        void userInputsBetLessThan1_errorStreamHasCorrectContents() {
+            // get input string with incorrect data for lines played
+            String input = getInputString(new int[]{0, -1});
+            log.info("Generated input string:\n'{}'", input);
+            rewireStandardInputAndOutput(input);
+            Application.main(null);
+            // TODO dynamic field name
+            assertThat(newError.toString()).isEqualTo("Invalid bet amount!" + System.lineSeparator());
         }
 
         private static String generateValidInputString(String field) throws IllegalArgumentException {
@@ -80,7 +166,7 @@ public class UserInputTest {
             if (inputValidityMask.length != REQUIRED_INPUT_COUNT)
                 throw new IllegalArgumentException
                         (String.format("%d inputs required, mask of size %d illegal",
-                        REQUIRED_INPUT_COUNT, inputValidityMask.length));
+                                REQUIRED_INPUT_COUNT, inputValidityMask.length));
 
             StringBuilder sb = new StringBuilder();
 
@@ -108,6 +194,57 @@ public class UserInputTest {
             return appendExitCommand(sb);
         }
 
+        private static String getInputString(int[] boundViolationsMask) throws IllegalArgumentException {
+            if (boundViolationsMask.length != REQUIRED_INPUT_COUNT)
+                throw new IllegalArgumentException
+                        (String.format("%d inputs required, mask of size %d illegal",
+                        REQUIRED_INPUT_COUNT, boundViolationsMask.length));
+
+            StringBuilder sb = new StringBuilder();
+
+            int i = -1;
+            try {
+                String[] properties = new String[]{"max_lines", "bet_limit"};
+                for (i = 0; i < REQUIRED_INPUT_COUNT; i++) {
+                    sb.append(getValueForField(boundViolationsMask[i], properties[i]));
+//                    if (sb.toString().endsWith(EXIT_STRING + System.lineSeparator()))
+//                        break;
+                }
+            } catch (IllegalArgumentException e) {
+               log.error("ERROR: Invalid value in array position {}. Should be -1, 0 or 1", i);
+               throw new RuntimeException(e);
+            }
+
+            return appendExitCommand(sb);
+        }
+
+        // TODO ambiguous naming
+        private static String getValueForField(int maskValue, String property) {
+
+            int upperBound = Integer.parseInt(PROPERTIES.getProperty(property));
+            Random rnd = new Random();
+            StringBuilder sb = new StringBuilder();
+
+            switch (maskValue) {
+                case -1 -> {
+                    sb.append(rnd.nextInt() * -1);
+                }
+                case 0 -> {
+                    sb.append(rnd.nextInt(upperBound) + 1);
+                }
+                case 1 -> {
+                    sb.append(rnd.nextInt(upperBound + 1, Integer.MAX_VALUE));
+                }
+                default -> {
+                    throw new IllegalArgumentException(
+                            String.format("Illegal mask value %d. Should be -1, 0, or 1",
+                                    maskValue));
+                }
+            }
+            sb.append(System.lineSeparator());
+            return sb.toString();
+        }
+
         private static void rewireStandardInputAndOutput(String input) {
 
             newStandardIn = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
@@ -127,25 +264,6 @@ public class UserInputTest {
             sb.append(EXIT_STRING).append(System.lineSeparator());
             return sb.toString();
         }
-
-    }
-
-    @BeforeAll
-    static void loadProperties() {
-        try {
-            PROPERTIES.load(new FileInputStream("src/main/resources/game.properties"));
-        } catch (IOException e) {
-            log.error("Error loading properties file");
-            throw new RuntimeException(e);
-        }
-
-//        int maxLinesPlayed = Integer.parseInt(PROPERTIES.getProperty("max_lines"));
-//        int maxBetAmount = Integer.parseInt(PROPERTIES.getProperty("max_bet_amount"));
-//
-//        String validUserInput = String.format("%d%s%d%s%s",
-//                rnd.nextInt(maxLinesPlayed + 1), System.lineSeparator(), rnd.nextInt(maxBetAmount + 1),
-//                System.lineSeparator(), EXIT_STRING);
-
 
     }
 
