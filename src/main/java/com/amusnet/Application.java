@@ -25,7 +25,7 @@ public class Application {
 
         Scanner sc = new Scanner(System.in);
         final int maxLines = Integer.parseInt(game.getProperties().getProperty("max_lines"));
-        final int betLimit = Integer.parseInt(game.getProperties().getProperty("max_bet_amount"));
+        final int betLimit = Integer.parseInt(game.getProperties().getProperty("bet_limit"));
 
         // main game loop
         while (game.getCurrentBalance() >= 0.0) {
