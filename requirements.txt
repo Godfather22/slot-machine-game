@@ -53,7 +53,7 @@ Example A
 
 Given: A prompt for the user to input the lines he wants to play, and the amount he bets
 
-When: User input for lines played and bet amount is: aa bb
+When: User input for lines played and bet amount is: aa 5
 
 Then: The user gets this message displayed to him:
 
@@ -69,6 +69,38 @@ Example B
 
 Given: A prompt for the user to input the lines he wants to play, and the amount he bets
 
+When: User input for lines played and bet amount is: 20 bb
+
+Then: The user gets this message displayed to him:
+
+Invalid input!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Invalid user input '[input]'
+
+Example C
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
+When: User input for lines played and bet amount is: aa bb
+
+Then: The user gets this message displayed to him:
+
+Invalid input!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Invalid user input '[input]'
+
+Example D
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
 When: User input for lines played is greater than the available lines
 
 Then: The user gets this message displayed to him:
@@ -81,7 +113,7 @@ The following message is logged:
 
 Error: Number of lines input [input amount] out of bounds for available values: 1-([max_lines])
 
-Example C
+Example E
 
 Given: A prompt for the user to input the lines he wants to play, and the amount he bets
 
@@ -98,7 +130,7 @@ The following message is logged:
 Error: Number of lines input [input amount] out of bounds for available values: 1-([max_lines])
 
 
-Example D
+Example F
 
 Given: A prompt for the user to input the lines he wants to play, and the amount he bets
 
@@ -114,7 +146,7 @@ The following message is logged:
 
 Error: Bet amount input [input amount] out of bounds for available values: 1-([max_bets])
 
-Example E
+Example G
 
 Given: A prompt for the user to input the lines he wants to play, and the amount he bets
 
