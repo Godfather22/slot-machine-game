@@ -56,10 +56,14 @@ public class Application {
 
             if (linesInput < 1 || linesInput > maxLines) {
                 System.err.println("Invalid number of lines chosen!");
+                log.error("Error: Number of lines input {} out of bounds for available values: 1-{}",
+                                    linesInput, maxLines);
                 continue;
             }
             if (betInput < 1 || betInput > maxBetAmount) {
                 System.err.println("Invalid bet amount!");
+                log.error("Error: Bet amount input {} out of bounds for available values: 1-{}",
+                        betInput, maxBetAmount);
                 continue;
             }
 
