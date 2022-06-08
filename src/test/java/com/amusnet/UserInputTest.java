@@ -38,13 +38,13 @@ public class UserInputTest {
     @DisplayName("Test invalid user input")
     class InvalidInputTests {
 
+        static String invalidLinesPlayedInput;
+
         @BeforeAll
         static void setUpInvalidInput() {
-            String invalidLinesPlayedInput = generateInvalidInput(INVALID_INPUT_SEED);
-            String invalidBetAmountInput = generateInvalidInput(INVALID_INPUT_SEED);
+            invalidLinesPlayedInput = generateInvalidInput(INVALID_INPUT_SEED);
 
-            String invalidInput = invalidLinesPlayedInput + System.lineSeparator() +
-                    invalidBetAmountInput + System.lineSeparator() + EXIT_STRING;
+            String invalidInput = invalidLinesPlayedInput + System.lineSeparator() + EXIT_STRING;
 
             newStandardIn = new ByteArrayInputStream(invalidInput.getBytes(StandardCharsets.UTF_8));
 
@@ -60,9 +60,9 @@ public class UserInputTest {
         }
 
         @Test
-        void userGivesInvalidInput_ThrowExceptionAndLogError() {
+        void userGivesInvalidInputForLinesPlayed_ThrowExceptionAndLogError() {
             Application.main(null);
-            assertThat(newError.toString()).isEqualTo("Invalid input!" + System.lineSeparator() + "Invalid input!" + System.lineSeparator());
+            assertThat(newError.toString()).isEqualTo("Invalid input for number of lines played!" + System.lineSeparator());
         }
 
         private static String generateInvalidInput(String seed) {
