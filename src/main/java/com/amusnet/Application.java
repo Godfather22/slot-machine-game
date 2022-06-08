@@ -37,34 +37,41 @@ public class Application {
                 break;
 
             int linesInput = -1;
-            try {
-                linesInput = Integer.parseInt(firstInput);
-            }
-            catch (NumberFormatException e) {
-                System.err.println("Invalid input!");
-                log.error("Invalid user input: {}", linesInput);
-            }
-
             double betInput = -1.0;
-            try {
-                betInput = Double.parseDouble(sc.next());
-            }
-            catch (NumberFormatException e) {
-                System.err.println("Invalid input!");
-                log.error("Invalid user input: {}", betInput);
+
+            // valid input checks
+            {
+                try {
+                    linesInput = Integer.parseInt(firstInput);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid input for number of lines played!");
+                    log.error("Invalid user input for number of lines played: {}", linesInput);
+                    continue;
+                }
+
+                try {
+                    betInput = Double.parseDouble(sc.next());
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid input for bet amount!");
+                    log.error("Invalid user input for bet amount: {}", betInput);
+                    continue;
+                }
             }
 
-            if (linesInput < 1 || linesInput > maxLines) {
-                System.err.println("Invalid number of lines chosen!");
-                log.error("Error: Number of lines input {} out of bounds for available values: 1-{}",
-                                    linesInput, maxLines);
-                continue;
-            }
-            if (betInput < 1 || betInput > betLimit) {
-                System.err.println("Invalid bet amount!");
-                log.error("Error: Bet amount input {} out of bounds for available values: 1-{}",
-                        betInput, betLimit);
-                continue;
+            // bound checks
+            {
+                if (linesInput < 1 || linesInput > maxLines) {
+                    System.err.println("Invalid number of lines chosen!");
+                    log.error("Error: Number of lines input {} out of bounds for available values: 1-{}",
+                            linesInput, maxLines);
+                    continue;
+                }
+                if (betInput < 1 || betInput > betLimit) {
+                    System.err.println("Invalid bet amount!");
+                    log.error("Error: Bet amount input {} out of bounds for available values: 1-{}",
+                            betInput, betLimit);
+                    continue;
+                }
             }
 
             game.setLinesPlayed(linesInput);
