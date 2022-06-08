@@ -19,7 +19,6 @@ public class UserInputTest {
     private static final int REQUIRED_INPUT_COUNT = 2;
     private static final int RANDOM_STRING_MAX_LENGTH = 30;
     private static final String INVALID_INPUT_SEED = "H1e2l3l4o5W6o7r8l9d";
-    private static final String EXIT_STRING = "quit";
 
     private static final Properties PROPERTIES = new Properties();
 
@@ -261,7 +260,7 @@ public class UserInputTest {
         }
 
         private static String appendExitCommand(StringBuilder sb) {
-            sb.append(EXIT_STRING).append(System.lineSeparator());
+            sb.append(PROPERTIES.getProperty("exit_command")).append(System.lineSeparator());
             return sb.toString();
         }
 

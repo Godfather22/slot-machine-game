@@ -27,13 +27,15 @@ public class Application {
         final int maxLines = Integer.parseInt(game.getProperties().getProperty("max_lines"));
         final int betLimit = Integer.parseInt(game.getProperties().getProperty("bet_limit"));
 
+        final String exitCommand = game.getProperties().getProperty("exit_command");
+
         // main game loop
         while (game.getCurrentBalance() >= 0.0) {
 
             game.prompt();
 
             String firstInput = sc.next();
-            if (firstInput.equalsIgnoreCase("quit"))
+            if (firstInput.equalsIgnoreCase(exitCommand))
                 break;
 
             int linesInput = -1;
