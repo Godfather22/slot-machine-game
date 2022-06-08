@@ -29,7 +29,7 @@ public class Game<C extends Card> {
 
     private double currentBalance;
 
-    private Integer linesPlayed;
+    private int linesPlayed;
     private double betAmount;
 
     DecimalFormat currencyFormat;
