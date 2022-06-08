@@ -73,10 +73,59 @@ When: User input for lines played is greater than the available lines
 
 Then: The user gets this message displayed to him:
 
-You don't have [input amount] in your balance!
+Invalid number of lines chosen!
 Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
 Please enter lines you want to play on and a bet per line:
 
 The following message is logged:
 
-Error: Number of lines input [input amount] greater than lines available ([max_lines])
+Error: Number of lines input [input amount] out of bounds for available values: 1-([max_lines])
+
+Example C
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
+When: User input for lines played is less than 1
+
+Then: The user gets this message displayed to him:
+
+Invalid number of lines chosen!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Number of lines input [input amount] out of bounds for available values: 1-([max_lines])
+
+
+Example D
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
+When: User input for bet amount is more than the bet limit
+
+Then: The user gets this message displayed to him:
+
+Invalid bet amount!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Bet amount input [input amount] out of bounds for available values: 1-([max_bets])
+
+Example E
+
+Given: A prompt for the user to input the lines he wants to play, and the amount he bets
+
+When: User input for bet amount is less than 1
+
+Then: The user gets this message displayed to him:
+
+Invalid bet amount!
+Balance: [balance]| Lines available: 1-[max_lines] | Bets per lines available: 1-[max_bets]
+Please enter lines you want to play on and a bet per line:
+
+The following message is logged:
+
+Error: Bet amount input [input amount] out of bounds for available values: 1-([max_bets])
