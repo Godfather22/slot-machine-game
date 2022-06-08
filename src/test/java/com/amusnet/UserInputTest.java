@@ -76,23 +76,8 @@ public class UserInputTest {
 
     @Test
     void userGivesInvalidInput_ThrowExceptionAndLogError() {
-//        givenWaitingForUserInput();
-//        whenUserInputsInvalidInput();
-//        thenThrowExceptionRePromptUserAndLogError();
-
         Application.main(null);
         assertThat(newError.toString()).isEqualTo("Invalid input!" + System.lineSeparator() + "Invalid input!" + System.lineSeparator());
-    }
-
-    private void givenWaitingForUserInput() {
-
-    }
-
-    private void whenUserInputsInvalidInput() {
-
-    }
-
-    private void thenThrowExceptionRePromptUserAndLogError() {
     }
 
 }

@@ -105,13 +105,12 @@ public class Game<C extends Card> {
             for (int j = 0; j < screenReelSize; j++) {
                 if (index >= reelArrays.get(i).size())
                     index = 0;
-                screen.getView()[j][i] = new NumberCard<Integer>(reelArrays.get(i).get(index));
+                screen.getView()[j][i] = new NumberCard<Integer>(reelArrays.get(i).get(index));     //TODO generify?
                 index += 1;
             }
         }
     }
 
-    @SuppressWarnings("unchecked")
     public double calculateTotalWin() {
 
         double totalWinAmount = 0;
@@ -151,7 +150,7 @@ public class Game<C extends Card> {
     //*******************
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<NumberCard<Integer>, Integer> getOccurrencesForLine(List<Integer> line) {
+    private Pair<NumberCard<Integer>, Integer> getOccurrencesForLine(List<Integer> line) {  // TODO generify
         // check if there is a streak, starting from the beginning
         boolean streak = true;
 

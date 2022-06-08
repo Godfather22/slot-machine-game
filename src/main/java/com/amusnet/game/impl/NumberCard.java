@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class NumberCard<T extends Number> implements Card {
 
     @NonNull
-    private Integer value;
+    private T value;
     private boolean scatter;
 
     @Override

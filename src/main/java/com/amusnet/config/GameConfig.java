@@ -1,9 +1,7 @@
 package com.amusnet.config;
 
 import com.amusnet.game.Card;
-import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +64,7 @@ public class GameConfig<T extends Card> {
 
     private MultipliersTable<T> table = new MultipliersTable<>();
 
-    private Integer startingBalance;
+    private double startingBalance;
     private double maxBetAmount;
 
     private Set<Card> scatters;

@@ -20,14 +20,14 @@ public class Screen {
         view = new Card[rowCount][columnCount];
     }
 
-    public Screen(List<List<Integer>> metaList) {
+    public <T extends Number> Screen(List<List<T>> metaList) {
         this.rowCount = metaList.size();
         this.columnCount = metaList.get(0).size();
         view = new Card[rowCount][columnCount];
 
         for (int i = 0; i < rowCount; i++)
             for (int j = 0; j < columnCount; j++)
-                view[i][j] = new NumberCard<Integer>(metaList.get(i).get(j));
+                view[i][j] = new NumberCard<T>(metaList.get(i).get(j));
     }
 
     public Card getCardAt(int row, int column) {

@@ -10,7 +10,7 @@ import java.util.Properties;
 // TODO constraints
 @Slf4j
 public class GameProperties {
-    public static Properties properties;    // read-only
+    public static final Properties properties;    // read-only
 
     static {
         properties = new Properties();
