@@ -14,6 +14,7 @@ import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
+import static org.assertj.core.api.Assertions.fail;
 
 @Slf4j
 public class UserInputTest {
@@ -128,7 +129,7 @@ public class UserInputTest {
                     (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_BET_INPUT) + System.lineSeparator());
         }
 
-        private static String generateValidInputString(String field) throws IllegalArgumentException {
+        private static String generateValidInputString(String field) {
             Random rnd = new Random();
             // TODO dynamic field strings
             switch (field) {
@@ -140,8 +141,11 @@ public class UserInputTest {
                     int betLimit = Integer.parseInt(PROPERTIES.getProperty("bet_limit"));
                     return String.valueOf(rnd.nextInt(betLimit) + 1);
                 }
-                default -> throw new IllegalArgumentException
-                        (String.format("No such field '%s' accepts input", field));
+                default -> {
+                    log.error("Error: No such field '{}' accepts input", field);
+                    fail(String.format("Field '%s' does not exist or does not accept input", field));
+                    return null;
+                }
             }
         }
 
@@ -155,11 +159,13 @@ public class UserInputTest {
             return sb.toString();
         }
 
-        private static String getInputString(boolean[] inputValidityMask) throws IllegalArgumentException {
-            if (inputValidityMask.length != REQUIRED_INPUT_COUNT)
-                throw new IllegalArgumentException
-                        (String.format("%d inputs required, mask of size %d illegal",
-                                REQUIRED_INPUT_COUNT, inputValidityMask.length));
+        private static String getInputString(boolean[] inputValidityMask) {
+            if (inputValidityMask.length != REQUIRED_INPUT_COUNT) {
+                log.error("Error: {} inputs required, mask of size {} illegal",
+                        REQUIRED_INPUT_COUNT, inputValidityMask.length);
+                fail(String.format("Input validity mask should be of size %d. Instead size is %d",
+                        REQUIRED_INPUT_COUNT, inputValidityMask.length));
+            }
 
             StringBuilder sb = new StringBuilder();
 
@@ -188,10 +194,12 @@ public class UserInputTest {
         }
 
         private static String getInputString(int[] boundViolationsMask) throws IllegalArgumentException {
-            if (boundViolationsMask.length != REQUIRED_INPUT_COUNT)
-                throw new IllegalArgumentException
-                        (String.format("%d inputs required, mask of size %d illegal",
+            if (boundViolationsMask.length != REQUIRED_INPUT_COUNT) {
+                log.error("Error: {} inputs required, mask of size {} illegal",
+                        REQUIRED_INPUT_COUNT, boundViolationsMask.length);
+                fail(String.format("Bound violations mask should be of size %d. Instead size is %d",
                         REQUIRED_INPUT_COUNT, boundViolationsMask.length));
+            }
 
             StringBuilder sb = new StringBuilder();
 
