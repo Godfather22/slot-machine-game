@@ -3,6 +3,7 @@ package com.amusnet.config;
 import com.amusnet.game.Card;
 import lombok.Data;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +71,8 @@ public class GameConfig<T extends Card> {
     private double betLimit;
 
     private Set<Card> scatters;
+
+    private DecimalFormat currencyFormat;
 
     public void setupTable(List<Integer> occurrenceCounts, Map<T, Map<Integer, Integer>> data) {
         table.occurrenceCounts = occurrenceCounts;

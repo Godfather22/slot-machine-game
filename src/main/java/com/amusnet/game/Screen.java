@@ -42,4 +42,17 @@ public class Screen {
             throw new InvalidOperationException("Card element is not a NumberCard");
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < this.rowCount; i++) {
+            for (int j = 0; j < this.columnCount; j++)
+                sb.append(String.format("%-3s", this.view[i][j]));
+            sb.append(System.lineSeparator());
+        }
+
+        return sb.toString();
+    }
+
 }

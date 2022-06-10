@@ -11,7 +11,6 @@ import org.javatuples.Pair;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -32,7 +31,6 @@ public class Game<C extends Card> {
     private int linesPlayed;
     private double betAmount;
 
-    DecimalFormat currencyFormat;
     private double lastWinFromLines, lastWinFromScatters;
 
     // private constructor, because Game class is a thread-safe singleton
@@ -64,10 +62,6 @@ public class Game<C extends Card> {
             throw new RuntimeException(e);
         }
 
-        // TODO not thread-safe
-        // set currency format (whole numbers or floating-point)
-        this.currencyFormat = new DecimalFormat("#.##");
-
         this.currentBalance = Double.parseDouble(properties.getProperty("starting_balance"));
 
     }
@@ -90,16 +84,16 @@ public class Game<C extends Card> {
 
     public void prompt() {
         System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
-                currencyFormat.format(this.currentBalance), configuration.getLines().size(),
-                currencyFormat.format(configuration.getBetLimit()));
+                this.configuration.getCurrencyFormat().format(this.currentBalance), configuration.getLines().size(),
+                this.configuration.getCurrencyFormat().format(configuration.getBetLimit()));
         System.out.println("Please enter lines you want to play on and a bet per line: ");
     }
 
-    public void generateScreen() {
-        generateScreen(new Random().nextInt(configuration.getReels().get(0).size()));
+    public Screen generateScreen() {
+        return generateScreen(new Random().nextInt(configuration.getReels().get(0).size()));
     }
 
-    public void generateScreen(int diceRoll) {
+    public Screen generateScreen(int diceRoll) {
         var reelArrays = configuration.getReels();
         int screenReelSize = Integer.parseInt(properties.getProperty("screen_rows"));
         int screenRowsSize = Integer.parseInt(properties.getProperty("screen_columns"));
@@ -108,10 +102,11 @@ public class Game<C extends Card> {
             for (int j = 0; j < screenReelSize; j++) {
                 if (index >= reelArrays.get(i).size())
                     index = 0;
-                screen.getView()[j][i] = new NumberCard<Integer>(reelArrays.get(i).get(index));     //TODO generify?
+                this.screen.getView()[j][i] = new NumberCard<Integer>(reelArrays.get(i).get(index));     //TODO generify?
                 index += 1;
             }
         }
+        return this.screen;
     }
 
     public double calculateTotalWin() {
@@ -131,7 +126,8 @@ public class Game<C extends Card> {
                 if (currentWinAmount != 0.0) {
                     totalWinAmount += currentWinAmount;
                     System.out.printf("Line %d, Card %s x%d, win amount %s%n",
-                            i + 1, winningCardValue, winningCardOccurrences, currencyFormat.format(currentWinAmount));
+                            i + 1, winningCardValue, winningCardOccurrences,
+                            this.configuration.getCurrencyFormat().format(currentWinAmount));
                 }
             }
         }
@@ -142,9 +138,12 @@ public class Game<C extends Card> {
             if (scatterWinAmount != 0.0) {
                 totalWinAmount += scatterWinAmount;
                 System.out.printf("Scatters %s x%d, win amount %s%n",
-                        s.toString(), scatterCount, this.currencyFormat.format(scatterWinAmount));
+                        s.toString(), scatterCount,
+                        this.configuration.getCurrencyFormat().format(scatterWinAmount));
             }
         }
+        if (totalWinAmount == 0.0)
+            System.out.println("No wins");
         return totalWinAmount;
     }
 

@@ -6,6 +6,7 @@ import com.amusnet.game.impl.NumberCard;
 import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -88,10 +89,18 @@ public class Application {
 
             game.setLinesPlayed(linesInput);
             game.setBetAmount(betInput);
+            game.setCurrentBalance(game.getCurrentBalance() - betInput * linesInput);
 
-            game.setCurrentBalance(game.getCurrentBalance() - betInput);
-            game.generateScreen();
+            // feedback
+            System.out.printf("%s\t%s%nBalance: %s%n%n%s%n",
+                    game.getLinesPlayed(),
+                    configuration.getCurrencyFormat().format(game.getBetAmount()),
+                    configuration.getCurrencyFormat().format(game.getCurrentBalance()),
+                    game.generateScreen()
+            );
             game.setCurrentBalance(game.getCurrentBalance() + game.calculateTotalWin());
+
+            System.out.println();
         }
     }
 
@@ -178,6 +187,10 @@ public class Application {
 
         // set max bet amount
         configuration.setBetLimit(10);
+
+        // TODO not thread-safe
+        // set currency format
+        configuration.setCurrencyFormat(new DecimalFormat("#.##"));
     }
 
 }
