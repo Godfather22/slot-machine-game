@@ -22,6 +22,7 @@ public class Application {
 
         //  Temporary manual setup of configuration
         setupConfiguration(configuration);
+        log.debug(configuration.toString());
 
         ErrorMessages errorMessages = ErrorMessages.getInstance();
 
@@ -177,8 +178,6 @@ public class Application {
 
         // set max bet amount
         configuration.setBetLimit(10);
-
-        log.info(configuration.toString());
     }
 
 }
