@@ -190,7 +190,7 @@ public class Application {
 
         // TODO not thread-safe
         // set currency format
-        configuration.setCurrencyFormat(new DecimalFormat("#.##"));
+        configuration.getCurrencyFormat().applyPattern("#.##");
     }
 
 }

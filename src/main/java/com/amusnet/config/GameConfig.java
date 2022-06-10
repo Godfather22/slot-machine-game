@@ -72,7 +72,7 @@ public class GameConfig<T extends Card> {
 
     private Set<Card> scatters;
 
-    private DecimalFormat currencyFormat;
+    private DecimalFormat currencyFormat = new DecimalFormat();
 
     public void setupTable(List<Integer> occurrenceCounts, Map<T, Map<Integer, Integer>> data) {
         table.occurrenceCounts = occurrenceCounts;
