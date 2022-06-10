@@ -161,3 +161,54 @@ Please enter lines you want to play on and a bet per line:
 The following message is logged:
 
 Error: Bet amount input [input amount] out of bounds for available values: 1-([max_bets])
+
+4. As a developer, I want my program to correctly calculate the amount a player has won,
+given a screen of cards generated through a specific generation number.
+
+Example A:
+
+Given: The player has bet on 5 lines with an amount of 10
+
+When: The following screen generates (generation number 0):
+
+6  6  6  6  6  
+6  6  6  6  6  
+6  6  6  6  6 
+
+Then: The calculated win amount should be: 50000; 50000 from lines, 0 from scatters
+
+Example B:
+
+Given: The player has bet on 20 lines with an amount of 10
+
+When: The following screen generates (generation number 6):
+
+0  1  0  4  4  
+0  1  0  4  4  
+0  1  0  4  4 
+
+Then: The calculated win amount should be: 0; 0 from lines, 0 from scatters
+
+Example C:
+
+Given: The player has bet on 10 lines with an amount of 5
+
+When: The following screen generates (generation number 12):
+
+4  5  5  5  5  
+4  5  5  5  5  
+4  5  5  5  5 
+
+Then: The calculated win amount should be: 0; 0 from lines, 0 from scatters
+
+Example D:
+
+Given: The player has bet on 20 lines with an amount of 5
+
+When: The following screen generates (generation number 18):
+
+5  7  7  1  7  
+5  3  3  1  1  
+5  3  3  1  1 
+
+Then: The calculated win amount should be: 500; 0 from lines, 500 from scatters
