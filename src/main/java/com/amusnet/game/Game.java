@@ -134,6 +134,8 @@ public class Game<C extends Card> {
                 }
             }
         }
+        this.lastWinFromLines = totalWinAmount;
+
         // for the sake of extensibility: in case there are more than one "scatter cards"
         for (var s : configuration.getScatters()) {
             int scatterCount = 0;
@@ -145,6 +147,7 @@ public class Game<C extends Card> {
                         this.configuration.getCurrencyFormat().format(scatterWinAmount));
             }
         }
+        this.lastWinFromScatters = totalWinAmount;
         if (totalWinAmount == 0.0)
             System.out.println("No wins");
         return totalWinAmount;
