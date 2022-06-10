@@ -96,6 +96,11 @@ public class GameConfig<T extends Card> {
         sb.append("Multipliers Table:\n");
         sb.append(table);
 
+        sb.append("Currency format:\n");
+        sb.append(this.currencyFormat.toPattern());
+
+        sb.append(System.lineSeparator());
+
         return sb.toString();
     }
 
