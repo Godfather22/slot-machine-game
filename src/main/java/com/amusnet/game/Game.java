@@ -122,9 +122,7 @@ public class Game<C extends Card> {
 
         double totalWinAmount = 0;
 
-        // TODO migrate from configuration to property-based
-        int numOfLines = configuration.getLines().size();
-        for (int i = 0; i < numOfLines; i++) {
+        for (int i = 0; i < this.linesPlayed; i++) {
             var currentLine = configuration.getLines().get(i);
             var occurs = getOccurrencesForLine(currentLine);
             if (occurs != null) {
@@ -143,9 +141,10 @@ public class Game<C extends Card> {
         this.lastWinFromLines = totalWinAmount;
 
         // for the sake of extensibility: in case there are more than one "scatter cards"
+        double scatterWinAmount = 0.0;
         for (var s : configuration.getScatters()) {
             int scatterCount = 0;
-            double scatterWinAmount = calculateScatterWins(s, scatterCount);
+            scatterWinAmount = calculateScatterWins(s, scatterCount);
             if (scatterWinAmount != 0.0) {
                 totalWinAmount += scatterWinAmount;
                 System.out.printf("Scatters %s x%d, win amount %s%n",
@@ -153,7 +152,7 @@ public class Game<C extends Card> {
                         this.configuration.getCurrencyFormat().format(scatterWinAmount));
             }
         }
-        this.lastWinFromScatters = totalWinAmount;
+        this.lastWinFromScatters = scatterWinAmount;
         if (totalWinAmount == 0.0)
             System.out.println("No wins");
         return totalWinAmount;
@@ -169,10 +168,10 @@ public class Game<C extends Card> {
         boolean streak = true;
 
         Integer previousCardValue, currentCardValue;
-        int index = 1, streakCount = 0;
+        int index = 1, streakCount = 1;
         do {
             try {
-                previousCardValue = (Integer) screen.getCardValueAt(line.get(0), 0);
+                previousCardValue = (Integer) screen.getCardValueAt(line.get(index - 1), index - 1);
                 currentCardValue = (Integer) screen.getCardValueAt(line.get(index), index);
                 ++index;
             } catch (InvalidOperationException e) {
