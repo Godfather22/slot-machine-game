@@ -98,7 +98,7 @@ public class Application {
                     configuration.getCurrencyFormat().format(game.getCurrentBalance()),
                     game.generateScreen()
             );
-            game.setCurrentBalance(game.getCurrentBalance() + game.calculateTotalWin());
+            game.calculateTotalWinAndBalance();
 
             System.out.println();
         }

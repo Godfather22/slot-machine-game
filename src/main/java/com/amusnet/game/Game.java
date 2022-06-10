@@ -112,6 +112,12 @@ public class Game<C extends Card> {
         return this.screen;
     }
 
+    public double calculateTotalWinAndBalance() {
+        double totalWin = calculateTotalWin();
+        this.currentBalance += totalWin;
+        return totalWin;
+    }
+
     public double calculateTotalWin() {
 
         double totalWinAmount = 0;
