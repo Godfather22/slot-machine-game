@@ -6,6 +6,7 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // TODO constraints
 @Data
@@ -44,7 +45,7 @@ public class GameConfig<T extends Card> {
             sb.append(String.format("%-10s", "card")).append(" ");
 
             for (var m : occurrenceCounts)
-                sb.append(String.format("%-5s", m));
+                sb.append(String.format("%5s", m));
 
             sb.append("\n");
 
@@ -52,7 +53,8 @@ public class GameConfig<T extends Card> {
             keys.forEach(key -> {
                 sb.append(String.format("%-10s", key)).append(" ");
                 var rightCells = data.get(key).values();
-                rightCells.forEach(cell -> sb.append(String.format("%-10.2s", cell)).append(" "));
+                rightCells.forEach(cell -> sb.append(String.format("%5.2s", cell)).append(" "));
+                sb.append(System.lineSeparator());
             });
             return sb.toString();
         }
@@ -89,8 +91,7 @@ public class GameConfig<T extends Card> {
         lines.forEach(la -> sb.append(la).append("\n"));
 
         sb.append("Multipliers Table:\n");
-        sb.append(table).append("\n");
-        sb.append("\n");
+        sb.append(table);
 
         return sb.toString();
     }
