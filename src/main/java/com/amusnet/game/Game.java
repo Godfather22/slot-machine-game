@@ -94,6 +94,9 @@ public class Game<C extends Card> {
     }
 
     public Screen generateScreen(int diceRoll) {
+        // tests do a better job than this
+        //log.debug("Dice roll for screen generation: {}", diceRoll);
+
         var reelArrays = configuration.getReels();
         int screenReelSize = Integer.parseInt(properties.getProperty("screen_rows"));
         int screenRowsSize = Integer.parseInt(properties.getProperty("screen_columns"));
