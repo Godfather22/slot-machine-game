@@ -68,6 +68,8 @@ public class Game<C extends Card> {
         // set currency format (whole numbers or floating-point)
         this.currencyFormat = new DecimalFormat("#.##");
 
+        this.currentBalance = Double.parseDouble(properties.getProperty("starting_balance"));
+
     }
 
     @SuppressWarnings("rawtypes")
@@ -88,8 +90,9 @@ public class Game<C extends Card> {
 
     public void prompt() {
         System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
-                currentBalance, configuration.getLines().size(), configuration.getBetLimit());
-        System.out.println("Please enter lines you want to play on and a bet per line:");
+                currencyFormat.format(this.currentBalance), configuration.getLines().size(),
+                currencyFormat.format(configuration.getBetLimit()));
+        System.out.println("Please enter lines you want to play on and a bet per line: ");
     }
 
     public void generateScreen() {
