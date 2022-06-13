@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='utf-8'?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://amusnet.com" xmlns:cs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://amusnet.com"
+           elementFormDefault="qualified">
+
+    <xs:element name="rows" type="xs:positiveInteger"/>
+    <xs:element name="columns" type="xs:positiveInteger"/>
+    <xs:element name="balance" type="xs:string"/>
+    <xs:element name="betlimit" type="xs:string"/>
+    <xs:element name="exit" type="xs:string"/>
+    <xs:element name="reelArray" type="xs:string"/>
+    <xs:element name="lineArray" type="xs:string"/>
+    <xs:element name="scatters" type="xs:string"/>
+
+<!--    <xs:attribute name="format" default="normal">-->
+<!--        <xs:simpleType>-->
+<!--            <xs:restriction base="xs:string">-->
+<!--                <xs:pattern value="round|normal"/>-->
+<!--            </xs:restriction>-->
+<!--        </xs:simpleType>-->
+<!--    </xs:attribute>-->
+<!--    <xs:attribute name="occurrences" type="xs:positiveInteger"/>-->
+<!--    <xs:attribute name="value" type="xs:positiveInteger"/>-->
+
+    <xs:element name="currency">
+        <xs:complexType>
+            <xs:attribute name="format" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="reelArrays">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="reelArray" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="lineArrays">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="lineArray" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="multiplier">
+        <xs:complexType>
+            <xs:attribute name="occurrences" type="xs:positiveInteger" use="required"/>
+            <xs:attribute name="amount" type="xs:positiveInteger" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="card">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="multiplier" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="face" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="multipliers">
+        <xs:complexType>
+            <xs:sequence>
+                <cs:element ref="card" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="properties">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="rows"/>
+                <xs:element ref="columns"/>
+                <xs:element ref="currency"/>
+                <xs:element ref="balance"/>
+                <xs:element ref="betlimit"/>
+                <xs:element ref="exit"/>
+                <xs:element ref="reelArrays"/>
+                <xs:element ref="lineArrays"/>
+                <xs:element ref="scatters"/>
+                <xs:element ref="multipliers"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

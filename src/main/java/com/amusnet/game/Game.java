@@ -8,22 +8,19 @@ import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
+import org.xml.sax.SAXException;
 
-import java.io.FileInputStream;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 @Data
 @Slf4j
-public class Game<C extends Card> {
+public class Game {
 
-    private Properties properties;
-
-    // TODO eventually replace this with the above properties implementation
-    private GameConfig<C> configuration;
+    private GameConfig configuration;
 
     private Screen screen;
 
@@ -34,53 +31,21 @@ public class Game<C extends Card> {
 
     private double lastWinFromLines, lastWinFromScatters;
 
-    // private constructor, because Game class is a thread-safe singleton
-    @SuppressWarnings("unchecked")
-    private Game() {
+    public Game() throws ParserConfigurationException, IOException, SAXException {
 
-        this.configuration = (GameConfig<C>) GameConfig.getInstance();
+        File xmlConfig = new File("src/main/resources/properties.xml");
+        File xsdValidation = new File("src/main/resources/properties.xsd");
 
-        // retrieve game properties
-        properties = new Properties();
-        try {
-            properties.load(new InputStreamReader(new FileInputStream("src/main/resources/game.properties")));
-        } catch (IOException e) {
-            log.error("Error reading .properties file", e);
-            throw new RuntimeException(e);
-        }
+        this.configuration = new GameConfig(xmlConfig, xsdValidation);
 
         // set up screen size
-        int rowSize = Integer.parseInt(properties.getProperty("screen_rows"));
-        int columnSize = Integer.parseInt(properties.getProperty("screen_columns"));
+        int rowSize = configuration.getScreenRowCount();
+        int columnSize = configuration.getScreenColumnCount();
         this.screen = new Screen(rowSize, columnSize);
 
         // set up initial balance
-        String initialBalanceProp = properties.getProperty("starting_balance");
-        try {
-            initializeGenericSum(this.currentBalance, initialBalanceProp);
-        } catch (InvalidCurrencyFormatException e) {
-            log.error("Cannot parse '{}' as Number type", initialBalanceProp);
-            throw new RuntimeException(e);
-        }
+        this.currentBalance = configuration.getStartingBalance();
 
-        this.currentBalance = Double.parseDouble(properties.getProperty("starting_balance"));
-
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static volatile Game instance;
-
-    // instance is retrieved using double-checked locking (DCL)
-    @SuppressWarnings("rawtypes")
-    public static Game getInstance() {
-        Game result = instance;
-        if (result != null)
-            return result;
-        synchronized (Game.class) {
-            if (instance == null)
-                instance = new Game();
-            return instance;
-        }
     }
 
     public void prompt() {
@@ -99,8 +64,8 @@ public class Game<C extends Card> {
         //log.debug("Dice roll for screen generation: {}", diceRoll);
 
         var reelArrays = configuration.getReels();
-        int screenReelSize = Integer.parseInt(properties.getProperty("screen_rows"));
-        int screenRowsSize = Integer.parseInt(properties.getProperty("screen_columns"));
+        int screenReelSize = this.configuration.getScreenRowCount();
+        int screenRowsSize = this.configuration.getScreenRowCount();
         for (int i = 0; i < screenRowsSize; i++) {
             int index = diceRoll;
             for (int j = 0; j < screenReelSize; j++) {

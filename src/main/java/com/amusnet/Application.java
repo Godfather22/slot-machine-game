@@ -6,8 +6,10 @@ import com.amusnet.game.Game;
 import com.amusnet.game.impl.NumberCard;
 import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
+import org.xml.sax.SAXException;
 
-import java.text.DecimalFormat;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -19,23 +21,27 @@ import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 public class Application {
     public static void main(String[] args) {
 
-        @SuppressWarnings("unchecked")
-        var configuration = (GameConfig<NumberCard<Integer>>) GameConfig.getInstance();
+
 
         //  Temporary manual setup of configuration
-        setupConfiguration(configuration);
-        log.debug(configuration.toString());
+        //setupConfiguration(configuration);
+        //log.debug(configuration.toString());
 
         ErrorMessages errorMessages = ErrorMessages.getInstance();
 
-        @SuppressWarnings("unchecked")
-        var game = (Game<NumberCard<Integer>>) Game.getInstance();
+        Game game = null;
+        try {
+            game = new Game();
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            log.error("Fatal error while configuring game");
+            throw new RuntimeException(e);
+        }
 
         Scanner sc = new Scanner(System.in);
-        final int maxLines = Integer.parseInt(game.getProperties().getProperty("max_lines"));
-        final int betLimit = Integer.parseInt(game.getProperties().getProperty("bet_limit"));
+        final int maxLines = game.getConfiguration().getMaxLines();
+        final double betLimit = game.getConfiguration().getBetLimit();
 
-        final String exitCommand = game.getProperties().getProperty("exit_command");
+        final String exitCommand = game.getConfiguration().getExitCommand();
 
         // main game loop
         while (game.getCurrentBalance() >= 0.0) {
@@ -95,8 +101,8 @@ public class Application {
             // feedback
             System.out.printf("%s\t%s%nBalance: %s%n%n%s%n",
                     game.getLinesPlayed(),
-                    configuration.getCurrencyFormat().format(game.getBetAmount()),
-                    configuration.getCurrencyFormat().format(game.getCurrentBalance()),
+                    game.getConfiguration().getCurrencyFormat().format(game.getBetAmount()),
+                    game.getConfiguration().getCurrencyFormat().format(game.getCurrentBalance()),
                     game.generateScreen()
             );
             try {
@@ -110,7 +116,7 @@ public class Application {
     }
 
     @Deprecated
-    private static void setupConfiguration(GameConfig<NumberCard<Integer>> configuration) {
+    private static void setupConfiguration(GameConfig configuration) {
         // set up reel arrays
         {
             configuration.setReels(List.of(
@@ -185,7 +191,7 @@ public class Application {
         }
 
         // set scatters
-        configuration.setScatters(Set.of(new NumberCard<Integer>(7, true)));
+        configuration.setScatters(Set.of(new NumberCard<>(7, true)));
 
         // set starting balance
         configuration.setStartingBalance(100000);

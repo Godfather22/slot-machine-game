@@ -1,31 +1,36 @@
 package com.amusnet;
 
-import com.amusnet.config.GameConfig;
 import com.amusnet.exception.InvalidGameDataException;
-import com.amusnet.game.Card;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
-import com.amusnet.game.impl.NumberCard;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.xml.sax.SAXException;
 
-import static org.assertj.core.api.Assertions.*;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.util.List;
 
-import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 @Slf4j
 public class GameBehaviourTest {
 
-    @SuppressWarnings("unchecked")
-    private static final GameConfig<NumberCard<Integer>> config = (GameConfig<NumberCard<Integer>>) GameConfig.getInstance();
-    
-    // Testing a game of Integer cards with Integer currency (money) type
-    @SuppressWarnings("unchecked")
-    private static final Game<NumberCard<Integer>> game = (Game<NumberCard<Integer>>) Game.getInstance();
+    private static final Game game;
 
+    static {
+        try {
+            game = new Game();
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            log.error("Fatal error while configuring game", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Testing a game of Integer cards with Integer currency (money) type
     @Nested
     @DisplayName("Tests for correct generation of screen reels")
     class ScreenGenerationTest {
@@ -44,7 +49,6 @@ public class GameBehaviourTest {
         }
 
         private void Given5Size30ReelArraysAndGenerationNumber29() {
-            setUpReelArrays();      // no need for further configuration here
             this.generationNumber = 29;
         }
 
@@ -60,7 +64,6 @@ public class GameBehaviourTest {
         }
 
         private void Given5Size30ReelArraysAndGenerationNumber15() {
-            setUpReelArrays();      // no need for further configuration here
             this.generationNumber = 15;
         }
 
@@ -78,11 +81,6 @@ public class GameBehaviourTest {
     @Nested
     @DisplayName("Tests for correct gameplay")
     class GameplayTest {
-
-        @BeforeAll
-        static void configure() {
-            configureAll();
-        }
 
         @Test
         void play5LinesFor10_diceRollIs30_win50000FromLines() {
@@ -223,118 +221,6 @@ public class GameBehaviourTest {
                     .isEqualTo(oldBalance + (fromLines + fromScatters));
         }
 
-    }
-
-    //
-    // helper methods for configuration
-    //
-
-    private static void configureAll() {
-        // set up reel arrays
-        {
-            setUpReelArrays();
-        }
-
-        // set up lines
-        {
-            setUpLineArrays();
-        }
-
-        // set up table
-        {
-            setUpScoreTable();
-        }
-
-        // set scatters
-        setScatterCards(Set.of(new NumberCard<Integer>(7, true)));
-
-        // set starting balance
-        setStartingBalance(100000);
-
-        // set max bet amount
-        setMaxBetAmount(10);
-    }
-
-    private static void setUpReelArrays() {
-        config.setReels(List.of(
-                List.of(6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2),
-                List.of(6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5),
-                List.of(6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5),
-                List.of(6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4),
-                List.of(6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5)
-
-        ));
-    }
-
-    private static void setUpLineArrays() {
-        config.setLines(List.of(
-                List.of(1, 1, 1, 1, 1),     // 1
-                List.of(0, 0, 0, 0, 0),
-                List.of(2, 2, 2, 2, 2),
-                List.of(0, 1, 2, 1, 0),
-                List.of(2, 1, 0, 1, 2),     // 5
-                List.of(0, 0, 1, 2, 2),
-                List.of(2, 2, 1, 0, 0),
-                List.of(1, 2, 2, 2, 1),
-                List.of(1, 0, 0, 0, 1),
-                List.of(0, 1, 1, 1, 0),     // 10
-                List.of(2, 1, 1, 1, 2),
-                List.of(1, 2, 1, 0, 1),
-                List.of(1, 0, 1, 2, 1),
-                List.of(0, 1, 0, 1, 0),
-                List.of(2, 1, 2, 1, 2),     // 15
-                List.of(1, 1, 2, 1, 1),
-                List.of(1, 1, 0, 1, 1),
-                List.of(0, 2, 0, 2, 0),
-                List.of(2, 0, 2, 0, 2),
-                List.of(1, 0, 2, 0, 1)      // 20
-
-        ));
-    }
-
-    private static void setUpScoreTable() {
-        var occurrenceCounts = List.of(3, 4, 5);
-
-        Map<NumberCard<Integer>, Map<Integer, Integer>> tableData = Map.of(
-                new NumberCard<>(0), Map.of(  3, 10,
-                        4, 20,
-                        5, 100),
-                new NumberCard<>(1), Map.of(  3, 10,
-                        4, 20,
-                        5, 100),
-                new NumberCard<>(2), Map.of(  3, 10,
-                        4, 20,
-                        5, 100),
-                new NumberCard<>(3), Map.of(  3, 20,
-                        4, 40,
-                        5, 200),
-                new NumberCard<>(4), Map.of(  3, 20,
-                        4, 40,
-                        5, 200),
-                new NumberCard<>(5), Map.of(  3, 20,
-                        4, 80,
-                        5, 400),
-                new NumberCard<>(6), Map.of(  3, 40,
-                        4, 400,
-                        5, 1000),
-                new NumberCard<>(7, true), Map.of(  3, 5,
-                        4, 20,
-                        5, 500)
-        );
-
-        config.setupTable(occurrenceCounts, tableData);
-    }
-
-    private static void setScatterCards(Set<Card> scatterCardsValues) {
-        config.setScatters(scatterCardsValues);
-    }
-
-    private static void setStartingBalance(int balance) {
-        config.setStartingBalance(balance);
-    }
-
-    private static void setMaxBetAmount(int amount) {
-        config.setBetLimit(amount);
     }
 
 }
