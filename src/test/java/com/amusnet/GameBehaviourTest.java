@@ -1,6 +1,7 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
+import com.amusnet.exception.InvalidGameDataException;
 import com.amusnet.game.Card;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
@@ -208,8 +209,12 @@ public class GameBehaviourTest {
 
         private void assertWinAmounts(double fromLines, double fromScatters) {
             double oldBalance = game.getCurrentBalance();
-            assertThat(game.calculateTotalWinAndBalance()).as("Total win amount")
-                    .isEqualTo(fromLines + fromScatters);
+            try {
+                assertThat(game.calculateTotalWinAndBalance()).as("Total win amount")
+                        .isEqualTo(fromLines + fromScatters);
+            } catch (InvalidGameDataException e) {
+                fail("Method threw unexpected exception");
+            }
             assertThat(game.getLastWinFromLines()).as("Win from lines")
                     .isEqualTo(fromLines);
             assertThat(game.getLastWinFromScatters()).as("Win from scatters")

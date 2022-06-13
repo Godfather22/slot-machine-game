@@ -1,6 +1,7 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
+import com.amusnet.exception.InvalidGameDataException;
 import com.amusnet.game.Game;
 import com.amusnet.game.impl.NumberCard;
 import com.amusnet.util.ErrorMessages;
@@ -98,7 +99,11 @@ public class Application {
                     configuration.getCurrencyFormat().format(game.getCurrentBalance()),
                     game.generateScreen()
             );
-            game.calculateTotalWinAndBalance();
+            try {
+                game.calculateTotalWinAndBalance();
+            } catch (InvalidGameDataException e) {
+                log.error(e.getMessage());
+            }
 
             System.out.println();
         }

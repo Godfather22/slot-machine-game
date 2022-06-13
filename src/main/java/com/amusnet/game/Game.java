@@ -2,6 +2,7 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.InvalidCurrencyFormatException;
+import com.amusnet.exception.InvalidGameDataException;
 import com.amusnet.exception.InvalidOperationException;
 import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
@@ -112,13 +113,18 @@ public class Game<C extends Card> {
         return this.screen;
     }
 
-    public double calculateTotalWinAndBalance() {
+    public double calculateTotalWinAndBalance() throws InvalidGameDataException {
         double totalWin = calculateTotalWin();
         this.currentBalance += totalWin;
         return totalWin;
     }
 
-    public double calculateTotalWin() {
+    private double calculateTotalWin() throws InvalidGameDataException {
+
+        if (this.linesPlayed < 1)
+            throw new InvalidGameDataException("Invalid value for field 'linesPlayed'");
+        if (this.betAmount < 1.0)
+            throw new InvalidGameDataException("Invalid value for field 'betAmount'");
 
         double totalWinAmount = 0;
 
