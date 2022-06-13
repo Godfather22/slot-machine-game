@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 // TODO constraints
 @Data
@@ -38,7 +37,6 @@ public class GameConfig<T extends Card> {
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
         private Map<T, Map<Integer, Integer>> data;
 
-        // TODO fix formatting
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
