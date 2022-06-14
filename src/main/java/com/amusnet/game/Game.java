@@ -2,7 +2,8 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.InvalidGameDataException;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.xml.sax.SAXException;
@@ -17,15 +18,20 @@ import java.util.Random;
 @Slf4j
 public class Game {
 
-    private GameConfig configuration;
-
-    private Screen screen;
-
+    @Getter
+    private final GameConfig configuration;
+    @Getter
+    private final Screen screen;
+    @Getter
+    @Setter
     private double currentBalance;
-
+    @Getter
+    @Setter
     private int linesPlayed;
+    @Getter
+    @Setter
     private double betAmount;
-
+    @Getter
     private double lastWinFromLines, lastWinFromScatters;
 
     public Game() throws ParserConfigurationException, IOException, SAXException {
