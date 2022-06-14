@@ -4,6 +4,11 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * A simple class for representing the game screen.
+ *
+ * @since 1.0
+ */
 @Data
 public class Screen {
     private int rowCount;
@@ -11,6 +16,12 @@ public class Screen {
 
     private int[][] view;
 
+    /**
+     * Initialize a screen of size rowCount x columnCount.
+     *
+     * @param rowCount The number of rows.
+     * @param columnCount The number of columns.
+     */
     public Screen(int rowCount, int columnCount) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
@@ -18,6 +29,11 @@ public class Screen {
         view = new int[rowCount][columnCount];
     }
 
+    /**
+     * Initialize a screen via a list containing a list of Integers.
+     *
+     * @param metaList A list containing a list of Integers.
+     */
     public Screen(List<List<Integer>> metaList) {
         this.rowCount = metaList.size();
         this.columnCount = metaList.get(0).size();
