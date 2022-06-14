@@ -1,7 +1,6 @@
 package com.amusnet.config;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +20,11 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
+/**
+ * Class that loads XML configuration for the game.
+ *
+ * @since 1.0
+ */
 @Data
 @NoArgsConstructor
 @Slf4j
@@ -42,26 +46,51 @@ public class GameConfig {
 
     private Set<Integer> scatters;
 
-    private MultipliersTable table = new MultipliersTable();
+    private final MultipliersTable table = new MultipliersTable();
 
+    /**
+     * Initializes a GameConfig object via XML configuration file.
+     * @param xmlConfig A File object that points to the XML file containing the configuration properties.
+     * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
+     * @throws IOException If any IO errors occur.
+     * @throws SAXException If any parse errors occur.
+     */
+    public GameConfig(File xmlConfig) throws ParserConfigurationException, IOException, SAXException {
+        initialize(xmlConfig, null);
+    }
+
+    /**
+     * Initializes a GameConfig object via XML configuration file.
+     * @param xmlConfig A File object that points to the XML file containing the configuration properties.
+     * @param xsdValidation A File object that points to the XSD file containing validation data for xmlConfig's file.
+     * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
+     * @throws IOException If any IO errors occur.
+     * @throws SAXException If any parse errors occur.
+     */
     public GameConfig(File xmlConfig, File xsdValidation) throws ParserConfigurationException, IOException, SAXException {
+        initialize(xmlConfig, xsdValidation);
+    }
+
+    private void initialize(File xmlConfig, File xsdValidation) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
         Document document = builder.parse(xmlConfig);
 
-        Schema schema;
-        try {
-            String language = XMLConstants.W3C_XML_SCHEMA_NS_URI;
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(language);
-            schema = schemaFactory.newSchema(xsdValidation);
-        } catch (Exception e) {
-            log.error("Schema validation error");
-            throw new RuntimeException(e);
+        if (xsdValidation != null) {
+            Schema schema;
+            try {
+                String language = XMLConstants.W3C_XML_SCHEMA_NS_URI;
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(language);
+                schema = schemaFactory.newSchema(xsdValidation);
+            } catch (Exception e) {
+                log.error("Schema validation error");
+                throw new RuntimeException(e);
+            }
+            Validator validator = schema.newValidator();
+            // TODO troubleshoot
+            //validator.validate(new DOMSource(document));
         }
-        Validator validator = schema.newValidator();
-        // TODO troubleshoot
-        //validator.validate(new DOMSource(document));
 
         document.getDocumentElement().normalize();
         Element root = document.getDocumentElement();
@@ -147,6 +176,12 @@ public class GameConfig {
         this.table.setData(data);
     }
 
+    /**
+     * A nested class within GameConfig which represents a table of multiplication values for
+     * the number of occurrences for each card. Used to calculate the player win amounts.
+     *
+     * @since 1.0
+     */
     @Data
     public static class MultipliersTable {
 
@@ -176,11 +211,20 @@ public class GameConfig {
 
     }
 
+    /**
+     * Sets up the table containing multiplication values for the occurrences
+     * of each card which in turn is used for the calculation of player win amounts.
+     *
+     * @param occurrenceCounts The columns headers representing the number of times a card is present on screen.
+     * @param data The multiplication values for each card's amount of times present on screen.
+     * @see MultipliersTable
+     */
     public void setupTable(List<Integer> occurrenceCounts, Map<Integer, Map<Integer, Integer>> data) {
         table.occurrenceCounts = occurrenceCounts;
         table.data = data;
     }
 
+    // TODO some elements are missing
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Current configuration:\n\n");
