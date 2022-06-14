@@ -1,10 +1,7 @@
 package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
-import com.amusnet.exception.InvalidCurrencyFormatException;
 import com.amusnet.exception.InvalidGameDataException;
-import com.amusnet.exception.InvalidOperationException;
-import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
@@ -61,17 +58,17 @@ public class Game {
 
     public Screen generateScreen(int diceRoll) {
         // tests do a better job than this
-        //log.debug("Dice roll for screen generation: {}", diceRoll);
+        //log.debug("DiceRoll for screen generation: {}", diceRoll);
 
-        var reelArrays = configuration.getReels();
+        var reelArrays = this.configuration.getReels();
         int screenReelSize = this.configuration.getScreenRowCount();
-        int screenRowsSize = this.configuration.getScreenRowCount();
+        int screenRowsSize = this.configuration.getScreenColumnCount();
         for (int i = 0; i < screenRowsSize; i++) {
             int index = diceRoll;
             for (int j = 0; j < screenReelSize; j++) {
                 if (index >= reelArrays.get(i).size())
                     index = 0;
-                this.screen.getView()[j][i] = new NumberCard<Integer>(reelArrays.get(i).get(index));     //TODO generify?
+                this.screen.getView()[j][i] = new Card(reelArrays.get(i).get(index));
                 index += 1;
             }
         }
@@ -134,21 +131,16 @@ public class Game {
     //*******************
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<NumberCard<Integer>, Integer> getOccurrencesForLine(List<Integer> line) {  // TODO generify
+    private Pair<Card, Integer> getOccurrencesForLine(List<Integer> line) {
         // check if there is a streak, starting from the beginning
         boolean streak = true;
 
         Integer previousCardValue, currentCardValue;
         int index = 1, streakCount = 1;
         do {
-            try {
-                previousCardValue = (Integer) screen.getCardValueAt(line.get(index - 1), index - 1);
-                currentCardValue = (Integer) screen.getCardValueAt(line.get(index), index);
-                ++index;
-            } catch (InvalidOperationException e) {
-                log.error("Cannot call method for non NumberCard Cards", e);
-                throw new RuntimeException(e);
-            }
+            previousCardValue = (Integer) screen.getCardValueAt(line.get(index - 1), index - 1);
+            currentCardValue = (Integer) screen.getCardValueAt(line.get(index), index);
+            ++index;
             if (currentCardValue.equals(previousCardValue))
                 ++streakCount;
             else
@@ -162,11 +154,11 @@ public class Game {
         if (streakCount < configuration.getTable().getOccurrenceCounts().get(0))
             return null;
         else
-            return new Pair<>(new NumberCard<Integer>(previousCardValue), streakCount);
+            return new Pair<>(new Card(previousCardValue), streakCount);
 
     }
 
-    private <R extends Number, T extends NumberCard<R>> double calculateRegularWins(Pair<T, Integer> occurs) {
+    private double calculateRegularWins(Pair<Card, Integer> occurs) {
         var tableData = configuration.getTable().getData();
         var row = tableData.get((occurs.getValue0()));
         var multiplier = row.get(occurs.getValue1());
@@ -181,7 +173,7 @@ public class Game {
                 if ((screenView[i][j].toString()).equals(scatterCard.toString()))
                     ++scatterCount;
 
-        var calcTable = configuration.getTable();
+        var calcTable = this.configuration.getTable();
 
         // If the amount of scatters on screen is a valid win amount
         if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
@@ -191,16 +183,5 @@ public class Game {
             return totalBet * multiplier;
         }
         return 0.0; // not enough scatters or none at all
-    }
-
-    private void initializeGenericSum(Number sum, String value) throws InvalidCurrencyFormatException {
-        if (sum instanceof Integer)
-            sum = Integer.parseInt(value);
-        else if (sum instanceof Long)
-            sum = Long.parseLong(value);
-        else if (sum instanceof Double)
-            sum = Double.parseDouble(value);
-        else
-            throw new InvalidCurrencyFormatException("Error parsing property type");
     }
 }

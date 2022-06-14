@@ -1,5 +1,6 @@
 package com.amusnet.exception;
 
+@Deprecated
 public class InvalidOperationException extends Exception {
     public InvalidOperationException() {
         super();

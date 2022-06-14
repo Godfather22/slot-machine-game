@@ -1,7 +1,6 @@
 package com.amusnet.config;
 
 import com.amusnet.game.Card;
-import com.amusnet.game.impl.NumberCard;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,8 +67,6 @@ public class GameConfig {
         document.getDocumentElement().normalize();
         Element root = document.getDocumentElement();
 
-        NodeList xmlProperties = root.getChildNodes();
-
         NodeList nlRows = root.getElementsByTagName("rows");
         this.screenRowCount = Integer.parseInt(nlRows.item(0).getChildNodes().item(0).getNodeValue());
         NodeList nlColumns = root.getElementsByTagName("columns");
@@ -78,20 +75,14 @@ public class GameConfig {
         NodeList nlCurrencyFormat = root.getElementsByTagName("currency");
         this.currencyFormat = new DecimalFormat();
         switch (((Element)nlCurrencyFormat.item(0)).getAttribute("format")) {
-            case "normal" -> {
-                this.currencyFormat.applyPattern("#.##");
-            }
-            case "round" -> {
-                this.currencyFormat.applyPattern("#");
-            }
+            case "normal" -> this.currencyFormat.applyPattern("#.##");
+            case "round" -> this.currencyFormat.applyPattern("#");
         }
 
         NodeList nlStartingBalance = root.getElementsByTagName("balance");
         this.startingBalance = Double.parseDouble(nlStartingBalance.item(0).getChildNodes().item(0).getNodeValue());
 
         NodeList nlLineArrays = root.getElementsByTagName("lineArray");
-        String strLineArray = nlLineArrays.item(0).getChildNodes().item(0).getNodeValue();
-        String[] lineArrayValues = strLineArray.split(",");
         this.maxLines = nlLineArrays.getLength();
 
         NodeList nlBetLimit = root.getElementsByTagName("betlimit");
@@ -113,7 +104,7 @@ public class GameConfig {
 
         this.lines = new ArrayList<>();
         for (int i = 0; i < nlLineArrays.getLength(); i++) {
-            strLineArray = nlLineArrays.item(i).getChildNodes().item(0).getNodeValue();
+            String strLineArray = nlLineArrays.item(i).getChildNodes().item(0).getNodeValue();
             String[] lineValues = strLineArray.split(",");
             List<Integer> lineList = new ArrayList<>();
             for (String v : lineValues)
@@ -126,11 +117,11 @@ public class GameConfig {
         String[] scatterValues = strScatterValues.split(",");
         this.scatters = new LinkedHashSet<>();
         for (String v : scatterValues)
-            this.scatters.add(new NumberCard<>(Integer.parseInt(v), true));
+            this.scatters.add(new Card(Integer.parseInt(v), true));
 
         NodeList nlCardColumn = root.getElementsByTagName("card");
         Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
-        Map<NumberCard<Integer>, Map<Integer, Integer>> data = new LinkedHashMap<>();
+        Map<Card, Map<Integer, Integer>> data = new LinkedHashMap<>();
         for (int i = 0; i < nlCardColumn.getLength(); i++) {
             Node card = nlCardColumn.item(i);
             String strFace = ((Element)card).getAttribute("face");
@@ -149,7 +140,7 @@ public class GameConfig {
                 int amountValue = Integer.parseInt(strAmount);
                 rightColumns.put(occurrencesValue, amountValue);
             }
-            data.put(new NumberCard<>(cardValue), rightColumns);
+            data.put(new Card(cardValue), rightColumns);
         }
         this.table.setOccurrenceCounts(occurrenceCounts.values().stream().toList());
         this.table.setData(data);
@@ -159,7 +150,7 @@ public class GameConfig {
     public static class MultipliersTable {
 
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
-        private Map<NumberCard<Integer>, Map<Integer, Integer>> data;
+        private Map<Card, Map<Integer, Integer>> data;
 
         @Override
         public String toString() {
@@ -184,7 +175,7 @@ public class GameConfig {
 
     }
 
-    public void setupTable(List<Integer> occurrenceCounts, Map<NumberCard<Integer>, Map<Integer, Integer>> data) {
+    public void setupTable(List<Integer> occurrenceCounts, Map<Card, Map<Integer, Integer>> data) {
         table.occurrenceCounts = occurrenceCounts;
         table.data = data;
     }

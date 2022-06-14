@@ -23,7 +23,6 @@ public class UserInputTest {
     private static final int RANDOM_STRING_MAX_LENGTH = 30;
     private static final String INVALID_INPUT_SEED = "H1e2l3l4o5W6o7r8l9d";
 
-    private static final Properties PROPERTIES = new Properties();
     private static final GameConfig CONFIG = Application.GAME.getConfiguration();
     private static final ErrorMessages ERROR_MESSAGES = ErrorMessages.getInstance();
 
@@ -211,20 +210,12 @@ public class UserInputTest {
             StringBuilder sb = new StringBuilder();
 
             switch (maskValue) {
-                case -1 -> {
-                    sb.append(rnd.nextInt() * -1);
-                }
-                case 0 -> {
-                    sb.append(rnd.nextInt(bound) + 1);
-                }
-                case 1 -> {
-                    sb.append(rnd.nextInt(bound + 1, Integer.MAX_VALUE));
-                }
-                default -> {
-                    throw new IllegalArgumentException(
-                            String.format("Illegal mask value %d. Should be -1, 0, or 1",
-                                    maskValue));
-                }
+                case -1 -> sb.append(rnd.nextInt() * -1);
+                case 0 -> sb.append(rnd.nextInt(bound) + 1);
+                case 1 -> sb.append(rnd.nextInt(bound + 1, Integer.MAX_VALUE));
+                default -> throw new IllegalArgumentException(
+                        String.format("Illegal mask value %d. Should be -1, 0, or 1",
+                                maskValue));
             }
             sb.append(System.lineSeparator());
             return sb.toString();

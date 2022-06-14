@@ -1,6 +1,5 @@
 package com.amusnet.game.impl;
 
-import com.amusnet.game.Card;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
@@ -9,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class NumberCard<T extends Number> implements Card {
+@Deprecated
+public class NumberCard<T extends Number> {
 
     @NonNull
     private T value;
     private boolean scatter;
 
-    @Override
     public boolean isScatter() {
         return scatter;
     }

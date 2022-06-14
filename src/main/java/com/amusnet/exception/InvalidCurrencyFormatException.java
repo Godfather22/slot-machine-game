@@ -1,5 +1,6 @@
 package com.amusnet.exception;
 
+@Deprecated
 public class InvalidCurrencyFormatException extends Exception {
     public InvalidCurrencyFormatException() {
         super();

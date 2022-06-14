@@ -1,7 +1,7 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
-import com.amusnet.game.impl.NumberCard;
+import com.amusnet.game.Card;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,7 +11,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,29 +93,29 @@ public class ConfigurationTest {
         {
             var occurrenceCounts = List.of(3, 4, 5);
 
-            Map<NumberCard<Integer>, Map<Integer, Integer>> tableData = Map.of(
-                    new NumberCard<>(0), Map.of(  3, 10,
+            Map<Card, Map<Integer, Integer>> tableData = Map.of(
+                    new Card(0), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new NumberCard<>(1), Map.of(  3, 10,
+                    new Card(1), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new NumberCard<>(2), Map.of(  3, 10,
+                    new Card(2), Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new NumberCard<>(3), Map.of(  3, 20,
+                    new Card(3), Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new NumberCard<>(4), Map.of(  3, 20,
+                    new Card(4), Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new NumberCard<>(5), Map.of(  3, 20,
+                    new Card(5), Map.of(  3, 20,
                             4, 80,
                             5, 400),
-                    new NumberCard<>(6), Map.of(  3, 40,
+                    new Card(6), Map.of(  3, 40,
                             4, 400,
                             5, 1000),
-                    new NumberCard<>(7, true), Map.of(  3, 5,
+                    new Card(7, true), Map.of(  3, 5,
                             4, 20,
                             5, 500)
             );
@@ -125,7 +124,7 @@ public class ConfigurationTest {
         }
 
         // set scatters
-        configuration.setScatters(Set.of(new NumberCard<>(7, true)));
+        configuration.setScatters(Set.of(new Card(7, true)));
 
         // set starting balance
         configuration.setStartingBalance(100000);
