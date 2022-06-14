@@ -38,7 +38,7 @@ public class ConfigurationTest {
     public void givenOneConfigurationFromXmlAndOneManualWhichAreEqual_theyAreTrulyEqual() {
         Assertions.assertThat(config1)
                 .usingRecursiveComparison()
-                .ignoringFields("table")
+                .ignoringFields("table")    // TODO No
                 .isEqualTo(config2);
     }
 

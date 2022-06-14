@@ -159,8 +159,8 @@ public class Game {
 
     private double calculateRegularWins(Pair<Integer, Integer> occurs) {
         var tableData = configuration.getTable().getData();
-        var row = tableData.get((occurs.getValue0()));
-        var multiplier = row.get(occurs.getValue1());
+        var rightSide = tableData.get(occurs.getValue0());
+        var multiplier = rightSide.get(occurs.getValue1());
         return this.betAmount * multiplier;
     }
 

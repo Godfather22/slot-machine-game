@@ -119,25 +119,27 @@ public class GameConfig {
             this.scatters.add(Integer.parseInt(v));
 
         NodeList nlCardColumn = root.getElementsByTagName("card");
+        NodeList nlMultipliers = root.getElementsByTagName("multiplier");
         Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
         Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
+        int j = 0;
         for (int i = 0; i < nlCardColumn.getLength(); i++) {
             Node card = nlCardColumn.item(i);
             String strFace = ((Element)card).getAttribute("face");
             int cardValue = Integer.parseInt(strFace);
 
             Map<Integer, Integer> rightColumns = new LinkedHashMap<>();
-            NodeList nlMultipliers = root.getElementsByTagName("multiplier");
-            for (int j = 0; j < nlMultipliers.getLength(); j++) {
-                Element multiplier = (Element) nlMultipliers.item(j);
-
-                String strOccurrences = multiplier.getAttribute("occurrences");
+            var multiplier = nlMultipliers.item(j);
+            while (multiplier != null && multiplier.getParentNode().equals(card)) {
+                String strOccurrences = ((Element)multiplier).getAttribute("occurrences");
                 int occurrencesValue = Integer.parseInt(strOccurrences);
                 occurrenceCounts.put(strOccurrences, occurrencesValue);
 
-                String strAmount = multiplier.getAttribute("amount");
+                String strAmount = ((Element)multiplier).getAttribute("amount");
                 int amountValue = Integer.parseInt(strAmount);
                 rightColumns.put(occurrencesValue, amountValue);
+
+                multiplier = nlMultipliers.item(++j);
             }
             data.put(cardValue, rightColumns);
         }
