@@ -14,7 +14,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
-@Data
+/**
+ * Represents a configured game. Game logic and calculations are provided.
+ *
+ * @since 1.0
+ * @see GameConfig
+ */
 @Slf4j
 public class Game {
 
@@ -34,10 +39,17 @@ public class Game {
     @Getter
     private double lastWinFromLines, lastWinFromScatters;
 
+    /**
+     * Creates a fully-configured game instance.
+     *
+     * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
+     * @throws IOException If any IO errors occur.
+     * @throws SAXException If any parse errors occur.
+     */
     public Game() throws ParserConfigurationException, IOException, SAXException {
 
-        File xmlConfig = new File("src/main/resources/properties.xml");
-        File xsdValidation = new File("src/main/resources/properties.xsd");
+        File xmlConfig = new File("src/main/resources/properties.xml");     // configuration file
+        File xsdValidation = new File("src/main/resources/properties.xsd");     // configuration file validation
 
         this.configuration = new GameConfig(xmlConfig, xsdValidation);
 
@@ -51,6 +63,9 @@ public class Game {
 
     }
 
+    /**
+     * Prompt the user for input with an informative message.
+     */
     public void prompt() {
         System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
                 this.configuration.getCurrencyFormat().format(this.currentBalance), configuration.getLines().size(),
@@ -58,6 +73,12 @@ public class Game {
         System.out.println("Please enter lines you want to play on and a bet per line: ");
     }
 
+    /**
+     * Generates a two-dimensional array of integers which represents the game screen.
+     *
+     * @return The updated screen property.
+     * @see Screen
+     */
     public Screen generateScreen() {
         Random rnd = new Random();
         int[] diceRolls = new int[this.configuration.getScreenColumnCount()];
@@ -66,6 +87,29 @@ public class Game {
         return generateScreen(diceRolls);
     }
 
+    /**
+     * Generates a two-dimensional array of integers which represents the game screen.
+     * The generation is controlled by an array of integers, called 'dice rolls'.
+     * Each dice roll corresponds to the initial position in the reel arrays from
+     * which the population of the screen reels will begin. If the position is towards
+     * the end of the reel array and more elements are needed than are available until
+     * the end of the reel array, an overflow occurs and the rest of the elements are
+     * chosen from the beginning of the reel array.
+     * <br></br>
+     * <br></br>
+     * Example:
+     * <br></br>
+     * <br></br>
+     * A diceRoll of 28 is generated for the following reel array:
+     * [6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2]
+     * <br></br>
+     * <br></br>
+     * The elements for the screen array will be the 28th, 29th and 0th (2, 2, 6).
+     * <br></br>
+     *
+     * @return The updated screen property.
+     * @see Screen
+     */
     public Screen generateScreen(int[] diceRolls) {
         // tests do a better job than this
         //log.debug("DiceRoll for screen generation: {}", diceRoll);
@@ -91,6 +135,13 @@ public class Game {
         return totalWin;
     }
 
+    /**
+     * Calculates the total win amount for the current bet, that is the sum
+     * of line wins and scatter wins.
+     *
+     * @return The sum of line wins and scatter wins.
+     * @throws InvalidGameDataException If the game is not configured correctly.
+     */
     private double calculateTotalWin() throws InvalidGameDataException {
 
         if (this.linesPlayed < 1)
