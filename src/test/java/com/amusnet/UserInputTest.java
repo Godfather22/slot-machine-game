@@ -1,8 +1,8 @@
 package com.amusnet;
 
+import com.amusnet.config.GameConfig;
 import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.Random;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 @Slf4j
@@ -24,11 +24,8 @@ public class UserInputTest {
     private static final String INVALID_INPUT_SEED = "H1e2l3l4o5W6o7r8l9d";
 
     private static final Properties PROPERTIES = new Properties();
+    private static final GameConfig CONFIG = Application.GAME.getConfiguration();
     private static final ErrorMessages ERROR_MESSAGES = ErrorMessages.getInstance();
-
-    private static final InputStream OLD_STANDARD_IN = System.in;
-    private static final PrintStream OLD_STANDARD_OUT = System.out;
-    private static final PrintStream OLD_STANDARD_ERR = System.err;
 
     private static InputStream newStandardIn;
 
@@ -37,16 +34,6 @@ public class UserInputTest {
 
     private static OutputStream newError;
     private static PrintStream newStandardErr;
-
-    @BeforeAll
-    static void loadProperties() {
-        try {
-            PROPERTIES.load(new FileInputStream("src/main/resources/game.properties"));
-        } catch (IOException e) {
-            log.error("Error loading properties file");
-            throw new RuntimeException(e);
-        }
-    }
 
     @Nested
     @DisplayName("Test invalid user input")
@@ -134,15 +121,15 @@ public class UserInputTest {
             // TODO dynamic field strings
             switch (field) {
                 case "linesPlayed" -> {
-                    int maxLines = Integer.parseInt(PROPERTIES.getProperty("max_lines"));
+                    int maxLines = CONFIG.getMaxLines();
                     return String.valueOf(rnd.nextInt(maxLines) + 1);
                 }
                 case "betAmount" -> {
-                    int betLimit = Integer.parseInt(PROPERTIES.getProperty("bet_limit"));
-                    return String.valueOf(rnd.nextInt(betLimit) + 1);
+                    double betLimit = CONFIG.getBetLimit();
+                    return String.valueOf(rnd.nextDouble(betLimit) + 1);
                 }
                 default -> {
-                    log.error("Error: No such field '{}' accepts input", field);
+                    log.error("No such field '{}' accepts input", field);
                     fail(String.format("Field '%s' does not exist or does not accept input", field));
                     return null;
                 }
@@ -205,11 +192,9 @@ public class UserInputTest {
 
             int i = -1;
             try {
-                String[] properties = new String[]{"max_lines", "bet_limit"};
+                int[] bounds = new int[]{CONFIG.getMaxLines(), (int) CONFIG.getBetLimit()};
                 for (i = 0; i < REQUIRED_INPUT_COUNT; i++) {
-                    sb.append(getValueForField(boundViolationsMask[i], properties[i]));
-//                    if (sb.toString().endsWith(EXIT_STRING + System.lineSeparator()))
-//                        break;
+                    sb.append(getValueForField(boundViolationsMask[i], bounds[i]));
                 }
             } catch (IllegalArgumentException e) {
                log.error("ERROR: Invalid value in array position {}. Should be -1, 0 or 1", i);
@@ -220,9 +205,8 @@ public class UserInputTest {
         }
 
         // TODO ambiguous naming
-        private static String getValueForField(int maskValue, String property) {
+        private static String getValueForField(int maskValue, int bound) {
 
-            int upperBound = Integer.parseInt(PROPERTIES.getProperty(property));
             Random rnd = new Random();
             StringBuilder sb = new StringBuilder();
 
@@ -231,10 +215,10 @@ public class UserInputTest {
                     sb.append(rnd.nextInt() * -1);
                 }
                 case 0 -> {
-                    sb.append(rnd.nextInt(upperBound) + 1);
+                    sb.append(rnd.nextInt(bound) + 1);
                 }
                 case 1 -> {
-                    sb.append(rnd.nextInt(upperBound + 1, Integer.MAX_VALUE));
+                    sb.append(rnd.nextInt(bound + 1, Integer.MAX_VALUE));
                 }
                 default -> {
                     throw new IllegalArgumentException(
@@ -262,7 +246,7 @@ public class UserInputTest {
         }
 
         private static String appendExitCommand(StringBuilder sb) {
-            sb.append(PROPERTIES.getProperty("exit_command")).append(System.lineSeparator());
+            sb.append(CONFIG.getExitCommand()).append(System.lineSeparator());
             return sb.toString();
         }
 
