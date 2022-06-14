@@ -68,7 +68,7 @@ public class Game {
             for (int j = 0; j < screenReelSize; j++) {
                 if (index >= reelArrays.get(i).size())
                     index = 0;
-                this.screen.getView()[j][i] = new Card(reelArrays.get(i).get(index));
+                this.screen.getView()[j][i] = reelArrays.get(i).get(index);
                 index += 1;
             }
         }
@@ -94,8 +94,7 @@ public class Game {
             var currentLine = configuration.getLines().get(i);
             var occurs = getOccurrencesForLine(currentLine);
             if (occurs != null) {
-                var winningCard = occurs.getValue0();
-                var winningCardValue = winningCard.getValue();
+                var winningCardValue = occurs.getValue0();
                 var winningCardOccurrences = occurs.getValue1();
                 var currentWinAmount =  calculateRegularWins(occurs);
                 if (currentWinAmount != 0.0) {
@@ -110,7 +109,7 @@ public class Game {
 
         // for the sake of extensibility: in case there are more than one "scatter cards"
         double scatterWinAmount = 0.0;
-        for (var s : configuration.getScatters()) {
+        for (Integer s : configuration.getScatters()) {
             int scatterCount = 0;
             scatterWinAmount = calculateScatterWins(s, scatterCount);
             if (scatterWinAmount != 0.0) {
@@ -131,17 +130,17 @@ public class Game {
     //*******************
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<Card, Integer> getOccurrencesForLine(List<Integer> line) {
+    private Pair<Integer, Integer> getOccurrencesForLine(List<Integer> line) {
         // check if there is a streak, starting from the beginning
         boolean streak = true;
 
-        Integer previousCardValue, currentCardValue;
+        int previousCardValue, currentCardValue;
         int index = 1, streakCount = 1;
         do {
-            previousCardValue = (Integer) screen.getCardValueAt(line.get(index - 1), index - 1);
-            currentCardValue = (Integer) screen.getCardValueAt(line.get(index), index);
+            previousCardValue = screen.getView()[line.get(index - 1)][index - 1];
+            currentCardValue = screen.getView()[line.get(index)][index];
             ++index;
-            if (currentCardValue.equals(previousCardValue))
+            if (currentCardValue == previousCardValue)
                 ++streakCount;
             else
                 streak = false;
@@ -154,23 +153,23 @@ public class Game {
         if (streakCount < configuration.getTable().getOccurrenceCounts().get(0))
             return null;
         else
-            return new Pair<>(new Card(previousCardValue), streakCount);
+            return new Pair<>(previousCardValue, streakCount);
 
     }
 
-    private double calculateRegularWins(Pair<Card, Integer> occurs) {
+    private double calculateRegularWins(Pair<Integer, Integer> occurs) {
         var tableData = configuration.getTable().getData();
         var row = tableData.get((occurs.getValue0()));
         var multiplier = row.get(occurs.getValue1());
         return this.betAmount * multiplier;
     }
 
-    private double calculateScatterWins(Card scatterCard, int scatterCount) {
+    private double calculateScatterWins(Integer scatterValue, int scatterCount) {
         var screenView = this.screen.getView();
 
         for (int i = 0; i < this.screen.getRowCount(); i++)
             for (int j = 0; j < this.screen.getColumnCount(); j++)
-                if ((screenView[i][j].toString()).equals(scatterCard.toString()))
+                if (scatterValue.equals(screenView[i][j]))
                     ++scatterCount;
 
         var calcTable = this.configuration.getTable();
@@ -178,7 +177,7 @@ public class Game {
         // If the amount of scatters on screen is a valid win amount
         if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
             // then calculate and return the win amount.
-            Integer multiplier = calcTable.getData().get(scatterCard).get(scatterCount);
+            Integer multiplier = calcTable.getData().get(scatterValue).get(scatterCount);
             var totalBet = this.betAmount * this.linesPlayed;
             return totalBet * multiplier;
         }

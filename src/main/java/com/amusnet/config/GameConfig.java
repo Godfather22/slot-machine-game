@@ -1,6 +1,5 @@
 package com.amusnet.config;
 
-import com.amusnet.game.Card;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,7 @@ public class GameConfig {
     private List<List<Integer>> reels;
     private List<List<Integer>> lines;
 
-    private Set<Card> scatters;
+    private Set<Integer> scatters;
 
     private MultipliersTable table = new MultipliersTable();
 
@@ -117,11 +116,11 @@ public class GameConfig {
         String[] scatterValues = strScatterValues.split(",");
         this.scatters = new LinkedHashSet<>();
         for (String v : scatterValues)
-            this.scatters.add(new Card(Integer.parseInt(v), true));
+            this.scatters.add(Integer.parseInt(v));
 
         NodeList nlCardColumn = root.getElementsByTagName("card");
         Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
-        Map<Card, Map<Integer, Integer>> data = new LinkedHashMap<>();
+        Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
         for (int i = 0; i < nlCardColumn.getLength(); i++) {
             Node card = nlCardColumn.item(i);
             String strFace = ((Element)card).getAttribute("face");
@@ -140,7 +139,7 @@ public class GameConfig {
                 int amountValue = Integer.parseInt(strAmount);
                 rightColumns.put(occurrencesValue, amountValue);
             }
-            data.put(new Card(cardValue), rightColumns);
+            data.put(cardValue, rightColumns);
         }
         this.table.setOccurrenceCounts(occurrenceCounts.values().stream().toList());
         this.table.setData(data);
@@ -150,7 +149,7 @@ public class GameConfig {
     public static class MultipliersTable {
 
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
-        private Map<Card, Map<Integer, Integer>> data;
+        private Map<Integer, Map<Integer, Integer>> data;
 
         @Override
         public String toString() {
@@ -175,7 +174,7 @@ public class GameConfig {
 
     }
 
-    public void setupTable(List<Integer> occurrenceCounts, Map<Card, Map<Integer, Integer>> data) {
+    public void setupTable(List<Integer> occurrenceCounts, Map<Integer, Map<Integer, Integer>> data) {
         table.occurrenceCounts = occurrenceCounts;
         table.data = data;
     }

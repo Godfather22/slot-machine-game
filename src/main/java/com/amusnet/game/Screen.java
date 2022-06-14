@@ -9,32 +9,28 @@ public class Screen {
     private int rowCount;
     private int columnCount; // reels
 
-    private Card[][] view;
+    private int[][] view;
 
     public Screen(int rowCount, int columnCount) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
 
-        view = new Card[rowCount][columnCount];
+        view = new int[rowCount][columnCount];
     }
 
     public Screen(List<List<Integer>> metaList) {
         this.rowCount = metaList.size();
         this.columnCount = metaList.get(0).size();
-        view = new Card[rowCount][columnCount];
+        view = new int[rowCount][columnCount];
 
         for (int i = 0; i < rowCount; i++)
             for (int j = 0; j < columnCount; j++)
-                view[i][j] = new Card(metaList.get(i).get(j));
+                view[i][j] = metaList.get(i).get(j);
     }
-
-    public Card getCardAt(int row, int column) {
-        return view[row][column];
-    }
-
-    public Number getCardValueAt(int row, int column) {
-        return view[row][column].getValue();
-    }
+//
+//    public Number getCardValueAt(int row, int column) {
+//        return view[row][column].getValue();
+//    }
 
     @Override
     public String toString() {

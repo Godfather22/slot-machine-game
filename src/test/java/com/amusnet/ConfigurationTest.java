@@ -1,7 +1,6 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
-import com.amusnet.game.Card;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -93,29 +92,29 @@ public class ConfigurationTest {
         {
             var occurrenceCounts = List.of(3, 4, 5);
 
-            Map<Card, Map<Integer, Integer>> tableData = Map.of(
-                    new Card(0), Map.of(  3, 10,
+            Map<Integer, Map<Integer, Integer>> tableData = Map.of(
+                    0, Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new Card(1), Map.of(  3, 10,
+                    1, Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new Card(2), Map.of(  3, 10,
+                    2, Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    new Card(3), Map.of(  3, 20,
+                    3, Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new Card(4), Map.of(  3, 20,
+                    4, Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    new Card(5), Map.of(  3, 20,
+                    5, Map.of(  3, 20,
                             4, 80,
                             5, 400),
-                    new Card(6), Map.of(  3, 40,
+                    6, Map.of(  3, 40,
                             4, 400,
                             5, 1000),
-                    new Card(7, true), Map.of(  3, 5,
+                    7, Map.of(  3, 5,
                             4, 20,
                             5, 500)
             );
@@ -124,7 +123,7 @@ public class ConfigurationTest {
         }
 
         // set scatters
-        configuration.setScatters(Set.of(new Card(7, true)));
+        configuration.setScatters(Set.of(7));
 
         // set starting balance
         configuration.setStartingBalance(100000);
