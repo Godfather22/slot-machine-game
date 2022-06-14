@@ -27,10 +27,6 @@ public class Screen {
             for (int j = 0; j < columnCount; j++)
                 view[i][j] = metaList.get(i).get(j);
     }
-//
-//    public Number getCardValueAt(int row, int column) {
-//        return view[row][column].getValue();
-//    }
 
     @Override
     public String toString() {
