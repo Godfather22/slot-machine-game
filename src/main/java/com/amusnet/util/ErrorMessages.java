@@ -3,6 +3,12 @@ package com.amusnet.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A container for error messages. Messages can be retrieved by their given title. Pattern used is
+ * <a href="https://refactoring.guru/design-patterns/singleton/java/example#example-2">thread-safe singleton</a>.
+ *
+ * @since 1.0
+ */
 public class ErrorMessages {
     private final Map<String, ErrorMessage> messages;
 
@@ -13,6 +19,11 @@ public class ErrorMessages {
 
     private static volatile ErrorMessages instance;
 
+    /**
+     * Get the instance of the container in a thread-safe manner.
+     *
+     * @return The instance of the container.
+     */
     // instance is retrieved using double-checked locking (DCL)
     public static ErrorMessages getInstance() {
         ErrorMessages result = instance;
@@ -26,13 +37,13 @@ public class ErrorMessages {
     }
 
     public String message(String title) {
-        return message(title, "");
+        if (this.messages.containsKey(title))
+            return this.messages.get(title).getMessage();
+        else
+            return "";
     }
 
     public String message(String title, String message) {
-        if (this.messages.containsKey(title))
-            return this.messages.get(title).getMessage();
-
         this.messages.put(title, new ErrorMessage(message));
         return message;
     }
