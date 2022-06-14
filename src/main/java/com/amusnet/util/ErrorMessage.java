@@ -1,10 +1,18 @@
 package com.amusnet.util;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
-@Data
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ErrorMessage {
+    @Getter
     private String message;
+
+    @Override
+    public String toString() {
+        return message;
+    }
+
 }
