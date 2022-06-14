@@ -36,6 +36,12 @@ public class ErrorMessages {
         }
     }
 
+    /**
+     * Returns the error message associated with title, or null if no such exists.
+     *
+     * @param title The given title of the error message to return. Acts as a key.
+     * @return The error message associated with title, or null if no such exists.
+     */
     public String message(String title) {
         if (this.messages.containsKey(title))
             return this.messages.get(title).getMessage();
@@ -43,11 +49,22 @@ public class ErrorMessages {
             return "";
     }
 
+    /**
+     * Creates title-message key-value pair. If such a title already exists,
+     * the method overwrites its error message.
+     *
+     * @param title The title associated with message. Acts as a key.
+     * @param message The error message associated with title. Acts as a value.
+     * @return The error message, now saved in container.
+     */
     public String message(String title, String message) {
         this.messages.put(title, new ErrorMessage(message));
         return message;
     }
 
+    /**
+     * Default titles for common error messages in application.
+     */
     public static class DefaultMessageTitles {
         public static final String TITLE_EMSG_INVALID_LINES_INPUT = "Invalid lines input";
         public static final String TITLE_EMSG_INVALID_BET_INPUT = "Invalid bet input";
