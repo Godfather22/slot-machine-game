@@ -1,5 +1,8 @@
 package com.amusnet.exception;
 
+/**
+ * Signals that a crucial part of the game configuration is missing or is in an invalid state.
+ */
 public class InvalidGameDataException extends Exception {
     @SuppressWarnings("unused")
     public InvalidGameDataException() {
