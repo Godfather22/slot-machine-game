@@ -53,10 +53,14 @@ public class Game {
     }
 
     public Screen generateScreen() {
-        return generateScreen(new Random().nextInt(configuration.getReels().get(0).size()));
+        Random rnd = new Random();
+        int[] diceRolls = new int[this.configuration.getScreenColumnCount()];
+        for (int i = 0; i < diceRolls.length; i++)
+            diceRolls[i] = rnd.nextInt(configuration.getReels().get(0).size());
+        return generateScreen(diceRolls);
     }
 
-    public Screen generateScreen(int diceRoll) {
+    public Screen generateScreen(int[] diceRolls) {
         // tests do a better job than this
         //log.debug("DiceRoll for screen generation: {}", diceRoll);
 
@@ -64,7 +68,7 @@ public class Game {
         int screenReelSize = this.configuration.getScreenRowCount();
         int screenRowsSize = this.configuration.getScreenColumnCount();
         for (int i = 0; i < screenRowsSize; i++) {
-            int index = diceRoll;
+            int index = diceRolls[i];
             for (int j = 0; j < screenReelSize; j++) {
                 if (index >= reelArrays.get(i).size())
                     index = 0;

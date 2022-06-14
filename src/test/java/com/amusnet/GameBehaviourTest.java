@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.fail;
 public class GameBehaviourTest {
 
     private static final Game game;
+    private static int[] diceRolls;
 
     static {
         try {
@@ -35,40 +36,38 @@ public class GameBehaviourTest {
     @DisplayName("Tests for correct generation of screen reels")
     class ScreenGenerationTest {
 
-        int generationNumber;
-
         @Test
         void feedScreenGeneratorNumber29_correctScreenGenerates() {
-            Given5Size30ReelArraysAndGenerationNumber29();
-            WhenGenerationNumberIsFedToGenerator();
+            Given5Size30ReelArraysAndGenerationNumbers29_28_27_28_29(); // test edge cases
+            WhenGenerationNumbersAreFedToGenerator();
             ThenScreenGeneratesWithPredictedContents(List.of(
-                    List.of(2, 5, 5, 4, 5),
-                    List.of(6, 6, 6, 6, 6),
-                    List.of(6, 6, 6, 6, 6)
+                    List.of(2, 5, 2, 4, 5),
+                    List.of(6, 5, 5, 4, 6),
+                    List.of(6, 6, 5, 6, 6)
             ));
         }
 
-        private void Given5Size30ReelArraysAndGenerationNumber29() {
-            this.generationNumber = 29;
+        private void Given5Size30ReelArraysAndGenerationNumbers29_28_27_28_29() {
+            diceRolls = new int[]{29, 28, 27, 28, 29};
         }
 
         @Test
         void feedScreenGeneratorNumber15_correctScreenGenerates() {
-            Given5Size30ReelArraysAndGenerationNumber15();
-            WhenGenerationNumberIsFedToGenerator();
+            Given5Size30ReelArraysAndGenerationNumbers15_28_0_10_19();
+            WhenGenerationNumbersAreFedToGenerator();
             ThenScreenGeneratesWithPredictedContents(List.of(
-                    List.of(2, 1, 2, 3, 0),
-                    List.of(2, 1, 2, 3, 0),
-                    List.of(2, 1, 2, 3, 0)
+                    List.of(2, 5, 6, 0, 1),
+                    List.of(2, 5, 6, 0, 1),
+                    List.of(2, 6, 6, 5, 1)
             ));
         }
 
-        private void Given5Size30ReelArraysAndGenerationNumber15() {
-            this.generationNumber = 15;
+        private void Given5Size30ReelArraysAndGenerationNumbers15_28_0_10_19() {
+            diceRolls = new int[]{15, 28, 0, 10, 19};
         }
 
-        private void WhenGenerationNumberIsFedToGenerator() {
-            game.generateScreen(this.generationNumber);
+        private void WhenGenerationNumbersAreFedToGenerator() {
+            game.generateScreen(diceRolls);
         }
 
         private void ThenScreenGeneratesWithPredictedContents(List<List<Integer>> predictedContents) {
@@ -83,29 +82,15 @@ public class GameBehaviourTest {
     class GameplayTest {
 
         @Test
-        void play5LinesFor10_diceRollIs30_win50000FromLines() {
-            GivenBetOn5LinesForAmount10();
-            WhenGenerationDiceRollIs30();
-            ThenShouldWin50000FromLines();
-        }
-
-        private void WhenGenerationDiceRollIs30() {
-            generateScreenWithDiceRoll(30);
-        }
-
-        private void WhenGenerationDiceRollIs24() {
-            generateScreenWithDiceRoll(24);
-        }
-
-        @Test
-        void play20LinesFor5_diceRollIs18_win500FromScatters() {
-            GivenBetOn20LinesForAmount5();
-            WhenGenerationDiceRollIs18();
+        void play20LinesFor5_diceRollsAre22_18_17_0_29_win500FromScatters() {
+            GivenBetOn20LinesForAmount5AndDiceRolls22_18_17_0_29();
+            WhenGenerationNumbersAreFedToGenerator();
             ThenShouldWin500FromScatters();
         }
 
-        private void WhenGenerationDiceRollIs18() {
-            generateScreenWithDiceRoll(18);
+        private void GivenBetOn20LinesForAmount5AndDiceRolls22_18_17_0_29() {
+            makeBet(20, 5.0);
+            diceRolls = new int[]{22, 18, 17, 0, 29};
         }
 
         private void ThenShouldWin500FromScatters() {
@@ -113,33 +98,27 @@ public class GameBehaviourTest {
         }
 
         @Test
-        void play10LinesFor5_diceRollIs12_win0Total() {
-            GivenBetOn10LinesForAmount5();
-            WhenGenerationDiceRollIs12();
-            ThenShouldWin0Total();    // the first card of each line is different from the rest
-        }
-
-        private void GivenBetOn10LinesForAmount5() {
-            makeBet(10, 5.0);
-        }
-
-        private void WhenGenerationDiceRollIs12() {
-            generateScreenWithDiceRoll(12);
-        }
-
-        @Test
-        void play20LinesFor10_diceRollIs6_win0Total() {
-            GivenBetOn20LinesForAmount10();
-            WhenGenerationDiceRollIs6();
+        void play10LinesFor5_diceRollsAre12_19_9_22_28_win0Total() {
+            GivenBetOn10LinesForAmount5AndDiceRolls12_19_9_22_28();
+            WhenGenerationNumbersAreFedToGenerator();
             ThenShouldWin0Total();
         }
 
-        private void GivenBetOn20LinesForAmount10() {
-            makeBet(20, 10.0);
+        private void GivenBetOn10LinesForAmount5AndDiceRolls12_19_9_22_28() {
+            makeBet(10, 5.0);
+            diceRolls = new int[]{12, 19, 9, 22, 28};
         }
 
-        private void WhenGenerationDiceRollIs6() {
-            generateScreenWithDiceRoll(6);
+        @Test
+        void play20LinesFor10_diceRollsAre5_2_19_13_0_win0Total() {
+            GivenBetOn20LinesForAmount10AndDiceRolls5_2_19_13_0();
+            WhenGenerationNumbersAreFedToGenerator();
+            ThenShouldWin0Total();
+        }
+
+        private void GivenBetOn20LinesForAmount10AndDiceRolls5_2_19_13_0() {
+            makeBet(20, 10.0);
+            diceRolls = new int[]{5, 2, 19, 13, 0};
         }
 
         private void ThenShouldWin0Total() {
@@ -147,43 +126,47 @@ public class GameBehaviourTest {
         }
 
         @Test
-        void play5LinesFor10_diceRollIs0_win50000FromLines() {
-            GivenBetOn5LinesForAmount10();
-            WhenGenerationDiceRollIs0();
-            ThenShouldWin50000FromLines();
+        void play5LinesFor10_diceRollsAre15_3_15_22_25_win50000FromLines() {
+            GivenBetOn5LinesForAmount10AndDiceRolls15_3_15_22_25();
+            WhenGenerationNumbersAreFedToGenerator();
+            ThenShouldWin5000FromLines();
         }
 
-        private void GivenBetOn5LinesForAmount10() {
+        private void GivenBetOn5LinesForAmount10AndDiceRolls15_3_15_22_25() {
             makeBet(5, 10.0);
-        }
-
-        private void WhenGenerationDiceRollIs0() {
-            generateScreenWithDiceRoll(0);
-        }
-
-        private void ThenShouldWin50000FromLines() {
-            assertWinAmounts(50000.0, 0.0);
+            diceRolls = new int[]{15, 3, 15, 22, 25};
         }
 
         @Test
-        void play20LinesFor5_win100FromLinesAnd500FromScatters() {
-            GivenBetOn20LinesForAmount5();
-            WhenLine4HasFourInitial_1_s();
+        void play5LinesFor10_diceRollsAre15_3_15_22_9_win50000FromLines() {
+            GivenBetOn5LinesForAmount10AndDiceRolls15_3_15_22_9();
+            WhenGenerationNumbersAreFedToGenerator();
+            ThenShouldWin5000FromLines();
+        }
+
+        private void GivenBetOn5LinesForAmount10AndDiceRolls15_3_15_22_9() {
+            makeBet(5, 10.0);
+            diceRolls = new int[]{15, 3, 15, 22, 9};
+        }
+
+        private void ThenShouldWin5000FromLines() {
+            assertWinAmounts(5000.0, 0.0);
+        }
+
+        @Test
+        void play20LinesFor5_diceRollsAre23_16_7_19_13_win100FromLinesAnd500FromScatters() {
+            GivenBetOn20LinesForAmount5AndDiceRolls23_16_7_19_13();
+            WhenGenerationNumbersAreFedToGenerator();
             ThenShouldWin100FromLinesAnd500FromScatters();
         }
 
-        private void GivenBetOn20LinesForAmount5() {
+        private void GivenBetOn20LinesForAmount5AndDiceRolls23_16_7_19_13() {
             makeBet(20, 5.0);
+            diceRolls = new int[]{23, 16, 7, 19, 13};
         }
 
-        private void WhenLine4HasFourInitial_1_s() {
-            // enforce non-random generation
-            var screenAsList = List.of(
-                    List.of(1, 1, 0, 1, 5),
-                    List.of(7, 1, 0, 1, 5),
-                    List.of(4, 7, 1, 7, 0)
-            );
-            game.setScreen(new Screen(screenAsList));
+        private void WhenGenerationNumbersAreFedToGenerator() {
+            generateScreenFromDiceRolls();
         }
 
         private void ThenShouldWin100FromLinesAnd500FromScatters() {
@@ -200,8 +183,8 @@ public class GameBehaviourTest {
             log.info("Lines {}; Bet per line {}", linesPlayed, betAmount);
         }
 
-        private void generateScreenWithDiceRoll(int diceRoll) {
-            Screen screen = game.generateScreen(diceRoll);
+        private void generateScreenFromDiceRolls() {
+            Screen screen = game.generateScreen(diceRolls);
             log.info(System.lineSeparator() + screen.toString());
         }
 
