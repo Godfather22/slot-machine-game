@@ -199,7 +199,7 @@ public class GameConfig {
             for (var m : occurrenceCounts)
                 sb.append(String.format("%5s", m));
 
-            sb.append("\n");
+            sb.append(System.lineSeparator());
 
             var keys = data.keySet();
             keys.forEach(key -> {
@@ -229,25 +229,40 @@ public class GameConfig {
     // TODO some elements are missing
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Current configuration:\n\n");
+        
+        final String nl = System.lineSeparator();
+        
+        StringBuilder sb = new StringBuilder(
+                """
+                        ----------------------
+                        Current configuration
+                        ----------------------
+                        """
+        );
 
-        sb.append("Starting balance: ").append(startingBalance).append("\n");
-
-        sb.append("Max Bet Amount: ").append(betLimit).append("\n");
-
-        sb.append("Reel arrays:\n");
-        reels.forEach(ra -> sb.append(ra).append("\n"));
-
-        sb.append("Line arrays:\n");
-        lines.forEach(la -> sb.append(la).append("\n"));
-
-        sb.append("Multipliers Table:\n");
-        sb.append(table);
+        sb.append("Screen row count: ").append(screenRowCount).append(nl);
+        sb.append("Screen column count: ").append(screenColumnCount).append(nl);
 
         sb.append("Currency format:\n");
-        sb.append(this.currencyFormat.toPattern());
+        sb.append(currencyFormat.toPattern());
 
-        sb.append(System.lineSeparator());
+        sb.append("Starting balance: ").append(startingBalance).append(nl);
+        sb.append("Line count: ").append(startingBalance).append(nl);
+        sb.append("Bet limit: ").append(betLimit).append(nl);
+
+        sb.append("Exit command: ").append(exitCommand).append(nl);
+
+        sb.append("Reel arrays:").append(nl);
+        reels.forEach(ra -> sb.append(ra).append(nl));
+
+        sb.append("Line arrays:").append(nl);
+        lines.forEach(la -> sb.append(la).append(nl));
+
+        sb.append("Scatters:").append(nl);
+        sb.append(scatters).append(nl);
+
+        sb.append("Multipliers Table:").append(nl);
+        sb.append(table);
 
         return sb.toString();
     }
