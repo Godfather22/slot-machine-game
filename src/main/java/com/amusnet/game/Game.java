@@ -2,7 +2,6 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.ConfigurationInitializationException;
-import com.amusnet.exception.InvalidGameDataException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -130,7 +129,7 @@ public class Game {
         return this.screen;
     }
 
-    public double calculateTotalWinAndBalance() throws InvalidGameDataException {
+    public double calculateTotalWinAndBalance() {
         double totalWin = calculateTotalWin();
         this.currentBalance += totalWin;
         return totalWin;
@@ -141,14 +140,14 @@ public class Game {
      * of line wins and scatter wins.
      *
      * @return The sum of line wins and scatter wins.
-     * @throws InvalidGameDataException If the game is not configured correctly.
      */
-    private double calculateTotalWin() throws InvalidGameDataException {
+    private double calculateTotalWin() {
 
-        if (this.linesPlayed < 1)
-            throw new InvalidGameDataException("Invalid value for field 'linesPlayed'");
-        if (this.betAmount < 1.0)
-            throw new InvalidGameDataException("Invalid value for field 'betAmount'");
+        // should never come to this
+//        if (this.linesPlayed < 1)
+//            throw new InvalidGameDataException("Invalid value for field 'linesPlayed'");
+//        if (this.betAmount < 1.0)
+//            throw new InvalidGameDataException("Invalid value for field 'betAmount'");
 
         double totalWinAmount = 0;
 

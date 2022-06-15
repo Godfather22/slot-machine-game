@@ -1,7 +1,6 @@
 package com.amusnet;
 
 import com.amusnet.exception.ConfigurationInitializationException;
-import com.amusnet.exception.InvalidGameDataException;
 import com.amusnet.game.Game;
 import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
@@ -104,11 +103,8 @@ public class Application {
                     GAME.getConfiguration().getCurrencyFormat().format(GAME.getCurrentBalance()),
                     GAME.generateScreen()
             );
-            try {
-                GAME.calculateTotalWinAndBalance();
-            } catch (InvalidGameDataException e) {
-                log.error(e.getMessage());
-            }
+
+            GAME.calculateTotalWinAndBalance();
 
             System.out.println();
         }

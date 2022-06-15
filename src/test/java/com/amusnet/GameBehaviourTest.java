@@ -1,7 +1,6 @@
 package com.amusnet;
 
 import com.amusnet.exception.ConfigurationInitializationException;
-import com.amusnet.exception.InvalidGameDataException;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 @Slf4j
 public class GameBehaviourTest {
@@ -194,12 +192,8 @@ public class GameBehaviourTest {
 
         private void assertWinAmounts(double fromLines, double fromScatters) {
             double oldBalance = game.getCurrentBalance();
-            try {
-                assertThat(game.calculateTotalWinAndBalance()).as("Total win amount")
-                        .isEqualTo(fromLines + fromScatters);
-            } catch (InvalidGameDataException e) {
-                fail("Method threw unexpected exception");
-            }
+            assertThat(game.calculateTotalWinAndBalance()).as("Total win amount")
+                    .isEqualTo(fromLines + fromScatters);
             assertThat(game.getLastWinFromLines()).as("Win from lines")
                     .isEqualTo(fromLines);
             assertThat(game.getLastWinFromScatters()).as("Win from scatters")
