@@ -1,6 +1,7 @@
 package com.amusnet.config;
 
 import com.amusnet.exception.ConfigurationInitializationException;
+import com.amusnet.util.ErrorMessages;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
@@ -99,6 +100,9 @@ public class GameConfig {
             //validator.validate(new DOMSource(document));
         }
 
+        // for error tracking
+        ErrorMessages errorMessages = ErrorMessages.getInstance();
+
         document.getDocumentElement().normalize();
         Element root = document.getDocumentElement();
 
@@ -122,7 +126,9 @@ public class GameConfig {
                 log.error("Number of reel arrays are not the same as number of screen reels (screen columns): " +
                                 "# reel arrays: {}{}# screen reels (screen columns): {}",
                         nlReelArrays.getLength(), System.lineSeparator(), this.screenColumnCount);
-                throw new ConfigurationInitializationException("Number of reel arrays not equal to number of screen reels");
+                throw new ConfigurationInitializationException(errorMessages.message(
+                        "Reels discrepancy", "Number of reel arrays not equal to number of screen reels"
+                ));
             }
             this.reels = new ArrayList<>();
             for (int i = 0; i < nlReelArrays.getLength(); i++) {
@@ -153,10 +159,12 @@ public class GameConfig {
                 // table should not have duplicate cards
                 if (!cards.contains(cardValue))
                     cards.add(cardValue);
-                else
-                    throw new ConfigurationInitializationException(String.format(
-                       "Card %d exists more than one times in multipliers table", cardValue
+                else {
+                    log.error("Duplicate card {} in multipliers table", cardValue);
+                    throw new ConfigurationInitializationException(errorMessages.message(
+                            "Duplicate card(s)", "Duplicate card(s) found in multipliers table"
                     ));
+                }
 
                 // iterate through current card's multipliers
                 Map<Integer, Integer> rightColumns = new LinkedHashMap<>();
@@ -176,9 +184,14 @@ public class GameConfig {
 
                     // check if there is a discrepancy with previous amounts of multipliers
                     if (++multipliersForThisCard > multipliersPerCard)
-                        if (i > 0)
-                            throw new ConfigurationInitializationException("Cards in multipliers table should have" +
-                                    "consistent amount of multipliers");
+                        if (i > 0) {
+                            log.error("Card multipliers until now were {} but encountered a card with {} multipliers",
+                                    multipliersPerCard, multipliersForThisCard);
+                            throw new ConfigurationInitializationException(errorMessages.message(
+                                    "Card multipliers discrepancy", "Cards in multipliers table should " +
+                                            "have consistent amount of multipliers"
+                            ));
+                        }
                         else
                             multipliersPerCard = multipliersForThisCard;
 
@@ -191,9 +204,16 @@ public class GameConfig {
             Set<Integer> playingCards = new HashSet<>();
             for (List<Integer> r : this.reels)
                 playingCards.addAll(new HashSet<>(r));
-            if (!data.keySet().containsAll(playingCards))
-                throw new ConfigurationInitializationException("Discrepancy between playing cards in reel arrays" +
-                        "and those in multipliers table. Card(s) probably missing from table.");
+            if (!data.keySet().containsAll(playingCards)) {
+                var soreThumbs = playingCards.stream()
+                        .filter(c -> !data.containsKey(c))
+                        .collect(Collectors.toSet());
+                log.error("Cards {} are missing from multipliers table", soreThumbs);
+                throw new ConfigurationInitializationException(errorMessages.message(
+                        "Missing cards in multipliers table", "Discrepancy between playing cards " +
+                                "in reel arrays and those in multipliers table. Card(s) probably missing from table."
+                ));
+            }
 
             // all is good
             this.table.setOccurrenceCounts(occurrenceCounts.values().stream().toList());
