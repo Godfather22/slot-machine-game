@@ -74,11 +74,14 @@ public class GameConfig {
     }
 
     private void initialize(File xmlConfig, File xsdValidation) throws ParserConfigurationException, SAXException, IOException {
+
+        // DOM API
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
         Document document = builder.parse(xmlConfig);
 
+        // if .xsd validation file is provided
         if (xsdValidation != null) {
             Schema schema;
             try {
@@ -97,11 +100,13 @@ public class GameConfig {
         document.getDocumentElement().normalize();
         Element root = document.getDocumentElement();
 
+        // set row and column size
         NodeList nlRows = root.getElementsByTagName("rows");
         this.screenRowCount = Integer.parseInt(nlRows.item(0).getChildNodes().item(0).getNodeValue());
         NodeList nlColumns = root.getElementsByTagName("columns");
         this.screenColumnCount = Integer.parseInt(nlColumns.item(0).getChildNodes().item(0).getNodeValue());
 
+        // set currency format
         NodeList nlCurrencyFormat = root.getElementsByTagName("currency");
         this.currencyFormat = new DecimalFormat();
         switch (((Element)nlCurrencyFormat.item(0)).getAttribute("format")) {
@@ -109,18 +114,23 @@ public class GameConfig {
             case "round" -> this.currencyFormat.applyPattern("#");
         }
 
+        // set starting balance
         NodeList nlStartingBalance = root.getElementsByTagName("balance");
         this.startingBalance = Double.parseDouble(nlStartingBalance.item(0).getChildNodes().item(0).getNodeValue());
 
+        // set number of lines
         NodeList nlLineArrays = root.getElementsByTagName("lineArray");
         this.lineCount = nlLineArrays.getLength();
 
+        // set bet limit
         NodeList nlBetLimit = root.getElementsByTagName("betlimit");
         this.betLimit = Double.parseDouble(nlBetLimit.item(0).getChildNodes().item(0).getNodeValue());
 
+        // set exit command
         NodeList nlExitCommand = root.getElementsByTagName("exit");
         this.exitCommand = nlExitCommand.item(0).getChildNodes().item(0).getNodeValue();
 
+        // set up reel arrays
         NodeList nlReelArrays = root.getElementsByTagName("reelArray");
         this.reels = new ArrayList<>();
         for (int i = 0; i < nlReelArrays.getLength(); i++) {
@@ -132,6 +142,7 @@ public class GameConfig {
             this.reels.add(reelList);
         }
 
+        // set up line arrays
         this.lines = new ArrayList<>();
         for (int i = 0; i < nlLineArrays.getLength(); i++) {
             String strLineArray = nlLineArrays.item(i).getChildNodes().item(0).getNodeValue();
@@ -142,6 +153,7 @@ public class GameConfig {
             this.lines.add(lineList);
         }
 
+        // set up scatter cards
         NodeList nlScatterCards = root.getElementsByTagName("scatters");
         String strScatterValues = nlScatterCards.item(0).getChildNodes().item(0).getNodeValue();
         String[] scatterValues = strScatterValues.split(",");
@@ -149,6 +161,7 @@ public class GameConfig {
         for (String v : scatterValues)
             this.scatters.add(Integer.parseInt(v));
 
+        // set up multipliers table
         NodeList nlCardColumn = root.getElementsByTagName("card");
         NodeList nlMultipliers = root.getElementsByTagName("multiplier");
         Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
