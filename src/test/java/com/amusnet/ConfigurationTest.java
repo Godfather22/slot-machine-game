@@ -1,6 +1,7 @@
 package com.amusnet;
 
 import com.amusnet.config.GameConfig;
+import com.amusnet.exception.ConfigurationInitializationException;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,6 +29,9 @@ public class ConfigurationTest {
             config1 = new GameConfig(xmlConfig, xsdValidation);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             log.error("Error initializing configuration", e);
+            throw new RuntimeException(e);
+        } catch (ConfigurationInitializationException e) {
+            log.error("Configuration constraint violated", e);
             throw new RuntimeException(e);
         }
         config2 = new GameConfig();

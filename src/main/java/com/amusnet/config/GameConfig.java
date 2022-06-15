@@ -1,5 +1,6 @@
 package com.amusnet.config;
 
+import com.amusnet.exception.ConfigurationInitializationException;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class that loads XML configuration for the game.
@@ -56,7 +58,7 @@ public class GameConfig {
      * @throws SAXException If any parse errors occur.
      */
     @SuppressWarnings("unused")
-    public GameConfig(File xmlConfig) throws ParserConfigurationException, IOException, SAXException {
+    public GameConfig(File xmlConfig) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
         initialize(xmlConfig, null);
     }
 
@@ -69,11 +71,11 @@ public class GameConfig {
      * @throws SAXException If any parse errors occur.
      */
     @SuppressWarnings("unused")
-    public GameConfig(File xmlConfig, File xsdValidation) throws ParserConfigurationException, IOException, SAXException {
+    public GameConfig(File xmlConfig, File xsdValidation) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
         initialize(xmlConfig, xsdValidation);
     }
 
-    private void initialize(File xmlConfig, File xsdValidation) throws ParserConfigurationException, SAXException, IOException {
+    private void initialize(File xmlConfig, File xsdValidation) throws ParserConfigurationException, SAXException, IOException, ConfigurationInitializationException {
 
         // DOM API
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -100,95 +102,168 @@ public class GameConfig {
         document.getDocumentElement().normalize();
         Element root = document.getDocumentElement();
 
-        // set row and column size
-        NodeList nlRows = root.getElementsByTagName("rows");
-        this.screenRowCount = Integer.parseInt(nlRows.item(0).getChildNodes().item(0).getNodeValue());
-        NodeList nlColumns = root.getElementsByTagName("columns");
-        this.screenColumnCount = Integer.parseInt(nlColumns.item(0).getChildNodes().item(0).getNodeValue());
+        /*
+        Column size, reel arrays and multipliers table are read first
+        because dependencies exist between them and if one is violated,
+        there's no need to continue the initialization.
+         */
+
+        // set column size
+        {
+            NodeList nlColumns = root.getElementsByTagName("columns");
+            this.screenColumnCount = Integer.parseInt(nlColumns.item(0).getChildNodes().item(0).getNodeValue());
+        }
+
+        // set up reel arrays (size of columns)
+        {
+            NodeList nlReelArrays = root.getElementsByTagName("reelArray");
+            // there should be an equal amount of reel arrays and screen columns
+            if (nlReelArrays.getLength() != this.screenColumnCount) {
+                log.error("Number of reel arrays are not the same as number of screen reels (screen columns): " +
+                                "# reel arrays: {}{}# screen reels (screen columns): {}",
+                        nlReelArrays.getLength(), System.lineSeparator(), this.screenColumnCount);
+                throw new ConfigurationInitializationException("Number of reel arrays not equal to number of screen reels");
+            }
+            this.reels = new ArrayList<>();
+            for (int i = 0; i < nlReelArrays.getLength(); i++) {
+                String strReelArray = nlReelArrays.item(i).getChildNodes().item(0).getNodeValue();
+                String[] reelArrayValues = strReelArray.split(",");
+                List<Integer> reelList = new ArrayList<>();
+                for (String v : reelArrayValues)
+                    reelList.add(Integer.parseInt(v));
+                this.reels.add(reelList);
+            }
+        }
+
+        // set up multipliers table
+        {
+            NodeList nlCardColumn = root.getElementsByTagName("card");
+            NodeList nlMultipliers = root.getElementsByTagName("multiplier");
+            Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
+            Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
+            List<Integer> cards = new ArrayList<>();     // to keep track of the cards in the table
+            int j = 0, multipliersPerCard = 0;
+            for (int i = 0; i < nlCardColumn.getLength(); i++) {
+
+                // fetch current card value ("face")
+                Node card = nlCardColumn.item(i);
+                String strFace = ((Element) card).getAttribute("face");
+                int cardValue = Integer.parseInt(strFace);
+
+                // table should not have duplicate cards
+                if (!cards.contains(cardValue))
+                    cards.add(cardValue);
+                else
+                    throw new ConfigurationInitializationException(String.format(
+                       "Card %d exists more than one times in multipliers table", cardValue
+                    ));
+
+                // iterate through current card's multipliers
+                Map<Integer, Integer> rightColumns = new LinkedHashMap<>();
+                var multiplier = nlMultipliers.item(j);
+                int multipliersForThisCard = 0;
+                while (multiplier != null && multiplier.getParentNode().equals(card)) {
+
+                    // fetch occurrence count for current multiplier
+                    String strOccurrences = ((Element) multiplier).getAttribute("occurrences");
+                    int occurrencesValue = Integer.parseInt(strOccurrences);
+                    occurrenceCounts.put(strOccurrences, occurrencesValue);
+
+                    // fetch multiplication amount for current multiplier
+                    String strAmount = ((Element) multiplier).getAttribute("amount");
+                    int amountValue = Integer.parseInt(strAmount);
+                    rightColumns.put(occurrencesValue, amountValue);
+
+                    // check if there is a discrepancy with previous amounts of multipliers
+                    if (++multipliersForThisCard > multipliersPerCard)
+                        if (i > 0)
+                            throw new ConfigurationInitializationException("Cards in multipliers table should have" +
+                                    "consistent amount of multipliers");
+                        else
+                            multipliersPerCard = multipliersForThisCard;
+
+                    multiplier = nlMultipliers.item(++j);
+                }
+                data.put(cardValue, rightColumns);
+            }
+
+            // compare unique cards from reel arrays and those described in table - should be the same
+            Set<Integer> playingCards = new HashSet<>();
+            for (List<Integer> r : this.reels)
+                playingCards.addAll(new HashSet<>(r));
+            if (!data.keySet().containsAll(playingCards))
+                throw new ConfigurationInitializationException("Discrepancy between playing cards in reel arrays" +
+                        "and those in multipliers table. Card(s) probably missing from table.");
+
+            // all is good
+            this.table.setOccurrenceCounts(occurrenceCounts.values().stream().toList());
+            this.table.setData(data);
+        }
+
+        // set row size
+        {
+            NodeList nlRows = root.getElementsByTagName("rows");
+            this.screenRowCount = Integer.parseInt(nlRows.item(0).getChildNodes().item(0).getNodeValue());
+        }
 
         // set currency format
-        NodeList nlCurrencyFormat = root.getElementsByTagName("currency");
-        this.currencyFormat = new DecimalFormat();
-        switch (((Element)nlCurrencyFormat.item(0)).getAttribute("format")) {
-            case "normal" -> this.currencyFormat.applyPattern("#.##");
-            case "round" -> this.currencyFormat.applyPattern("#");
+        {
+            NodeList nlCurrencyFormat = root.getElementsByTagName("currency");
+            this.currencyFormat = new DecimalFormat();
+            switch (((Element) nlCurrencyFormat.item(0)).getAttribute("format")) {
+                case "normal" -> this.currencyFormat.applyPattern("#.##");
+                case "round" -> this.currencyFormat.applyPattern("#");
+            }
         }
 
         // set starting balance
-        NodeList nlStartingBalance = root.getElementsByTagName("balance");
-        this.startingBalance = Double.parseDouble(nlStartingBalance.item(0).getChildNodes().item(0).getNodeValue());
+        {
+            NodeList nlStartingBalance = root.getElementsByTagName("balance");
+            this.startingBalance = Double.parseDouble(nlStartingBalance.item(0).getChildNodes().item(0).getNodeValue());
+        }
 
         // set number of lines
-        NodeList nlLineArrays = root.getElementsByTagName("lineArray");
-        this.lineCount = nlLineArrays.getLength();
+        {
+            NodeList nlLineArrays = root.getElementsByTagName("lineArray");
+            this.lineCount = nlLineArrays.getLength();
+        }
 
         // set bet limit
-        NodeList nlBetLimit = root.getElementsByTagName("betlimit");
-        this.betLimit = Double.parseDouble(nlBetLimit.item(0).getChildNodes().item(0).getNodeValue());
+        {
+            NodeList nlBetLimit = root.getElementsByTagName("betlimit");
+            this.betLimit = Double.parseDouble(nlBetLimit.item(0).getChildNodes().item(0).getNodeValue());
+        }
 
         // set exit command
-        NodeList nlExitCommand = root.getElementsByTagName("exit");
-        this.exitCommand = nlExitCommand.item(0).getChildNodes().item(0).getNodeValue();
-
-        // set up reel arrays
-        NodeList nlReelArrays = root.getElementsByTagName("reelArray");
-        this.reels = new ArrayList<>();
-        for (int i = 0; i < nlReelArrays.getLength(); i++) {
-            String strReelArray = nlReelArrays.item(i).getChildNodes().item(0).getNodeValue();
-            String[] reelArrayValues = strReelArray.split(",");
-            List<Integer> reelList = new ArrayList<>();
-            for (String v : reelArrayValues)
-                reelList.add(Integer.parseInt(v));
-            this.reels.add(reelList);
+        {
+            NodeList nlExitCommand = root.getElementsByTagName("exit");
+            this.exitCommand = nlExitCommand.item(0).getChildNodes().item(0).getNodeValue();
         }
 
         // set up line arrays
-        this.lines = new ArrayList<>();
-        for (int i = 0; i < nlLineArrays.getLength(); i++) {
-            String strLineArray = nlLineArrays.item(i).getChildNodes().item(0).getNodeValue();
-            String[] lineValues = strLineArray.split(",");
-            List<Integer> lineList = new ArrayList<>();
-            for (String v : lineValues)
-                lineList.add(Integer.parseInt(v));
-            this.lines.add(lineList);
+        {
+            NodeList nlLineArrays = root.getElementsByTagName("lineArray");
+            this.lines = new ArrayList<>();
+            for (int i = 0; i < nlLineArrays.getLength(); i++) {
+                String strLineArray = nlLineArrays.item(i).getChildNodes().item(0).getNodeValue();
+                String[] lineValues = strLineArray.split(",");
+                List<Integer> lineList = new ArrayList<>();
+                for (String v : lineValues)
+                    lineList.add(Integer.parseInt(v));
+                this.lines.add(lineList);
+            }
         }
 
         // set up scatter cards
-        NodeList nlScatterCards = root.getElementsByTagName("scatters");
-        String strScatterValues = nlScatterCards.item(0).getChildNodes().item(0).getNodeValue();
-        String[] scatterValues = strScatterValues.split(",");
-        this.scatters = new LinkedHashSet<>();
-        for (String v : scatterValues)
-            this.scatters.add(Integer.parseInt(v));
-
-        // set up multipliers table
-        NodeList nlCardColumn = root.getElementsByTagName("card");
-        NodeList nlMultipliers = root.getElementsByTagName("multiplier");
-        Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
-        Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
-        int j = 0;
-        for (int i = 0; i < nlCardColumn.getLength(); i++) {
-            Node card = nlCardColumn.item(i);
-            String strFace = ((Element)card).getAttribute("face");
-            int cardValue = Integer.parseInt(strFace);
-
-            Map<Integer, Integer> rightColumns = new LinkedHashMap<>();
-            var multiplier = nlMultipliers.item(j);
-            while (multiplier != null && multiplier.getParentNode().equals(card)) {
-                String strOccurrences = ((Element)multiplier).getAttribute("occurrences");
-                int occurrencesValue = Integer.parseInt(strOccurrences);
-                occurrenceCounts.put(strOccurrences, occurrencesValue);
-
-                String strAmount = ((Element)multiplier).getAttribute("amount");
-                int amountValue = Integer.parseInt(strAmount);
-                rightColumns.put(occurrencesValue, amountValue);
-
-                multiplier = nlMultipliers.item(++j);
-            }
-            data.put(cardValue, rightColumns);
+        {
+            NodeList nlScatterCards = root.getElementsByTagName("scatters");
+            String strScatterValues = nlScatterCards.item(0).getChildNodes().item(0).getNodeValue();
+            String[] scatterValues = strScatterValues.split(",");
+            this.scatters = new LinkedHashSet<>();
+            for (String v : scatterValues)
+                this.scatters.add(Integer.parseInt(v));
         }
-        this.table.setOccurrenceCounts(occurrenceCounts.values().stream().toList());
-        this.table.setData(data);
+
     }
 
     /**

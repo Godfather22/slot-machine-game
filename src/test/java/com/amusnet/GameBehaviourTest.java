@@ -1,5 +1,6 @@
 package com.amusnet;
 
+import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.exception.InvalidGameDataException;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
@@ -27,6 +28,9 @@ public class GameBehaviourTest {
             game = new Game();
         } catch (ParserConfigurationException | IOException | SAXException e) {
             log.error("Fatal error while configuring game", e);
+            throw new RuntimeException(e);
+        } catch (ConfigurationInitializationException e) {
+            log.error("Configuration constraint violated", e);
             throw new RuntimeException(e);
         }
     }

@@ -1,6 +1,7 @@
 package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
+import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.exception.InvalidGameDataException;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,7 +47,7 @@ public class Game {
      * @throws IOException If any IO errors occur.
      * @throws SAXException If any parse errors occur.
      */
-    public Game() throws ParserConfigurationException, IOException, SAXException {
+    public Game() throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
 
         File xmlConfig = new File("src/main/resources/properties.xml");     // configuration file
         File xsdValidation = new File("src/main/resources/properties.xsd");     // configuration file validation
