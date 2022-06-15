@@ -14,6 +14,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
@@ -96,8 +97,7 @@ public class GameConfig {
                 throw new RuntimeException(e);
             }
             Validator validator = schema.newValidator();
-            // TODO troubleshoot
-            //validator.validate(new DOMSource(document));
+            validator.validate(new DOMSource(document));
         }
 
         // for error tracking

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<properties xmlns="http://amusnet.com">
+<properties>
     <rows>3</rows>
     <columns>5</columns>
     <currency format="round"/>
