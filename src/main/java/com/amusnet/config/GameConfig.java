@@ -55,6 +55,7 @@ public class GameConfig {
      * @throws IOException If any IO errors occur.
      * @throws SAXException If any parse errors occur.
      */
+    @SuppressWarnings("unused")
     public GameConfig(File xmlConfig) throws ParserConfigurationException, IOException, SAXException {
         initialize(xmlConfig, null);
     }
@@ -67,6 +68,7 @@ public class GameConfig {
      * @throws IOException If any IO errors occur.
      * @throws SAXException If any parse errors occur.
      */
+    @SuppressWarnings("unused")
     public GameConfig(File xmlConfig, File xsdValidation) throws ParserConfigurationException, IOException, SAXException {
         initialize(xmlConfig, xsdValidation);
     }
