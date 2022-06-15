@@ -46,7 +46,7 @@ public class ConfigurationTest {
 
         configuration.setScreenRowCount(3);
         configuration.setScreenColumnCount(5);
-        configuration.setMaxLines(20);
+        configuration.setLineCount(20);
         configuration.setExitCommand("quit");
 
         // set up reel arrays

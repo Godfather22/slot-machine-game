@@ -119,7 +119,7 @@ public class UserInputTest {
             // TODO dynamic field strings
             switch (field) {
                 case "linesPlayed" -> {
-                    int maxLines = CONFIG.getMaxLines();
+                    int maxLines = CONFIG.getLineCount();
                     return String.valueOf(rnd.nextInt(maxLines) + 1);
                 }
                 case "betAmount" -> {
@@ -190,7 +190,7 @@ public class UserInputTest {
 
             int i = -1;
             try {
-                int[] bounds = new int[]{CONFIG.getMaxLines(), (int) CONFIG.getBetLimit()};
+                int[] bounds = new int[]{CONFIG.getLineCount(), (int) CONFIG.getBetLimit()};
                 for (i = 0; i < REQUIRED_INPUT_COUNT; i++) {
                     sb.append(getValueForField(boundViolationsMask[i], bounds[i]));
                 }

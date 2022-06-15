@@ -36,7 +36,7 @@ public class GameConfig {
     private DecimalFormat currencyFormat = new DecimalFormat();
 
     private double startingBalance;
-    private int maxLines;
+    private int lineCount;
     private double betLimit;
 
     private String exitCommand;
@@ -111,7 +111,7 @@ public class GameConfig {
         this.startingBalance = Double.parseDouble(nlStartingBalance.item(0).getChildNodes().item(0).getNodeValue());
 
         NodeList nlLineArrays = root.getElementsByTagName("lineArray");
-        this.maxLines = nlLineArrays.getLength();
+        this.lineCount = nlLineArrays.getLength();
 
         NodeList nlBetLimit = root.getElementsByTagName("betlimit");
         this.betLimit = Double.parseDouble(nlBetLimit.item(0).getChildNodes().item(0).getNodeValue());

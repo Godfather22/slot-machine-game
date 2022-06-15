@@ -28,12 +28,12 @@ public class Application {
 
     public static void main(String[] args) {
 
-        log.debug(GAME.getConfiguration().toString());
+        log.debug(System.lineSeparator() + GAME.getConfiguration().toString());
 
         ErrorMessages errorMessages = ErrorMessages.getInstance();
 
         Scanner sc = new Scanner(System.in);
-        final int maxLines = GAME.getConfiguration().getMaxLines();
+        final int maxLines = GAME.getConfiguration().getLineCount();
         final double betLimit = GAME.getConfiguration().getBetLimit();
 
         final String exitCommand = GAME.getConfiguration().getExitCommand();
