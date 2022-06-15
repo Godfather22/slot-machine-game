@@ -28,6 +28,8 @@ public class Application {
 
     public static void main(String[] args) {
 
+        log.debug(GAME.getConfiguration().toString());
+
         ErrorMessages errorMessages = ErrorMessages.getInstance();
 
         Scanner sc = new Scanner(System.in);
@@ -74,14 +76,14 @@ public class Application {
                 if (linesInput < 1 || linesInput > maxLines) {
                     System.err.println(errorMessages.message
                             (TITLE_EMSG_INCORRECT_LINES_INPUT, "Incorrect number of lines chosen!"));
-                    log.error("Error: Number of lines input {} out of bounds for available values: 1-{}",
+                    log.error("Number of lines input {} out of bounds for available values: 1-{}",
                             linesInput, maxLines);
                     continue;
                 }
                 if (betInput < 1 || betInput > betLimit) {
                     System.err.println(errorMessages.message
                             (TITLE_EMSG_INCORRECT_BET_INPUT, "Incorrect bet amount placed!"));
-                    log.error("Error: Bet amount input {} out of bounds for available values: 1-{}",
+                    log.error("Bet amount input {} out of bounds for available values: 1-{}",
                             betInput, betLimit);
                     continue;
                 }
@@ -106,6 +108,7 @@ public class Application {
 
             System.out.println();
         }
+        System.out.println("Game over");
     }
 
 }
