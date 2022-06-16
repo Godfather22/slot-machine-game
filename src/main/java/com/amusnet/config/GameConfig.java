@@ -123,8 +123,8 @@ public class GameConfig {
             NodeList nlReelArrays = root.getElementsByTagName("reelArray");
             // there should be an equal amount of reel arrays and screen columns
             if (nlReelArrays.getLength() != this.screenColumnCount) {
-                log.error("Number of reel arrays are not the same as number of screen reels (screen columns): " +
-                                "# reel arrays: {}{}# screen reels (screen columns): {}",
+                log.error("Number of reel arrays are not the same as number of screen reels (screen columns):" +
+                                System.lineSeparator() + "# reel arrays: {}{}# screen reels (screen columns): {}",
                         nlReelArrays.getLength(), System.lineSeparator(), this.screenColumnCount);
                 throw new ConfigurationInitializationException(errorMessages.message(
                         "Reels discrepancy", "Number of reel arrays not equal to number of screen reels"
@@ -145,7 +145,7 @@ public class GameConfig {
         {
             NodeList nlCardColumn = root.getElementsByTagName("card");
             NodeList nlMultipliers = root.getElementsByTagName("multiplier");
-            Map<String, Integer> occurrenceCounts = new LinkedHashMap<>();
+            Map<String, Integer> finalOccurrenceCounts = new LinkedHashMap<>();
             Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
             List<Integer> cards = new ArrayList<>();     // to keep track of the cards in the table
             int j = 0, multipliersPerCard = 0;
@@ -168,6 +168,7 @@ public class GameConfig {
 
                 // iterate through current card's multipliers
                 Map<Integer, Integer> rightColumns = new LinkedHashMap<>();
+                List<Integer> occurrenceCountTrack = new ArrayList<>();     // to keep track of potential duplicated or unwanted extras
                 var multiplier = nlMultipliers.item(j);
                 int multipliersForThisCard = 0;
                 while (multiplier != null && multiplier.getParentNode().equals(card)) {
@@ -175,7 +176,20 @@ public class GameConfig {
                     // fetch occurrence count for current multiplier
                     String strOccurrences = ((Element) multiplier).getAttribute("occurrences");
                     int occurrencesValue = Integer.parseInt(strOccurrences);
-                    occurrenceCounts.put(strOccurrences, occurrencesValue);
+
+                    // make sure value isn't duplicated
+                    if (occurrenceCountTrack.contains(occurrencesValue)) {
+                        log.error("Card occurrence duplication. Duplicated value: {}", occurrencesValue);
+                        throw new ConfigurationInitializationException(errorMessages.message(
+                                "Card occurrence duplication", "Duplicated card occurrence value " +
+                                        "in multipliers table"
+                        ));
+                    }
+                    else
+                        occurrenceCountTrack.add(occurrencesValue);
+
+                    // put value in final map to be passed
+                    finalOccurrenceCounts.put("x" + strOccurrences, occurrencesValue);
 
                     // fetch multiplication amount for current multiplier
                     String strAmount = ((Element) multiplier).getAttribute("amount");
@@ -197,6 +211,22 @@ public class GameConfig {
 
                     multiplier = nlMultipliers.item(++j);
                 }
+
+                // make sure occurrence counts (i.e. x3, x4, x5... etc.) are uniform across cards
+                if (i > 0) {
+                    if (!occurrenceCountTrack.equals(finalOccurrenceCounts.values().stream().toList())) {
+//                        var previous = finalOccurrenceCounts.values().stream()
+//                                .limit(finalOccurrenceCounts.values().size() - 1);
+                        Deque<Integer> prev = new ArrayDeque<>(finalOccurrenceCounts.values());
+                        var culprit = prev.pollLast();
+                        log.error("Card occurrence counts until now were {} but encountered an extra one: {}",
+                                prev, culprit);
+                        throw new ConfigurationInitializationException(errorMessages.message(
+                                "Card occurrences discrepancy", "Card occurrences in multipliers table " +
+                                        "should have consistent amount of occurrence counts"
+                        ));
+                    }
+                }
                 data.put(cardValue, rightColumns);
             }
 
@@ -216,7 +246,7 @@ public class GameConfig {
             }
 
             // all is good
-            this.table.setOccurrenceCounts(occurrenceCounts.values().stream().toList());
+            this.table.setOccurrenceCounts(finalOccurrenceCounts.values().stream().toList());
             this.table.setData(data);
         }
 

@@ -70,6 +70,12 @@ public class ErrorMessages {
         public static final String TITLE_EMSG_INVALID_BET_INPUT = "Invalid bet input";
         public static final String TITLE_EMSG_INCORRECT_LINES_INPUT = "Incorrect number of lines";
         public static final String TITLE_EMSG_INCORRECT_BET_INPUT = "Incorrect bet amount";
+        public static final String TITLE_EMSG_REELS_DISCREPANCY = "Reels discrepancy";
+        public static final String TITLE_EMSG_TABLE_DUPLICATE_CARDS = "Duplicate card(s)";
+        public static final String TITLE_EMSG_TABLE_DUPLICATE_OCCURRENCE = "Card occurrence duplication";
+        public static final String TITLE_EMSG_TABLE_MULTIPLIERS_DISCREPANCY = "Card multipliers discrepancy";
+        public static final String TITLE_EMSG_TABLE_OCCURRENCES_DISCREPANCY = "Card occurrences discrepancy";
+        public static final String TITLE_EMSG_TABLE_MISSING_CARDS = "Missing cards in multipliers table";
     }
 
 }

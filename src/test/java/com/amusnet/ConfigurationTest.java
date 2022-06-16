@@ -2,18 +2,23 @@ package com.amusnet;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.ConfigurationInitializationException;
+import com.amusnet.util.ErrorMessages;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 public class ConfigurationTest {
@@ -138,6 +143,731 @@ public class ConfigurationTest {
         // TODO not thread-safe
         // set currency format
         configuration.getCurrencyFormat().applyPattern("#");
+    }
+
+    @Nested
+    @DisplayName("Testing configuration initialization exception throwing")
+    class ConfigInitExceptionTest {
+
+        private static final ErrorMessages errorMessages = ErrorMessages.getInstance();
+
+        private static final File tempConfigFile = new File("target/generated-test-sources/properties.xml");
+
+        private static String invalidXmlContent;
+
+        @BeforeAll
+        static void createTempFileAndInitializeWriter() {
+            try {
+                if (!tempConfigFile.createNewFile())
+                    log.warn("File {} already exists", tempConfigFile.getPath());
+            } catch (IOException e) {
+                log.error("Failed to crate test configuration file");
+                throw new RuntimeException(e);
+            }
+        }
+
+        @AfterAll
+        static void deleteTestConfigFile() {
+            if (!tempConfigFile.delete())
+                log.error("Failed to delete generated file");
+        }
+
+        @Test
+        public void configurationXmlHasInvalidColumnSize_shouldThrowConfigInitException() {
+            setInvalidColumnSize();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_REELS_DISCREPANCY));
+        }
+
+        @Test
+        public void configurationXmlHasInvalidReelArraysSize_shouldThrowConfigInitException() {
+            setInvalidReelArraysSize();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_REELS_DISCREPANCY));
+        }
+
+        @Test
+        public void configurationXmlHasDuplicateCardInTable_shouldThrowConfigInitException() {
+            setDuplicateCardInTable();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_TABLE_DUPLICATE_CARDS));
+        }
+
+        @Test
+        public void configurationXmlHasDuplicatedOccurrence_shouldThrowConfigInitException() {
+            setDuplicateOccurrenceInTable();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_TABLE_DUPLICATE_OCCURRENCE));
+        }
+
+        @Test
+        public void configurationXmlHasVaryingCardMultipliers_shouldThrowConfigInitException() {
+            setVaryingCardMultipliers();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_TABLE_MULTIPLIERS_DISCREPANCY));
+        }
+
+        @Test
+        public void configurationXmlHasVaryingCardOccurrences_shouldThrowConfigInitException() {
+            setVaryingCardOccurrences();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_TABLE_OCCURRENCES_DISCREPANCY));
+        }
+
+        @Test
+        public void configurationXmlHasMissingCardInTable_shouldThrowConfigInitException() {
+            setMissingCardInTable();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_TABLE_MISSING_CARDS));
+        }
+
+        private Exception getException() {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempConfigFile, false))){
+                writer.write(invalidXmlContent);
+            } catch (IOException e) {
+                log.error("Failed to initialize file reader");
+                throw new RuntimeException(e);
+            }
+            return assertThrows(ConfigurationInitializationException.class, () ->
+                    new GameConfig(tempConfigFile));
+        }
+
+        private void setInvalidColumnSize() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>4</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setInvalidReelArraysSize() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setDuplicateCardInTable() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setDuplicateOccurrenceInTable() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setVaryingCardMultipliers() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                                <multiplier occurrences="6" amount="200"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setVaryingCardOccurrences() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="6" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setMissingCardInTable() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
     }
 
 }
