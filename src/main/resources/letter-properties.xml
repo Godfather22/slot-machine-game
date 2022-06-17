@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<properties>
+    <rows>3</rows>
+    <columns>5</columns>
+    <currency format="round"/>
+    <balance>100000</balance>
+    <betlimit>10</betlimit>
+    <exit>quit</exit>
+
+    <reelArrays>
+        <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+        <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+        <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+        <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+        <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
+    </reelArrays>
+
+    <lineArrays>
+        <lineArray>1,1,1,1,1</lineArray>
+        <lineArray>0,0,0,0,0</lineArray>
+        <lineArray>2,2,2,2,2</lineArray>
+        <lineArray>0,1,2,1,0</lineArray>
+        <lineArray>2,1,0,1,2</lineArray>
+        <lineArray>0,0,1,2,2</lineArray>
+        <lineArray>2,2,1,0,0</lineArray>
+        <lineArray>1,2,2,2,1</lineArray>
+        <lineArray>1,0,0,0,1</lineArray>
+        <lineArray>0,1,1,1,0</lineArray>
+        <lineArray>2,1,1,1,2</lineArray>
+        <lineArray>1,2,1,0,1</lineArray>
+        <lineArray>1,0,1,2,1</lineArray>
+        <lineArray>0,1,0,1,0</lineArray>
+        <lineArray>2,1,2,1,2</lineArray>
+        <lineArray>1,1,2,1,1</lineArray>
+        <lineArray>1,1,0,1,1</lineArray>
+        <lineArray>0,2,0,2,0</lineArray>
+        <lineArray>2,0,2,0,2</lineArray>
+        <lineArray>1,0,2,0,1</lineArray>
+    </lineArrays>
+
+    <scatters>H</scatters>
+
+    <multipliers>
+        <card face="A">
+            <multiplier occurrences="3" amount="10"/>
+            <multiplier occurrences="4" amount="20"/>
+            <multiplier occurrences="5" amount="100"/>
+        </card>
+        <card face="B">
+            <multiplier occurrences="3" amount="10"/>
+            <multiplier occurrences="4" amount="20"/>
+            <multiplier occurrences="5" amount="100"/>
+        </card>
+        <card face="C">
+            <multiplier occurrences="3" amount="10"/>
+            <multiplier occurrences="4" amount="20"/>
+            <multiplier occurrences="5" amount="100"/>
+        </card>
+        <card face="D">
+            <multiplier occurrences="3" amount="20"/>
+            <multiplier occurrences="4" amount="40"/>
+            <multiplier occurrences="5" amount="200"/>
+        </card>
+        <card face="E">
+            <multiplier occurrences="3" amount="20"/>
+            <multiplier occurrences="4" amount="40"/>
+            <multiplier occurrences="5" amount="200"/>
+        </card>
+        <card face="F">
+            <multiplier occurrences="3" amount="20"/>
+            <multiplier occurrences="4" amount="80"/>
+            <multiplier occurrences="5" amount="400"/>
+        </card>
+        <card face="G">
+            <multiplier occurrences="3" amount="40"/>
+            <multiplier occurrences="4" amount="400"/>
+            <multiplier occurrences="5" amount="1000"/>
+        </card>
+        <card face="H">
+            <multiplier occurrences="3" amount="5"/>
+            <multiplier occurrences="4" amount="20"/>
+            <multiplier occurrences="5" amount="500"/>
+        </card>
+    </multipliers>
+</properties>

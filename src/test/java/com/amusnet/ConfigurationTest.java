@@ -23,15 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Slf4j
 public class ConfigurationTest {
 
-    private static GameConfig config1, config2;
+    private static GameConfig<String> config1, config2;
 
     @BeforeAll
     public static void setup() {
-        File xmlConfig = new File("src/main/resources/properties.xml");
+        File xmlConfig = new File("src/main/resources/letter-properties.xml");
         File xsdValidation = new File("src/main/resources/properties.xsd");
 
         try {
-            config1 = new GameConfig(xmlConfig, xsdValidation);
+            config1 = new GameConfig<>(xmlConfig, xsdValidation);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             log.error("Error initializing configuration", e);
             throw new RuntimeException(e);
@@ -39,7 +39,7 @@ public class ConfigurationTest {
             log.error("Configuration constraint violated", e);
             throw new RuntimeException(e);
         }
-        config2 = new GameConfig();
+        config2 = new GameConfig<>();
         configManualSetup(config2);
     }
 
@@ -51,7 +51,7 @@ public class ConfigurationTest {
                 .isEqualTo(config2);
     }
 
-    private static void configManualSetup(GameConfig configuration) {
+    private static void configManualSetup(GameConfig<String> configuration) {
 
         configuration.setScreenRowCount(3);
         configuration.setScreenColumnCount(5);
@@ -61,12 +61,11 @@ public class ConfigurationTest {
         // set up reel arrays
         {
             configuration.setReels(List.of(
-                    List.of(6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2),
-                    List.of(6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5),
-                    List.of(6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5),
-                    List.of(6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4),
-                    List.of(6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5)
-
+                    List.of("G","G","G","B","B","B","A","A","A","D","D","D","E","E","E","C","C","C","F","F","F","B","B","B","H","E","E","E","C","C"),
+                    List.of("G","G","G","C","C","C","B","B","B","A","A","A","F","F","F","B","B","B","H","D","D","D","C","C","C","A","A","A","F","F"),
+                    List.of("G","G","G","E","E","E","A","A","A","B","B","B","F","F","F","C","C","C","H","D","D","D","A","A","A","C","C","C","F","F"),
+                    List.of("G","G","G","C","C","C","E","E","E","A","A","A","F","F","F","D","D","D","B","B","B","H","C","C","C","A","A","A","E","E"),
+                    List.of("G","G","G","B","B","B","E","E","E","C","C","C","F","F","F","A","A","A","H","B","B","B","D","D","D","C","C","C","F","F")
             ));
         }
 
@@ -101,29 +100,29 @@ public class ConfigurationTest {
         {
             var occurrenceCounts = List.of(3, 4, 5);
 
-            Map<Integer, Map<Integer, Integer>> tableData = Map.of(
-                    0, Map.of(  3, 10,
+            Map<String, Map<Integer, Integer>> tableData = Map.of(
+                    "A", Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    1, Map.of(  3, 10,
+                    "B", Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    2, Map.of(  3, 10,
+                    "C", Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    3, Map.of(  3, 20,
+                    "D", Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    4, Map.of(  3, 20,
+                    "E", Map.of(  3, 20,
                             4, 40,
                             5, 200),
-                    5, Map.of(  3, 20,
+                    "F", Map.of(  3, 20,
                             4, 80,
                             5, 400),
-                    6, Map.of(  3, 40,
+                    "G", Map.of(  3, 40,
                             4, 400,
                             5, 1000),
-                    7, Map.of(  3, 5,
+                    "H", Map.of(  3, 5,
                             4, 20,
                             5, 500)
             );
@@ -132,7 +131,7 @@ public class ConfigurationTest {
         }
 
         // set scatters
-        configuration.setScatters(Set.of(7));
+        configuration.setScatters(Set.of("H"));
 
         // set starting balance
         configuration.setStartingBalance(100000);
@@ -151,7 +150,7 @@ public class ConfigurationTest {
 
         private static final ErrorMessages errorMessages = ErrorMessages.getInstance();
 
-        private static final File tempConfigFile = new File("target/generated-test-sources/properties.xml");
+        private static final File tempConfigFile = new File("target/generated-test-sources/letter-properties.xml");
 
         private static String invalidXmlContent;
 
@@ -236,7 +235,7 @@ public class ConfigurationTest {
                 throw new RuntimeException(e);
             }
             return assertThrows(ConfigurationInitializationException.class, () ->
-                    new GameConfig(tempConfigFile));
+                    new GameConfig<String>(tempConfigFile));
         }
 
         private void setInvalidColumnSize() {
@@ -252,11 +251,11 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
-                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+                            <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -282,45 +281,45 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
+                            <card face="B">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="2">
+                            <card face="C">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="3">
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
                             </card>
-                            <card face="7">
+                            <card face="H">
                                 <multiplier occurrences="3" amount="5"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="500"/>
@@ -342,10 +341,10 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -371,45 +370,45 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
+                            <card face="B">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="2">
+                            <card face="C">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="3">
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
                             </card>
-                            <card face="7">
+                            <card face="H">
                                 <multiplier occurrences="3" amount="5"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="500"/>
@@ -431,11 +430,11 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
-                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+                            <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -461,50 +460,45 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
+                            <card face="C">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="2">
-                                <multiplier occurrences="3" amount="10"/>
-                                <multiplier occurrences="4" amount="20"/>
-                                <multiplier occurrences="5" amount="100"/>
-                            </card>
-                            <card face="3">
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
                             </card>
-                            <card face="7">
+                            <card face="H">
                                 <multiplier occurrences="3" amount="5"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="500"/>
@@ -526,11 +520,11 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
-                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+                            <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -556,45 +550,45 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
-                                <multiplier occurrences="3" amount="10"/>
-                                <multiplier occurrences="4" amount="20"/>
-                                <multiplier occurrences="5" amount="100"/>
-                            </card>
-                            <card face="2">
+                            <card face="B">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="3">
+                            <card face="C">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
                             </card>
-                            <card face="7">
+                            <card face="H">
                                 <multiplier occurrences="3" amount="5"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="500"/>
@@ -616,11 +610,11 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
-                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+                            <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -646,46 +640,46 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
-                                <multiplier occurrences="3" amount="10"/>
-                                <multiplier occurrences="4" amount="20"/>
-                                <multiplier occurrences="5" amount="100"/>
-                                <multiplier occurrences="6" amount="200"/>
-                            </card>
-                            <card face="2">
+                            <card face="B">
+                                <multiplier occurrences="2" amount="10"/>
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="3">
+                            <card face="C">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
                             </card>
-                            <card face="7">
+                            <card face="H">
                                 <multiplier occurrences="3" amount="5"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="500"/>
@@ -707,11 +701,11 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
-                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+                            <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -737,45 +731,45 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
-                                <multiplier occurrences="3" amount="10"/>
+                            <card face="B">
+                                <multiplier occurrences="6" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
-                                <multiplier occurrences="6" amount="100"/>
+                                <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="2">
+                            <card face="C">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="3">
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
                             </card>
-                            <card face="7">
+                            <card face="H">
                                 <multiplier occurrences="3" amount="5"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="500"/>
@@ -797,11 +791,11 @@ public class ConfigurationTest {
                         <exit>quit</exit>
 
                         <reelArrays>
-                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
-                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
-                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
-                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
-                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                            <reelArray>G,G,G,B,B,B,A,A,A,D,D,D,E,E,E,C,C,C,F,F,F,B,B,B,H,E,E,E,C,C</reelArray>
+                            <reelArray>G,G,G,C,C,C,B,B,B,A,A,A,F,F,F,B,B,B,H,D,D,D,C,C,C,A,A,A,F,F</reelArray>
+                            <reelArray>G,G,G,E,E,E,A,A,A,B,B,B,F,F,F,C,C,C,H,D,D,D,A,A,A,C,C,C,F,F</reelArray>
+                            <reelArray>G,G,G,C,C,C,E,E,E,A,A,A,F,F,F,D,D,D,B,B,B,H,C,C,C,A,A,A,E,E</reelArray>
+                            <reelArray>G,G,G,B,B,B,E,E,E,C,C,C,F,F,F,A,A,A,H,B,B,B,D,D,D,C,C,C,F,F</reelArray>
                         </reelArrays>
 
                         <lineArrays>
@@ -827,40 +821,40 @@ public class ConfigurationTest {
                             <lineArray>1,0,2,0,1</lineArray>
                         </lineArrays>
 
-                        <scatters>7</scatters>
+                        <scatters>H</scatters>
 
                         <multipliers>
-                            <card face="0">
+                            <card face="A">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="1">
+                            <card face="B">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="2">
+                            <card face="C">
                                 <multiplier occurrences="3" amount="10"/>
                                 <multiplier occurrences="4" amount="20"/>
                                 <multiplier occurrences="5" amount="100"/>
                             </card>
-                            <card face="3">
+                            <card face="D">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="4">
+                            <card face="E">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="40"/>
                                 <multiplier occurrences="5" amount="200"/>
                             </card>
-                            <card face="5">
+                            <card face="F">
                                 <multiplier occurrences="3" amount="20"/>
                                 <multiplier occurrences="4" amount="80"/>
                                 <multiplier occurrences="5" amount="400"/>
                             </card>
-                            <card face="6">
+                            <card face="G">
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>

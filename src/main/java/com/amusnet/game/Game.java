@@ -21,12 +21,12 @@ import java.util.Random;
  * @see GameConfig
  */
 @Slf4j
-public class Game {
+public class Game<T> {
 
     @Getter
-    private final GameConfig configuration;
+    private final GameConfig<T> configuration;
     @Getter
-    private final Screen screen;
+    private final Screen<T> screen;
     @Getter
     @Setter
     private double currentBalance;
@@ -48,15 +48,15 @@ public class Game {
      */
     public Game() throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
 
-        File xmlConfig = new File("src/main/resources/properties.xml");     // configuration file
+        File xmlConfig = new File("src/main/resources/letter-properties.xml");     // configuration file
         File xsdValidation = new File("src/main/resources/properties.xsd");     // configuration file validation
 
-        this.configuration = new GameConfig(xmlConfig, xsdValidation);
+        this.configuration = new GameConfig<>(xmlConfig, xsdValidation);
 
         // set up screen size
         int rowSize = configuration.getScreenRowCount();
         int columnSize = configuration.getScreenColumnCount();
-        this.screen = new Screen(rowSize, columnSize);
+        this.screen = new Screen<>(rowSize, columnSize);
 
         // set up initial balance
         this.currentBalance = configuration.getStartingBalance();
@@ -79,7 +79,7 @@ public class Game {
      * @return The updated screen property.
      * @see Screen
      */
-    public Screen generateScreen() {
+    public Screen<T> generateScreen() {
         Random rnd = new Random();
         int[] diceRolls = new int[this.configuration.getScreenColumnCount()];
         for (int i = 0; i < diceRolls.length; i++)
@@ -110,7 +110,7 @@ public class Game {
      * @return The updated screen property.
      * @see Screen
      */
-    public Screen generateScreen(int[] diceRolls) {
+    public Screen<T> generateScreen(int[] diceRolls) {
         // tests do a better job than this
         //log.debug("DiceRoll for screen generation: {}", diceRoll);
 
@@ -170,8 +170,8 @@ public class Game {
 
         // for the sake of extensibility: in case there are more than one "scatter cards"
         double scatterWinAmount = 0.0;
-        for (Integer s : configuration.getScatters()) {
-            int scatterCount = 0;
+        for (T s : configuration.getScatters()) {
+            int scatterCount = getScatterCount(s);
             scatterWinAmount = calculateScatterWins(s, scatterCount);
             if (scatterWinAmount != 0.0) {
                 totalWinAmount += scatterWinAmount;
@@ -191,17 +191,17 @@ public class Game {
     //*******************
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<Integer, Integer> getOccurrencesForLine(List<Integer> line) {
+    private Pair<T, Integer> getOccurrencesForLine(List<Integer> line) {
         // check if there is a streak, starting from the beginning
         boolean streak = true;
 
-        int previousCardValue, currentCardValue;
+        T previousCardValue, currentCardValue;
         int index = 1, streakCount = 1;
         do {
             previousCardValue = screen.getView()[line.get(index - 1)][index - 1];
             currentCardValue = screen.getView()[line.get(index)][index];
             ++index;
-            if (currentCardValue == previousCardValue)
+            if (currentCardValue.equals(previousCardValue))
                 ++streakCount;
             else
                 streak = false;
@@ -218,21 +218,14 @@ public class Game {
 
     }
 
-    private double calculateRegularWins(Pair<Integer, Integer> occurs) {
+    private double calculateRegularWins(Pair<T, Integer> occurs) {
         var tableData = configuration.getTable().getData();
         var rightSide = tableData.get(occurs.getValue0());
         var multiplier = rightSide.get(occurs.getValue1());
         return this.betAmount * multiplier;
     }
 
-    private double calculateScatterWins(Integer scatterValue, int scatterCount) {
-        var screenView = this.screen.getView();
-
-        for (int i = 0; i < this.screen.getRowCount(); i++)
-            for (int j = 0; j < this.screen.getColumnCount(); j++)
-                if (scatterValue.equals(screenView[i][j]))
-                    ++scatterCount;
-
+    private double calculateScatterWins(T scatterValue, int scatterCount) {
         var calcTable = this.configuration.getTable();
 
         // If the amount of scatters on screen is a valid win amount
@@ -243,5 +236,15 @@ public class Game {
             return totalBet * multiplier;
         }
         return 0.0; // not enough scatters or none at all
+    }
+
+    private int getScatterCount(T scatterValue) {
+        var screenView = this.screen.getView();
+        int scatterCount = 0;
+        for (int i = 0; i < this.screen.getRowCount(); i++)
+            for (int j = 0; j < this.screen.getColumnCount(); j++)
+                if (scatterValue.equals(screenView[i][j]))
+                    ++scatterCount;
+        return scatterCount;
     }
 }

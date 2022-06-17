@@ -10,11 +10,11 @@ import java.util.List;
  * @since 1.0
  */
 @Data
-public class Screen {
+public class Screen<T> {
     private int rowCount;
     private int columnCount; // reels
 
-    private int[][] view;
+    private T[][] view;
 
     /**
      * Initialize a screen of size rowCount x columnCount.
@@ -22,11 +22,12 @@ public class Screen {
      * @param rowCount The number of rows.
      * @param columnCount The number of columns.
      */
+    @SuppressWarnings("unchecked")
     public Screen(int rowCount, int columnCount) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
 
-        view = new int[rowCount][columnCount];
+        view = (T[][]) new Object[rowCount][columnCount];
     }
 
     /**
@@ -34,10 +35,11 @@ public class Screen {
      *
      * @param metaList A list containing a list of Integers.
      */
-    public Screen(List<List<Integer>> metaList) {
+    @SuppressWarnings("unchecked")
+    public Screen(List<List<T>> metaList) {
         this.rowCount = metaList.size();
         this.columnCount = metaList.get(0).size();
-        view = new int[rowCount][columnCount];
+        view = (T[][]) new Object[rowCount][columnCount];
 
         for (int i = 0; i < rowCount; i++)
             for (int j = 0; j < columnCount; j++)

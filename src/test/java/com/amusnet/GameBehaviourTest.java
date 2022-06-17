@@ -18,12 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 public class GameBehaviourTest {
 
-    private static final Game game;
+    private static final Game<String> game;
     private static int[] diceRolls;
 
     static {
         try {
-            game = new Game();
+            game = new Game<>();
         } catch (ParserConfigurationException | IOException | SAXException e) {
             log.error("Fatal error while configuring game", e);
             throw new RuntimeException(e);
@@ -33,7 +33,7 @@ public class GameBehaviourTest {
         }
     }
 
-    // Testing a game of Integer cards with Integer currency (money) type
+    // Testing a game of String cards with Integer currency (money) type
     @Nested
     @DisplayName("Tests for correct generation of screen reels")
     class ScreenGenerationTest {
@@ -43,9 +43,9 @@ public class GameBehaviourTest {
             Given5Size30ReelArraysAndGenerationNumbers29_28_27_28_29(); // test edge cases
             WhenGenerationNumbersAreFedToGenerator();
             ThenScreenGeneratesWithPredictedContents(List.of(
-                    List.of(2, 5, 2, 4, 5),
-                    List.of(6, 5, 5, 4, 6),
-                    List.of(6, 6, 5, 6, 6)
+                    List.of("C", "F", "C", "E", "F"),
+                    List.of("G", "F", "F", "E", "G"),
+                    List.of("G", "G", "F", "G", "G")
             ));
         }
 
@@ -58,9 +58,9 @@ public class GameBehaviourTest {
             Given5Size30ReelArraysAndGenerationNumbers15_28_0_10_19();
             WhenGenerationNumbersAreFedToGenerator();
             ThenScreenGeneratesWithPredictedContents(List.of(
-                    List.of(2, 5, 6, 0, 1),
-                    List.of(2, 5, 6, 0, 1),
-                    List.of(2, 6, 6, 5, 1)
+                    List.of("C", "F", "G", "A", "B"),
+                    List.of("C", "F", "G", "A", "B"),
+                    List.of("C", "G", "G", "F", "B")
             ));
         }
 
@@ -72,9 +72,9 @@ public class GameBehaviourTest {
             game.generateScreen(diceRolls);
         }
 
-        private void ThenScreenGeneratesWithPredictedContents(List<List<Integer>> predictedContents) {
+        private void ThenScreenGeneratesWithPredictedContents(List<List<String>> predictedContents) {
             var actual = game.getScreen();
-            var prediction = new Screen(predictedContents);
+            var prediction = new Screen<>(predictedContents);
             assertThat(actual).isEqualTo(prediction);
         }
     }
@@ -186,7 +186,7 @@ public class GameBehaviourTest {
         }
 
         private void generateScreenFromDiceRolls() {
-            Screen screen = game.generateScreen(diceRolls);
+            Screen<String> screen =  game.generateScreen(diceRolls);
             log.info(System.lineSeparator() + screen.toString());
         }
 

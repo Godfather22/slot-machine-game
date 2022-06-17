@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @Slf4j
-public class GameConfig {
+public class GameConfig<T> {
 
     private int screenRowCount;
     private int screenColumnCount;
@@ -45,10 +45,10 @@ public class GameConfig {
 
     private String exitCommand;
 
-    private List<List<Integer>> reels;
+    private List<List<T>> reels;
     private List<List<Integer>> lines;
 
-    private Set<Integer> scatters;
+    private Set<T> scatters;
 
     private final MultipliersTable table = new MultipliersTable();
 
@@ -77,6 +77,7 @@ public class GameConfig {
         initialize(xmlConfig, xsdValidation);
     }
 
+    @SuppressWarnings("unchecked")
     private void initialize(File xmlConfig, File xsdValidation) throws ParserConfigurationException, SAXException, IOException, ConfigurationInitializationException {
 
         // DOM API
@@ -133,11 +134,7 @@ public class GameConfig {
             this.reels = new ArrayList<>();
             for (int i = 0; i < nlReelArrays.getLength(); i++) {
                 String strReelArray = nlReelArrays.item(i).getChildNodes().item(0).getNodeValue();
-                String[] reelArrayValues = strReelArray.split(",");
-                List<Integer> reelList = new ArrayList<>();
-                for (String v : reelArrayValues)
-                    reelList.add(Integer.parseInt(v));
-                this.reels.add(reelList);
+                this.reels.add((List<T>) Arrays.stream(strReelArray.split(",")).toList());
             }
         }
 
@@ -146,21 +143,20 @@ public class GameConfig {
             NodeList nlCardColumn = root.getElementsByTagName("card");
             NodeList nlMultipliers = root.getElementsByTagName("multiplier");
             Map<String, Integer> finalOccurrenceCounts = new LinkedHashMap<>();
-            Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
-            List<Integer> cards = new ArrayList<>();     // to keep track of the cards in the table
+            Map<T, Map<Integer, Integer>> data = new LinkedHashMap<>();
+            List<T> cards = new ArrayList<>();     // to keep track of the cards in the table
             int j = 0, multipliersPerCard = 0;
             for (int i = 0; i < nlCardColumn.getLength(); i++) {
 
                 // fetch current card value ("face")
                 Node card = nlCardColumn.item(i);
-                String strFace = ((Element) card).getAttribute("face");
-                int cardValue = Integer.parseInt(strFace);
+                T cardFace = (T) ((Element) card).getAttribute("face");
 
                 // table should not have duplicate cards
-                if (!cards.contains(cardValue))
-                    cards.add(cardValue);
+                if (!cards.contains(cardFace))
+                    cards.add(cardFace);
                 else {
-                    log.error("Duplicate card {} in multipliers table", cardValue);
+                    log.error("Duplicate card {} in multipliers table", cardFace);
                     throw new ConfigurationInitializationException(errorMessages.message(
                             "Duplicate card(s)", "Duplicate card(s) found in multipliers table"
                     ));
@@ -227,12 +223,12 @@ public class GameConfig {
                         ));
                     }
                 }
-                data.put(cardValue, rightColumns);
+                data.put(cardFace, rightColumns);
             }
 
             // compare unique cards from reel arrays and those described in table - should be the same
-            Set<Integer> playingCards = new HashSet<>();
-            for (List<Integer> r : this.reels)
+            Set<T> playingCards = new HashSet<>();
+            for (List<T> r : this.reels)
                 playingCards.addAll(new HashSet<>(r));
             if (!data.keySet().containsAll(playingCards)) {
                 var soreThumbs = playingCards.stream()
@@ -308,10 +304,8 @@ public class GameConfig {
         {
             NodeList nlScatterCards = root.getElementsByTagName("scatters");
             String strScatterValues = nlScatterCards.item(0).getChildNodes().item(0).getNodeValue();
-            String[] scatterValues = strScatterValues.split(",");
-            this.scatters = new LinkedHashSet<>();
-            for (String v : scatterValues)
-                this.scatters.add(Integer.parseInt(v));
+            var scatterValues = (List<T>) Arrays.stream(strScatterValues.split(",")).toList();
+            this.scatters = new LinkedHashSet<>(scatterValues);
         }
 
     }
@@ -323,10 +317,10 @@ public class GameConfig {
      * @since 1.0
      */
     @Data
-    public static class MultipliersTable {
+    public class MultipliersTable {
 
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
-        private Map<Integer, Map<Integer, Integer>> data;
+        private Map<T, Map<Integer, Integer>> data;
 
         @Override
         public String toString() {
@@ -359,7 +353,7 @@ public class GameConfig {
      * @param data The multiplication values for each card's amount of times present on screen.
      * @see MultipliersTable
      */
-    public void setupTable(List<Integer> occurrenceCounts, Map<Integer, Map<Integer, Integer>> data) {
+    public void setupTable(List<Integer> occurrenceCounts, Map<T, Map<Integer, Integer>> data) {
         table.occurrenceCounts = occurrenceCounts;
         table.data = data;
     }
