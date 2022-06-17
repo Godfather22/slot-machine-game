@@ -171,12 +171,12 @@ public class Game {
         // for the sake of extensibility: in case there are more than one "scatter cards"
         double scatterWinAmount = 0.0;
         for (Integer s : configuration.getScatters()) {
-            int scatterCount = 0;
+            int scatterCount = getScatterCount(s);
             scatterWinAmount = calculateScatterWins(s, scatterCount);
             if (scatterWinAmount != 0.0) {
                 totalWinAmount += scatterWinAmount;
                 System.out.printf("Scatters %s x%d, win amount %s%n",
-                        s.toString(), scatterCount,
+                        s, scatterCount,
                         this.configuration.getCurrencyFormat().format(scatterWinAmount));
             }
         }
@@ -226,13 +226,6 @@ public class Game {
     }
 
     private double calculateScatterWins(Integer scatterValue, int scatterCount) {
-        var screenView = this.screen.getView();
-
-        for (int i = 0; i < this.screen.getRowCount(); i++)
-            for (int j = 0; j < this.screen.getColumnCount(); j++)
-                if (scatterValue.equals(screenView[i][j]))
-                    ++scatterCount;
-
         var calcTable = this.configuration.getTable();
 
         // If the amount of scatters on screen is a valid win amount
@@ -243,5 +236,15 @@ public class Game {
             return totalBet * multiplier;
         }
         return 0.0; // not enough scatters or none at all
+    }
+
+    private int getScatterCount(int scatterValue) {
+        var screenView = this.screen.getView();
+        int scatterCount = 0;
+        for (int i = 0; i < this.screen.getRowCount(); i++)
+            for (int j = 0; j < this.screen.getColumnCount(); j++)
+                if (scatterValue == screenView[i][j])
+                    ++scatterCount;
+        return scatterCount;
     }
 }
