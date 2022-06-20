@@ -94,7 +94,8 @@ public class Application {
 
             GAME.setLinesPlayed(linesInput);
             GAME.setBetAmount(betInput);
-            GAME.setCurrentBalance(GAME.getCurrentBalance() - betInput * linesInput);
+            double newBalance = GAME.getCurrentBalance() - betInput * linesInput;
+            GAME.setCurrentBalance(newBalance);
 
             // feedback
             System.out.printf("%s\t%s%nBalance: %s%n%n%s%n",
