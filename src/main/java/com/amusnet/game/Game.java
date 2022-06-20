@@ -67,9 +67,10 @@ public class Game {
      * Prompt the user for input with an informative message.
      */
     public void prompt() {
-        System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: 1-%s%n",
-                this.configuration.getCurrencyFormat().format(this.currentBalance), configuration.getLines().size(),
-                this.configuration.getCurrencyFormat().format(configuration.getBetLimit()));
+        var cf = configuration.getCurrencyFormat();
+        System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: %s-%s%n",
+                cf.format(currentBalance), configuration.getLines().size(),
+                cf.format(1), cf.format(configuration.getBetLimit()));
         System.out.println("Please enter lines you want to play on and a bet per line: ");
     }
 

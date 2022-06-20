@@ -261,7 +261,7 @@ public class GameConfig {
             NodeList nlCurrencyFormat = root.getElementsByTagName("currency");
             this.currencyFormat = new DecimalFormat();
             switch (((Element) nlCurrencyFormat.item(0)).getAttribute("format")) {
-                case "normal" -> this.currencyFormat.applyPattern("#.##");
+                case "normal" -> this.currencyFormat.applyPattern("#.00");
                 case "round" -> this.currencyFormat.applyPattern("#");
                 default -> {
                     log.error("Illegal value for property 'currency': should be either 'normal' or 'round'");
