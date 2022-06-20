@@ -262,6 +262,12 @@ public class GameConfig<T> {
             switch (((Element) nlCurrencyFormat.item(0)).getAttribute("format")) {
                 case "normal" -> this.currencyFormat.applyPattern("#.##");
                 case "round" -> this.currencyFormat.applyPattern("#");
+                default -> {
+                    log.error("Illegal value for property 'currency': should be either 'normal' or 'round'");
+                    throw new ConfigurationInitializationException(errorMessages.message(
+                            "Invalid Currency Format", "Unknown value for property 'currency': should be 'normal' or 'round'"
+                    ));
+                }
             }
         }
 
