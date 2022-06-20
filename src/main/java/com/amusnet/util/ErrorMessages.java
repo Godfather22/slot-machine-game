@@ -68,6 +68,7 @@ public class ErrorMessages {
     public static class DefaultMessageTitles {
         public static final String TITLE_EMSG_INVALID_LINES_INPUT = "Invalid lines input";
         public static final String TITLE_EMSG_INVALID_BET_INPUT = "Invalid bet input";
+        public static final String TITLE_EMSG_INVALID_CURRENCY_FORMAT = "Invalid Currency Format";
         public static final String TITLE_EMSG_INCORRECT_LINES_INPUT = "Incorrect number of lines";
         public static final String TITLE_EMSG_INCORRECT_BET_INPUT = "Incorrect bet amount";
         public static final String TITLE_EMSG_REELS_DISCREPANCY = "Reels discrepancy";
