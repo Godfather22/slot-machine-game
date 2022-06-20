@@ -27,7 +27,7 @@ public class ConfigurationTest {
 
     @BeforeAll
     public static void setup() {
-        Path xmlConfig = Path.of("src/main/resources/properties.xml");
+        Path xmlConfig = Path.of("src/main/resources/letter-properties.xml");
         Path xsdValidation = Path.of("src/main/resources/properties.xsd");
 
         try {

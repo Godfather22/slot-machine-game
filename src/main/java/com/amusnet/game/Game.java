@@ -48,7 +48,7 @@ public class Game<T> {
      */
     public Game() throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
 
-        Path xmlConfig = Path.of("src/main/resources/properties.xml");           // configuration file
+        Path xmlConfig = Path.of("src/main/resources/letter-properties.xml");           // configuration file
         Path xsdValidation = Path.of("src/main/resources/properties.xsd");       // configuration file validation
 
         this.configuration = new GameConfig<>(xmlConfig, xsdValidation);
