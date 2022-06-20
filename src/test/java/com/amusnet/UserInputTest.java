@@ -116,7 +116,6 @@ public class UserInputTest {
 
         private static String generateValidInputString(String field) {
             Random rnd = new Random();
-            // TODO dynamic field strings
             switch (field) {
                 case "linesPlayed" -> {
                     int maxLines = CONFIG.getLineCount();
@@ -154,7 +153,6 @@ public class UserInputTest {
 
             StringBuilder sb = new StringBuilder();
 
-            // TODO dynamic field strings
             if (inputValidityMask[0])
                 sb.append(generateValidInputString("linesPlayed"));
             else {
@@ -165,7 +163,6 @@ public class UserInputTest {
 
             sb.append(System.lineSeparator());
 
-            // TODO dynamic field strings
             if (inputValidityMask[1])
                 sb.append(generateValidInputString("betAmount"));
             else {
@@ -192,7 +189,7 @@ public class UserInputTest {
             try {
                 int[] bounds = new int[]{CONFIG.getLineCount(), (int) CONFIG.getBetLimit()};
                 for (i = 0; i < REQUIRED_INPUT_COUNT; i++) {
-                    sb.append(getValueForField(boundViolationsMask[i], bounds[i]));
+                    sb.append(getStringValue(boundViolationsMask[i], bounds[i]));
                 }
             } catch (IllegalArgumentException e) {
                log.error("ERROR: Invalid value in array position {}. Should be -1, 0 or 1", i);
@@ -202,8 +199,7 @@ public class UserInputTest {
             return appendExitCommand(sb);
         }
 
-        // TODO ambiguous naming
-        private static String getValueForField(int maskValue, int bound) {
+        private static String getStringValue(int maskValue, int bound) {
 
             Random rnd = new Random();
             StringBuilder sb = new StringBuilder();
