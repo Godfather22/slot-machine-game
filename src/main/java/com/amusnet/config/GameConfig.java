@@ -18,8 +18,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,36 +54,36 @@ public class GameConfig {
 
     /**
      * Initializes a GameConfig object via XML configuration file.
-     * @param xmlConfig A File object that points to the XML file containing the configuration properties.
+     * @param xmlConfig A Path object that points to the XML file containing the configuration properties.
      * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
      * @throws IOException If any IO errors occur.
      * @throws SAXException If any parse errors occur.
      */
     @SuppressWarnings("unused")
-    public GameConfig(File xmlConfig) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
+    public GameConfig(Path xmlConfig) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
         initialize(xmlConfig, null);
     }
 
     /**
      * Initializes a GameConfig object via XML configuration file.
-     * @param xmlConfig A File object that points to the XML file containing the configuration properties.
-     * @param xsdValidation A File object that points to the XSD file containing validation data for xmlConfig's file.
+     * @param xmlConfig A Path object that points to the XML file containing the configuration properties.
+     * @param xsdValidation A Path object that points to the XSD file containing validation data for xmlConfig's file.
      * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
      * @throws IOException If any IO errors occur.
      * @throws SAXException If any parse errors occur.
      */
     @SuppressWarnings("unused")
-    public GameConfig(File xmlConfig, File xsdValidation) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
+    public GameConfig(Path xmlConfig, Path xsdValidation) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
         initialize(xmlConfig, xsdValidation);
     }
 
-    private void initialize(File xmlConfig, File xsdValidation) throws ParserConfigurationException, SAXException, IOException, ConfigurationInitializationException {
+    private void initialize(Path xmlConfig, Path xsdValidation) throws ParserConfigurationException, SAXException, IOException, ConfigurationInitializationException {
 
         // DOM API
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
-        Document document = builder.parse(xmlConfig);
+        Document document = builder.parse(xmlConfig.toFile());
 
         // if .xsd validation file is provided
         if (xsdValidation != null) {
@@ -91,7 +91,7 @@ public class GameConfig {
             try {
                 String language = XMLConstants.W3C_XML_SCHEMA_NS_URI;
                 SchemaFactory schemaFactory = SchemaFactory.newInstance(language);
-                schema = schemaFactory.newSchema(xsdValidation);
+                schema = schemaFactory.newSchema(xsdValidation.toFile());
             } catch (Exception e) {
                 log.error("Schema validation error");
                 throw new RuntimeException(e);

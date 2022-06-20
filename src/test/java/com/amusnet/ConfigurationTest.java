@@ -10,9 +10,9 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,8 +27,8 @@ public class ConfigurationTest {
 
     @BeforeAll
     public static void setup() {
-        File xmlConfig = new File("src/main/resources/properties.xml");
-        File xsdValidation = new File("src/main/resources/properties.xsd");
+        Path xmlConfig = Path.of("src/main/resources/properties.xml");
+        Path xsdValidation = Path.of("src/main/resources/properties.xsd");
 
         try {
             config1 = new GameConfig(xmlConfig, xsdValidation);
@@ -151,15 +151,15 @@ public class ConfigurationTest {
 
         private static final ErrorMessages errorMessages = ErrorMessages.getInstance();
 
-        private static final File tempConfigFile = new File("target/generated-test-sources/properties.xml");
+        private static final Path tempConfigFile = Path.of("target/generated-test-sources/properties.xml");
 
         private static String invalidXmlContent;
 
         @BeforeAll
         static void createTempFileAndInitializeWriter() {
             try {
-                if (!tempConfigFile.createNewFile())
-                    log.warn("File {} already exists", tempConfigFile.getPath());
+                if (!tempConfigFile.toFile().createNewFile())
+                    log.warn("File {} already exists", tempConfigFile);
             } catch (IOException e) {
                 log.error("Failed to crate test configuration file");
                 throw new RuntimeException(e);
@@ -168,7 +168,7 @@ public class ConfigurationTest {
 
         @AfterAll
         static void deleteTestConfigFile() {
-            if (!tempConfigFile.delete())
+            if (!tempConfigFile.toFile().delete())
                 log.error("Failed to delete generated file");
         }
 
@@ -229,7 +229,7 @@ public class ConfigurationTest {
         }
 
         private Exception getException() {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempConfigFile, false))){
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempConfigFile.toFile(), false))){
                 writer.write(invalidXmlContent);
             } catch (IOException e) {
                 log.error("Failed to initialize file reader");

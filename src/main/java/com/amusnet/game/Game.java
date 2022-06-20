@@ -9,8 +9,8 @@ import org.javatuples.Pair;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Random;
 
@@ -48,8 +48,8 @@ public class Game {
      */
     public Game() throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
 
-        File xmlConfig = new File("src/main/resources/properties.xml");     // configuration file
-        File xsdValidation = new File("src/main/resources/properties.xsd");     // configuration file validation
+        Path xmlConfig = Path.of("src/main/resources/properties.xml");           // configuration file
+        Path xsdValidation = Path.of("src/main/resources/properties.xsd");       // configuration file validation
 
         this.configuration = new GameConfig(xmlConfig, xsdValidation);
 
