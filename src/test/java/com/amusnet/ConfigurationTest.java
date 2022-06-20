@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -167,8 +168,11 @@ public class ConfigurationTest {
 
         @AfterAll
         static void deleteTestConfigFile() {
-            if (!tempConfigFile.toFile().delete())
-                log.error("Failed to delete generated file");
+            try {
+                Files.delete(tempConfigFile);
+            } catch (IOException e) {
+                log.error("Failed to delete temporary configuration file");
+            }
         }
 
         @Test
