@@ -364,7 +364,6 @@ public class GameConfig {
         table.data = data;
     }
 
-    // TODO some elements are missing
     @Override
     public String toString() {
         
