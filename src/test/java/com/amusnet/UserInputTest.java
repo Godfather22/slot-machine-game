@@ -2,10 +2,11 @@ package com.amusnet;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.util.ErrorMessages;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +16,9 @@ import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-@Slf4j
 public class UserInputTest {
+
+    private static final Logger log = LoggerFactory.getLogger(UserInputTest.class);
 
     private static final int REQUIRED_INPUT_COUNT = 2;
     private static final int RANDOM_STRING_MAX_LENGTH = 30;

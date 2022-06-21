@@ -2,9 +2,6 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.ConfigurationInitializationException;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.xml.sax.SAXException;
 
@@ -20,23 +17,15 @@ import java.util.Random;
  * @since 1.0
  * @see GameConfig
  */
-@Slf4j
 public class Game {
 
-    @Getter
     private final GameConfig configuration;
-    @Getter
     private final Screen screen;
-    @Getter
-    @Setter
+
     private double currentBalance;
-    @Getter
-    @Setter
     private int linesPlayed;
-    @Getter
-    @Setter
     private double betAmount;
-    @Getter
+
     private double lastWinFromLines, lastWinFromScatters;
 
     /**
@@ -61,6 +50,54 @@ public class Game {
         // set up initial balance
         this.currentBalance = configuration.getStartingBalance();
 
+    }
+
+    public GameConfig getConfiguration() {
+        return configuration;
+    }
+
+    public Screen getScreen() {
+        return screen;
+    }
+
+    public double getCurrentBalance() {
+        return currentBalance;
+    }
+
+    public void setCurrentBalance(double currentBalance) {
+        this.currentBalance = currentBalance;
+    }
+
+    public int getLinesPlayed() {
+        return linesPlayed;
+    }
+
+    public void setLinesPlayed(int linesPlayed) {
+        this.linesPlayed = linesPlayed;
+    }
+
+    public double getBetAmount() {
+        return betAmount;
+    }
+
+    public void setBetAmount(double betAmount) {
+        this.betAmount = betAmount;
+    }
+
+    public double getLastWinFromLines() {
+        return lastWinFromLines;
+    }
+
+    public void setLastWinFromLines(double lastWinFromLines) {
+        this.lastWinFromLines = lastWinFromLines;
+    }
+
+    public double getLastWinFromScatters() {
+        return lastWinFromScatters;
+    }
+
+    public void setLastWinFromScatters(double lastWinFromScatters) {
+        this.lastWinFromScatters = lastWinFromScatters;
     }
 
     /**
@@ -123,7 +160,7 @@ public class Game {
             for (int j = 0; j < screenReelSize; j++) {
                 if (index >= reelArrays.get(i).size())
                     index = 0;
-                this.screen.getView()[j][i] = reelArrays.get(i).get(index);
+                this.screen.fetchScreen()[j][i] = reelArrays.get(i).get(index);
                 index += 1;
             }
         }
@@ -199,8 +236,8 @@ public class Game {
         int previousCardValue, currentCardValue;
         int index = 1, streakCount = 1;
         do {
-            previousCardValue = screen.getView()[line.get(index - 1)][index - 1];
-            currentCardValue = screen.getView()[line.get(index)][index];
+            previousCardValue = screen.fetchScreen()[line.get(index - 1)][index - 1];
+            currentCardValue = screen.fetchScreen()[line.get(index)][index];
             ++index;
             if (currentCardValue == previousCardValue)
                 ++streakCount;
@@ -240,7 +277,7 @@ public class Game {
     }
 
     private int getScatterCount(int scatterValue) {
-        var screenView = this.screen.getView();
+        var screenView = this.screen.fetchScreen();
         int scatterCount = 0;
         for (int i = 0; i < this.screen.getRowCount(); i++)
             for (int j = 0; j < this.screen.getColumnCount(); j++)

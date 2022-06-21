@@ -2,8 +2,8 @@ package com.amusnet.config;
 
 import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.util.ErrorMessages;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
  *
  * @since 1.0
  */
-@Data
-@NoArgsConstructor
-@Slf4j
+
 public class GameConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(GameConfig.class);
 
     private int screenRowCount;
     private int screenColumnCount;
@@ -52,12 +52,16 @@ public class GameConfig {
 
     private final MultipliersTable table = new MultipliersTable();
 
+    public GameConfig() {
+    }
+
     /**
      * Initializes a GameConfig object via XML configuration file.
+     *
      * @param xmlConfig A Path object that points to the XML file containing the configuration properties.
      * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
-     * @throws IOException If any IO errors occur.
-     * @throws SAXException If any parse errors occur.
+     * @throws IOException                  If any IO errors occur.
+     * @throws SAXException                 If any parse errors occur.
      */
     @SuppressWarnings("unused")
     public GameConfig(Path xmlConfig) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
@@ -75,6 +79,90 @@ public class GameConfig {
     @SuppressWarnings("unused")
     public GameConfig(Path xmlConfig, Path xsdValidation) throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
         initialize(xmlConfig, xsdValidation);
+    }
+
+    public int getScreenRowCount() {
+        return screenRowCount;
+    }
+
+    public void setScreenRowCount(int screenRowCount) {
+        this.screenRowCount = screenRowCount;
+    }
+
+    public int getScreenColumnCount() {
+        return screenColumnCount;
+    }
+
+    public void setScreenColumnCount(int screenColumnCount) {
+        this.screenColumnCount = screenColumnCount;
+    }
+
+    public DecimalFormat getCurrencyFormat() {
+        return currencyFormat;
+    }
+
+    public void setCurrencyFormat(DecimalFormat currencyFormat) {
+        this.currencyFormat = currencyFormat;
+    }
+
+    public double getStartingBalance() {
+        return startingBalance;
+    }
+
+    public void setStartingBalance(double startingBalance) {
+        this.startingBalance = startingBalance;
+    }
+
+    public int getLineCount() {
+        return lineCount;
+    }
+
+    public void setLineCount(int lineCount) {
+        this.lineCount = lineCount;
+    }
+
+    public double getBetLimit() {
+        return betLimit;
+    }
+
+    public void setBetLimit(double betLimit) {
+        this.betLimit = betLimit;
+    }
+
+    public String getExitCommand() {
+        return exitCommand;
+    }
+
+    public void setExitCommand(String exitCommand) {
+        this.exitCommand = exitCommand;
+    }
+
+    public List<List<Integer>> getReels() {
+        return reels;
+    }
+
+    public void setReels(List<List<Integer>> reels) {
+        this.reels = reels;
+    }
+
+    public List<List<Integer>> getLines() {
+        return lines;
+    }
+
+    public void setLines(List<List<Integer>> lines) {
+        this.lines = lines;
+    }
+
+    public Set<Integer> getScatters() {
+        return scatters;
+    }
+
+    public void setScatters(Set<Integer> scatters) {
+        this.scatters = scatters;
+    }
+
+    public MultipliersTable getTable() {
+        return table;
     }
 
     private void initialize(Path xmlConfig, Path xsdValidation) throws ParserConfigurationException, SAXException, IOException, ConfigurationInitializationException {
@@ -328,11 +416,39 @@ public class GameConfig {
      *
      * @since 1.0
      */
-    @Data
-    public static class MultipliersTable {
+    public class MultipliersTable {
 
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
         private Map<Integer, Map<Integer, Integer>> data;
+
+        public List<Integer> getOccurrenceCounts() {
+            return occurrenceCounts;
+        }
+
+        public void setOccurrenceCounts(List<Integer> occurrenceCounts) {
+            this.occurrenceCounts = occurrenceCounts;
+        }
+
+        public Map<Integer, Map<Integer, Integer>> getData() {
+            return data;
+        }
+
+        public void setData(Map<Integer, Map<Integer, Integer>> data) {
+            this.data = data;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MultipliersTable that = (MultipliersTable) o;
+            return occurrenceCounts.equals(that.occurrenceCounts) && data.equals(that.data);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(occurrenceCounts, data);
+        }
 
         @Override
         public String toString() {

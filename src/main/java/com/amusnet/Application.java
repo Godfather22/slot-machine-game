@@ -3,7 +3,8 @@ package com.amusnet;
 import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.game.Game;
 import com.amusnet.util.ErrorMessages;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -12,10 +13,10 @@ import java.util.Scanner;
 
 import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 
-@Slf4j
 public class Application {
 
     public static final Game GAME;
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     static {
         try {
