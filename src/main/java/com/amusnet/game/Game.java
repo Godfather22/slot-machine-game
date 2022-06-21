@@ -230,8 +230,6 @@ public class Game {
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
     private Pair<Integer, Integer> getOccurrencesForLine(List<Integer> line) {
-        // check if there is a streak, starting from the beginning
-        boolean streak = true;
 
         int previousCardValue, currentCardValue;
         int index = 1, streakCount = 1;
@@ -242,12 +240,12 @@ public class Game {
             if (currentCardValue == previousCardValue)
                 ++streakCount;
             else
-                streak = false;
+                break;
 
             if (index >= line.size())
                 break;
         }
-        while (streak);
+        while (true);
 
         if (streakCount < configuration.getTable().getOccurrenceCounts().get(0))
             return null;
