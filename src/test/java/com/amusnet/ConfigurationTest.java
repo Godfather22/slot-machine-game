@@ -3,9 +3,10 @@ package com.amusnet;
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.util.ErrorMessages;
-import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,9 +22,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Slf4j
 public class ConfigurationTest {
 
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationTest.class);
     private static GameConfig<String> config1, config2;
 
     @BeforeAll

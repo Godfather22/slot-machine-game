@@ -3,10 +3,11 @@ package com.amusnet;
 import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.game.Game;
 import com.amusnet.game.Screen;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,8 +16,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Slf4j
 public class GameBehaviourTest {
+
+    private static final Logger log = LoggerFactory.getLogger(GameBehaviourTest.class);
 
     private static final Game<String> game;
     private static int[] diceRolls;
