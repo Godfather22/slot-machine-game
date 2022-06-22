@@ -7,13 +7,13 @@ Example A
 
 Given: 20 lines to be played with a bet of 5
 
-When: A screen with the following numbers is generated:
+When: A reelScreen with the following numbers is generated:
 
 1 1 0 1 5 
 7 1 0 1 5 
 4 7 1 7 0
 
-Then: The resulting screen should be:
+Then: The resulting reelScreen should be:
 
 Line 3, Card 1 x4, win amount 100
 Scatters 7 x3, win amount 500
@@ -21,29 +21,29 @@ Balance: 100500
 
 and 600 should be added to the balance
 
-2. As a developer, I want my program to predictably generate a screen of reels,
+2. As a developer, I want my program to predictably generate a reelScreen of reels,
 given a 'generation number' (which during normal gameplay will be random)
 
 Example A
 
 Given: 5 reel arrays with size 30, and 15 as the generation number
 
-When: screen (reels) generation is executed with that number
+When: reelScreen (reels) generation is executed with that number
 
 Then: the generated reels should be populated with numbers from
 their respective reel arrays as follows: ra[15], ra[15+1], ..., ra[15+n-1],
-where 'ra' is the respective reel array, and n is the size of the screen reel
+where 'ra' is the respective reel array, and n is the size of the reelScreen reel
 
 Example B
 
 Given: 5 reel arrays with size 30, and 29 as the generation number
 
-When: screen (reels) generation is executed with that number
+When: reelScreen (reels) generation is executed with that number
 
 Then: the generated reels should be populated with numbers from
 their respective reel arrays as follows: ra[29], ra[0], ra[1] ..., ra[i],
 where 'ra' is the respective reel array, 0<i<n, where n is the size of
-the screen reel.
+the reelScreen reel.
 
 3. As a developer, I want my program to be able to handle invalid user input,
 by informing the user of his error and prompting him to try again, and to
@@ -163,13 +163,13 @@ The following message is logged:
 Error: Bet amount input [input amount] out of bounds for available values: 1-([max_bets])
 
 4. As a developer, I want my program to correctly calculate the amount a player has won,
-given a screen of cards generated through a specific generation number.
+given a reelScreen of cards generated through a specific generation number.
 
 Example A:
 
 Given: The player has bet on 5 lines with an amount of 10
 
-When: The following screen generates (generation number 0):
+When: The following reelScreen generates (generation number 0):
 
 6  6  6  6  6  
 6  6  6  6  6  
@@ -181,7 +181,7 @@ Example B:
 
 Given: The player has bet on 20 lines with an amount of 10
 
-When: The following screen generates (generation number 6):
+When: The following reelScreen generates (generation number 6):
 
 0  1  0  4  4  
 0  1  0  4  4  
@@ -193,7 +193,7 @@ Example C:
 
 Given: The player has bet on 10 lines with an amount of 5
 
-When: The following screen generates (generation number 12):
+When: The following reelScreen generates (generation number 12):
 
 4  5  5  5  5  
 4  5  5  5  5  
@@ -205,7 +205,7 @@ Example D:
 
 Given: The player has bet on 20 lines with an amount of 5
 
-When: The following screen generates (generation number 18):
+When: The following reelScreen generates (generation number 18):
 
 5  7  7  1  7  
 5  3  3  1  1  

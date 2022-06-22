@@ -1,34 +1,18 @@
 package com.amusnet;
 
-import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.game.Game;
 import com.amusnet.util.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.Scanner;
 
 import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 
 public class Application {
 
-    public static final Game GAME;
+    public static final Game GAME = new Game();
     private static final Logger log = LoggerFactory.getLogger(Application.class);
-
-    static {
-        try {
-            GAME = new Game();
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            log.error("Fatal error while configuring game");
-            throw new RuntimeException(e);
-        } catch (ConfigurationInitializationException e) {
-            log.error("Configuration constraint violated", e);
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void main(String[] args) {
 
@@ -43,7 +27,7 @@ public class Application {
         final String exitCommand = GAME.getConfiguration().getExitCommand();
 
         // main game loop
-        while (GAME.getCurrentBalance() >= 0.0) {
+        while (GAME.getGameState().getCurrentBalance() >= 0.0) {
 
             GAME.prompt();
 
@@ -93,20 +77,18 @@ public class Application {
                 }
             }
 
-            GAME.setLinesPlayed(linesInput);
-            GAME.setBetAmount(betInput);
-            double newBalance = GAME.getCurrentBalance() - betInput * linesInput;
-            GAME.setCurrentBalance(newBalance);
+            GAME.setupNextRound(linesInput, betInput);
+            GAME.getGameState().subtractFromBalance(betInput * linesInput);
 
             // feedback
             System.out.printf("%s\t%s%nBalance: %s%n%n%s%n",
-                    GAME.getLinesPlayed(),
-                    GAME.getConfiguration().getCurrencyFormat().format(GAME.getBetAmount()),
-                    GAME.getConfiguration().getCurrencyFormat().format(GAME.getCurrentBalance()),
-                    GAME.generateScreen()
+                    GAME.getGameRound().getLinesPlayed(),
+                    GAME.getConfiguration().getCurrencyFormat().format(GAME.getGameRound().getBetAmount()),
+                    GAME.getConfiguration().getCurrencyFormat().format(GAME.getGameState().getCurrentBalance()),
+                    GAME.getGameRound().getReelScreen()
             );
 
-            GAME.calculateTotalWinAndBalance();
+            GAME.playNextRound();
 
             System.out.println();
         }

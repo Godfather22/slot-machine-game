@@ -1,44 +1,29 @@
 package com.amusnet;
 
-import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.game.Game;
-import com.amusnet.game.Screen;
+import com.amusnet.game.ReelScreen;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GameBehaviourTest {
 
-    private static final Logger log = LoggerFactory.getLogger(GameBehaviourTest.class);
+    private final Logger log = LoggerFactory.getLogger(GameBehaviourTest.class);
 
-    private static final Game game;
-    private static int[] diceRolls;
-
-    static {
-        try {
-            game = new Game();
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            log.error("Fatal error while configuring game", e);
-            throw new RuntimeException(e);
-        } catch (ConfigurationInitializationException e) {
-            log.error("Configuration constraint violated", e);
-            throw new RuntimeException(e);
-        }
-    }
+    private final Game game = new Game();
+    private final ReelScreen rs = game.getGameRound().getReelScreen();
+    private int[] diceRolls;
 
     // Testing a game of Integer cards with Integer currency (money) type
     @Nested
     @DisplayName("Tests for correct generation of screen reels")
-    class ScreenGenerationTest {
+    class ReelScreenGenerationTest {
 
         @Test
         void feedScreenGeneratorNumber29_correctScreenGenerates() {
@@ -71,13 +56,12 @@ public class GameBehaviourTest {
         }
 
         private void WhenGenerationNumbersAreFedToGenerator() {
-            game.generateScreen(diceRolls);
+            rs.generateScreen(diceRolls);
         }
 
         private void ThenScreenGeneratesWithPredictedContents(List<List<Integer>> predictedContents) {
-            var actual = game.getScreen();
-            var prediction = new Screen(predictedContents);
-            assertThat(actual).isEqualTo(prediction);
+            var prediction = new ReelScreen(predictedContents);
+            assertThat(rs).isEqualTo(prediction);
         }
     }
 
@@ -182,25 +166,24 @@ public class GameBehaviourTest {
         //
 
         private void makeBet(int linesPlayed, double betAmount) {
-            game.setLinesPlayed(linesPlayed);
-            game.setBetAmount(betAmount);
+            game.setupNextRound(linesPlayed, betAmount, false);
             log.info("Lines {}; Bet per line {}", linesPlayed, betAmount);
         }
 
         private void generateScreenFromDiceRolls() {
-            Screen screen = game.generateScreen(diceRolls);
-            log.info(System.lineSeparator() + screen.toString());
+            ReelScreen reelScreen = rs.generateScreen(diceRolls);
+            log.info(System.lineSeparator() + reelScreen.toString());
         }
 
         private void assertWinAmounts(double fromLines, double fromScatters) {
-            double oldBalance = game.getCurrentBalance();
-            assertThat(game.calculateTotalWinAndBalance()).as("Total win amount")
+            double oldBalance = game.getGameState().getCurrentBalance();
+            assertThat(game.playNextRound()).as("Total win amount")
                     .isEqualTo(fromLines + fromScatters);
-            assertThat(game.getLastWinFromLines()).as("Win from lines")
+            assertThat(game.getGameRound().getWinFromLines()).as("Win from lines")
                     .isEqualTo(fromLines);
-            assertThat(game.getLastWinFromScatters()).as("Win from scatters")
+            assertThat(game.getGameRound().getWinFromScatters()).as("Win from scatters")
                     .isEqualTo(fromScatters);
-            assertThat(game.getCurrentBalance()).as("New balance amount")
+            assertThat(game.getGameState().getCurrentBalance()).as("New balance amount")
                     .isEqualTo(oldBalance + (fromLines + fromScatters));
         }
 

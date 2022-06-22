@@ -2,285 +2,102 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.ConfigurationInitializationException;
-import org.javatuples.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Represents a configured game. Game logic and calculations are provided.
  *
- * @since 1.0
  * @see GameConfig
+ * @since 1.0
  */
 public class Game {
 
-    private final GameConfig configuration;
-    private final Screen screen;
+    public static final GameConfig CONFIGURATION;
+    private static final Logger log = LoggerFactory.getLogger(Game.class);
+    private static final Path xmlConfig = Path.of("src/main/resources/properties.xml");           // configuration file
+    private static final Path xsdValidation = Path.of("src/main/resources/properties.xsd");       // configuration file validation
 
-    private double currentBalance;
-    private int linesPlayed;
-    private double betAmount;
+    static {
+        try {
+            CONFIGURATION = new GameConfig(xmlConfig, xsdValidation);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            log.error("Fatal error while configuring game");
+            throw new RuntimeException(e);
+        } catch (ConfigurationInitializationException e) {
+            log.error("Configuration constraint violated", e);
+            throw new RuntimeException(e);
+        }
+    }
 
-    private double lastWinFromLines, lastWinFromScatters;
+    private final GameState gameState;
+
+    private final InfoScreen infoScreen;
+    private GameRound gameRound;
 
     /**
      * Creates a fully-configured game instance.
-     *
-     * @throws ParserConfigurationException If a DocumentBuilder cannot be created which satisfies the configuration requested.
-     * @throws IOException If any IO errors occur.
-     * @throws SAXException If any parse errors occur.
      */
-    public Game() throws ParserConfigurationException, IOException, SAXException, ConfigurationInitializationException {
+    public Game() {
 
-        Path xmlConfig = Path.of("src/main/resources/properties.xml");           // configuration file
-        Path xsdValidation = Path.of("src/main/resources/properties.xsd");       // configuration file validation
+        // set up game state
+        this.gameState = new GameState(CONFIGURATION.getStartingBalance(), 0.0, 0.0);
 
-        this.configuration = new GameConfig(xmlConfig, xsdValidation);
+        // set up info screen
+        this.infoScreen = new InfoScreen(CONFIGURATION, gameState);
 
-        // set up screen size
-        int rowSize = configuration.getScreenRowCount();
-        int columnSize = configuration.getScreenColumnCount();
-        this.screen = new Screen(rowSize, columnSize);
-
-        // set up initial balance
-        this.currentBalance = configuration.getStartingBalance();
+        // set up game round
+        this.gameRound = new GameRound();
 
     }
+
+    //************************
+    //* Field Access Methods *
+    //************************
 
     public GameConfig getConfiguration() {
-        return configuration;
+        return CONFIGURATION;
     }
 
-    public Screen getScreen() {
-        return screen;
+    public GameState getGameState() {
+        return gameState;
     }
 
-    public double getCurrentBalance() {
-        return currentBalance;
+    public GameRound getGameRound() {
+        return gameRound;
     }
 
-    public void setCurrentBalance(double currentBalance) {
-        this.currentBalance = currentBalance;
-    }
+//*********************
+    //* Main Game Methods *
+    //*********************
 
-    public int getLinesPlayed() {
-        return linesPlayed;
-    }
-
-    public void setLinesPlayed(int linesPlayed) {
-        this.linesPlayed = linesPlayed;
-    }
-
-    public double getBetAmount() {
-        return betAmount;
-    }
-
-    public void setBetAmount(double betAmount) {
-        this.betAmount = betAmount;
-    }
-
-    public double getLastWinFromLines() {
-        return lastWinFromLines;
-    }
-
-    public void setLastWinFromLines(double lastWinFromLines) {
-        this.lastWinFromLines = lastWinFromLines;
-    }
-
-    public double getLastWinFromScatters() {
-        return lastWinFromScatters;
-    }
-
-    public void setLastWinFromScatters(double lastWinFromScatters) {
-        this.lastWinFromScatters = lastWinFromScatters;
-    }
-
-    /**
-     * Prompt the user for input with an informative message.
-     */
     public void prompt() {
-        var cf = configuration.getCurrencyFormat();
-        System.out.printf("Balance: %s | Lines available: 1-%d | Bets per lines available: %s-%s%n",
-                cf.format(currentBalance), configuration.getLines().size(),
-                cf.format(1), cf.format(configuration.getBetLimit()));
-        System.out.println("Please enter lines you want to play on and a bet per line: ");
+        infoScreen.print();
     }
 
-    /**
-     * Generates a two-dimensional array of integers which represents the game screen.
-     *
-     * @return The updated screen property.
-     * @see Screen
-     */
-    public Screen generateScreen() {
-        Random rnd = new Random();
-        int[] diceRolls = new int[this.configuration.getScreenColumnCount()];
-        for (int i = 0; i < diceRolls.length; i++)
-            diceRolls[i] = rnd.nextInt(configuration.getReels().get(0).size());
-        return generateScreen(diceRolls);
+    public void setupNextRound(int linesPlayed, double betAmount) {
+        setupNextRound(linesPlayed, betAmount, true);
     }
 
-    /**
-     * Generates a two-dimensional array of integers which represents the game screen.
-     * The generation is controlled by an array of integers, called 'dice rolls'.
-     * Each dice roll corresponds to the initial position in the reel arrays from
-     * which the population of the screen reels will begin. If the position is towards
-     * the end of the reel array and more elements are needed than are available until
-     * the end of the reel array, an overflow occurs and the rest of the elements are
-     * chosen from the beginning of the reel array.
-     * <br></br>
-     * <br></br>
-     * Example:
-     * <br></br>
-     * <br></br>
-     * A diceRoll of 28 is generated for the following reel array:
-     * [6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2]
-     * <br></br>
-     * <br></br>
-     * The elements for the screen array will be the 28th, 29th and 0th (2, 2, 6).
-     * <br></br>
-     *
-     * @return The updated screen property.
-     * @see Screen
-     */
-    public Screen generateScreen(int[] diceRolls) {
-        // tests do a better job than this
-        //log.debug("DiceRoll for screen generation: {}", diceRoll);
+    public void setupNextRound(int linesPlayed, double betAmount, boolean generateReelScreen) {
+        if (generateReelScreen)
+            this.gameRound.getReelScreen().generateScreen();
+        this.gameRound.setLinesPlayed(linesPlayed);
+        this.gameRound.setBetAmount(betAmount);
+    }
 
-        var reelArrays = this.configuration.getReels();
-        int screenReelSize = this.configuration.getScreenRowCount();
-        int screenRowsSize = this.configuration.getScreenColumnCount();
-        for (int i = 0; i < screenRowsSize; i++) {
-            int index = diceRolls[i];
-            for (int j = 0; j < screenReelSize; j++) {
-                if (index >= reelArrays.get(i).size())
-                    index = 0;
-                this.screen.fetchScreen()[j][i] = reelArrays.get(i).get(index);
-                index += 1;
-            }
+    public double playNextRound() {
+        double win = gameRound.playRound();
+        if (win != 0.0) {
+            double balanceUntilNow = gameState.getCurrentBalance();
+            gameState.setCurrentBalance(balanceUntilNow + win);
         }
-        return this.screen;
+        return win;
     }
 
-    public double calculateTotalWinAndBalance() {
-        double totalWin = calculateTotalWin();
-        this.currentBalance += totalWin;
-        return totalWin;
-    }
-
-    /**
-     * Calculates the total win amount for the current bet, that is the sum
-     * of line wins and scatter wins.
-     *
-     * @return The sum of line wins and scatter wins.
-     */
-    private double calculateTotalWin() {
-
-        // should never come to this
-//        if (this.linesPlayed < 1)
-//            throw new InvalidGameDataException("Invalid value for field 'linesPlayed'");
-//        if (this.betAmount < 1.0)
-//            throw new InvalidGameDataException("Invalid value for field 'betAmount'");
-
-        double totalWinAmount = 0;
-
-        for (int i = 0; i < this.linesPlayed; i++) {
-            var currentLine = configuration.getLines().get(i);
-            var occurs = getOccurrencesForLine(currentLine);
-            if (occurs != null) {
-                var winningCardValue = occurs.getValue0();
-                var winningCardOccurrences = occurs.getValue1();
-                var currentWinAmount =  calculateRegularWins(occurs);
-                if (currentWinAmount != 0.0) {
-                    totalWinAmount += currentWinAmount;
-                    System.out.printf("Line %d, Card %s x%d, win amount %s%n",
-                            i + 1, winningCardValue, winningCardOccurrences,
-                            this.configuration.getCurrencyFormat().format(currentWinAmount));
-                }
-            }
-        }
-        this.lastWinFromLines = totalWinAmount;
-
-        // for the sake of extensibility: in case there are more than one "scatter cards"
-        double scatterWinAmount = 0.0;
-        for (Integer s : configuration.getScatters()) {
-            int scatterCount = getScatterCount(s);
-            scatterWinAmount = calculateScatterWins(s, scatterCount);
-            if (scatterWinAmount != 0.0) {
-                totalWinAmount += scatterWinAmount;
-                System.out.printf("Scatters %s x%d, win amount %s%n",
-                        s, scatterCount,
-                        this.configuration.getCurrencyFormat().format(scatterWinAmount));
-            }
-        }
-        this.lastWinFromScatters = scatterWinAmount;
-        if (totalWinAmount == 0.0)
-            System.out.println("No wins");
-        return totalWinAmount;
-    }
-
-    //*******************
-    //* UTILITY METHODS *
-    //*******************
-
-    // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<Integer, Integer> getOccurrencesForLine(List<Integer> line) {
-
-        int previousCardValue, currentCardValue;
-        int index = 1, streakCount = 1;
-        do {
-            previousCardValue = screen.fetchScreen()[line.get(index - 1)][index - 1];
-            currentCardValue = screen.fetchScreen()[line.get(index)][index];
-            ++index;
-            if (currentCardValue == previousCardValue)
-                ++streakCount;
-            else
-                break;
-
-            if (index >= line.size())
-                break;
-        }
-        while (true);
-
-        if (streakCount < configuration.getTable().getOccurrenceCounts().get(0))
-            return null;
-        else
-            return new Pair<>(previousCardValue, streakCount);
-
-    }
-
-    private double calculateRegularWins(Pair<Integer, Integer> occurs) {
-        var tableData = configuration.getTable().getData();
-        var rightSide = tableData.get(occurs.getValue0());
-        var multiplier = rightSide.get(occurs.getValue1());
-        return this.betAmount * multiplier;
-    }
-
-    private double calculateScatterWins(Integer scatterValue, int scatterCount) {
-        var calcTable = this.configuration.getTable();
-
-        // If the amount of scatters on screen is a valid win amount
-        if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
-            // then calculate and return the win amount.
-            Integer multiplier = calcTable.getData().get(scatterValue).get(scatterCount);
-            var totalBet = this.betAmount * this.linesPlayed;
-            return totalBet * multiplier;
-        }
-        return 0.0; // not enough scatters or none at all
-    }
-
-    private int getScatterCount(int scatterValue) {
-        var screenView = this.screen.fetchScreen();
-        int scatterCount = 0;
-        for (int i = 0; i < this.screen.getRowCount(); i++)
-            for (int j = 0; j < this.screen.getColumnCount(); j++)
-                if (scatterValue == screenView[i][j])
-                    ++scatterCount;
-        return scatterCount;
-    }
 }
