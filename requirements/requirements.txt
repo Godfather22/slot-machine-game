@@ -212,3 +212,74 @@ When: The following reelScreen generates (generation number 18):
 5  3  3  1  1 
 
 Then: The calculated win amount should be: 500; 0 from lines, 500 from scatters
+
+(problem extension)
+5. As the project lead, I want the game to be extended with the following functionality:
+- Two occurrences of card with value 6 on a line will have a win amount of 10 * bet per line
+- Card 6 will be a new type of card - wildcard - which *can* act as a substitute for other cards.
+If card 6 is in the beginning of a line, the win amount is the higher one of the possibilities.
+(See examples for more clarity)
+
+Example A (figures/fig-5a.txt):
+
+Given: Player bets on 1 lines (line 0) with amount of 5
+
+When: Generation array for reel screen is {4, 29, 29, 17, 24} (figures/fig-5a.txt)
+
+Then: Win amount should be 100 from lines
+
+Example B (figures/fig-5b.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 10
+
+When: Generation array for reel screen is {10, 20, 29, 17, 24} (figures/fig-5b.txt)
+
+Then: Win amount should be 200 from lines
+
+Example C (figures/fig-5c.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 10
+
+When: Generation array for reel screen is {0, 0, 0, 18, 9} (figures/fig-5c.txt)
+
+Then: Win amount should be 400 from lines (see note in figure)
+
+Example D (figures/fig-5d.txt)
+
+Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 10
+
+When: Generation array for reel screen is {0, 0, 0, 18, 9} (figures/fig-5d.txt)
+
+Then: Win amount should be 1200 from lines (see note in figure)
+
+Example E (figures/fig-5e.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 5
+
+When: Generation array for reel screen is {0, 0, 0, 18, 19} (figures/fig-5e.txt)
+
+Then: Win amount should be 500 from lines
+
+Example F (figures/fig-5f.txt)
+
+Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 5
+
+When: Generation array for reel screen is {0, 0, 0, 18, 19} (figures/fig-5f.txt)
+
+Then: Win amount should be 1500 from lines
+
+Example G (figures/fig-5g.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 10
+
+When: Generation array for reel screen is {0, 0, 0, 15, 19} (figures/fig-5g.txt)
+
+Then: Win amount should be 400 from lines (see note in figure)
+
+Example H (figures/fig-5h.txt)
+
+Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 10
+
+When: Generation array for reel screen is {0, 0, 0, 15, 19} (figures/fig-5h.txt)
+
+Then: Win amount should be 1200 from lines (see note in figure)

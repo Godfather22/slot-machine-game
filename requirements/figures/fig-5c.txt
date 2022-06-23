@@ -1,0 +1,14 @@
+Lines played: 1
+Bet per line: 10
+
+[6, 6, 6, 1, 2] -> line not played
+[6, 6, 6, 1, 2] -> 40 * 10 = 400 won
+[6, 6, 6, 1, 2] -> line not played
+
+Gen array:
+{0, 0, 0, 18, 9}
+
+Note: In this case the 6's "wildcardness"
+doesn't "activate" because if it did,
+the win would be 20 * 10 = 200, which
+is less than 40 * 10 = 400.

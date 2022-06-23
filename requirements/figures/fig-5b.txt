@@ -1,0 +1,9 @@
+Lines played: 1
+Bet per line: 10
+
+[3, 3, 5, 3, 3] -> line not played
+[3, 3, 6, 1, 2] -> 20 * 10 = 200 won
+[4, 2, 6, 1, 2] -> line not played
+
+Gen array:
+{10, 20, 29, 17, 24}

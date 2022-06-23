@@ -1,0 +1,19 @@
+Lines played: 3
+Bet per line: 10
+
+[6, 6, 6, 3, 1] -> 40 * 10 = 400 won
+[6, 6, 6, 3, 1] -> 40 * 10 = 400 won
+[6, 6, 6, 3, 1] -> 40 * 10 = 400 won
+------------------------------------
+					Total: 1200 won
+
+Gen array:
+{0, 0, 0, 15, 19}
+
+Note: For each line, both win amounts
+from 3's and 6's are equal;
+(x4 card 3) 40 * 10 = 400
+(x3 card 6) 40 * 10 = 400
+The card with a higher value (6 > 3)
+is chosen as the winning card for each
+line.
