@@ -81,6 +81,10 @@ public class GameConfig {
         initialize(xmlConfig, xsdValidation);
     }
 
+    //******************
+    //* ACCESS METHODS *
+    //******************
+
     public int getScreenRowCount() {
         return screenRowCount;
     }
@@ -165,6 +169,10 @@ public class GameConfig {
         return table;
     }
 
+    //****************
+    //* MAIN METHODS *
+    //****************
+
     private void initialize(Path xmlConfig, Path xsdValidation) throws ParserConfigurationException, SAXException, IOException, ConfigurationInitializationException {
 
         // DOM API
@@ -195,12 +203,12 @@ public class GameConfig {
         Element root = document.getDocumentElement();
 
         /*
-        Column size, reel arrays and multipliers table are read first
+        Column size of reel screen, reel arrays and multipliers table are read first
         because dependencies exist between them and if one is violated,
         there's no need to continue the initialization.
          */
 
-        // set column size
+        // set column size of reel screen
         {
             NodeList nlColumns = root.getElementsByTagName("columns");
             this.screenColumnCount = Integer.parseInt(nlColumns.item(0).getChildNodes().item(0).getNodeValue());
@@ -338,7 +346,33 @@ public class GameConfig {
             this.table.setData(data);
         }
 
-        // set row size
+        /*
+        Next, scatter cards and wildcards are read,
+        and checked if they exist at all (in the calc. table)
+         */
+
+        // set up scatter cards
+        {
+            NodeList nlScatterCards = root.getElementsByTagName("scatters");
+            String strScatterValues = nlScatterCards.item(0).getChildNodes().item(0).getNodeValue();
+            String[] scatterValues = strScatterValues.split(",");
+            var existingCards = this.table.data.keySet();
+            this.scatters = new LinkedHashSet<>();
+            for (String v : scatterValues) {
+                int value = Integer.parseInt(v);
+                if (!existingCards.contains(value)) {
+                    log.error("Card {} designated as scatter card, but does not exist in multipliers table", value);
+                    throw new ConfigurationInitializationException(errorMessages.message(
+                            "Scatter based on nonexistent card", "No such card exists to be designated as scatter"
+                    ));
+                }
+                this.scatters.add(value);
+            }
+        }
+
+        // set up wildcards
+
+        // set row size of reel screen
         {
             NodeList nlRows = root.getElementsByTagName("rows");
             this.screenRowCount = Integer.parseInt(nlRows.item(0).getChildNodes().item(0).getNodeValue());
@@ -396,16 +430,6 @@ public class GameConfig {
                     lineList.add(Integer.parseInt(v));
                 this.lines.add(lineList);
             }
-        }
-
-        // set up scatter cards
-        {
-            NodeList nlScatterCards = root.getElementsByTagName("scatters");
-            String strScatterValues = nlScatterCards.item(0).getChildNodes().item(0).getNodeValue();
-            String[] scatterValues = strScatterValues.split(",");
-            this.scatters = new LinkedHashSet<>();
-            for (String v : scatterValues)
-                this.scatters.add(Integer.parseInt(v));
         }
 
     }

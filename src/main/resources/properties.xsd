@@ -9,6 +9,7 @@
     <xs:element name="reelArray" type="xs:string"/>
     <xs:element name="lineArray" type="xs:string"/>
     <xs:element name="scatters" type="xs:string"/>
+    <xs:element name="wildcards" type="xs:string"/>
 
 <!--    <xs:attribute name="format" default="normal">-->
 <!--        <xs:simpleType>-->
@@ -78,6 +79,7 @@
                 <xs:element ref="reelArrays"/>
                 <xs:element ref="lineArrays"/>
                 <xs:element ref="scatters"/>
+                <xs:element ref="wildcards"/>
                 <xs:element ref="multipliers"/>
             </xs:sequence>
         </xs:complexType>

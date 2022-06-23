@@ -77,6 +77,7 @@ public class ErrorMessages {
         public static final String TITLE_EMSG_TABLE_MULTIPLIERS_DISCREPANCY = "Card multipliers discrepancy";
         public static final String TITLE_EMSG_TABLE_OCCURRENCES_DISCREPANCY = "Card occurrences discrepancy";
         public static final String TITLE_EMSG_TABLE_MISSING_CARDS = "Missing cards in multipliers table";
+        public static final String TITLE_EMSG_NONEXISTENT_SCATTER = "Scatter based on nonexistent card";
     }
 
 }

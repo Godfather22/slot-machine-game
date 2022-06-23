@@ -41,6 +41,8 @@
 
     <scatters>7</scatters>
 
+    <wildcards>6</wildcards>
+
     <multipliers>
         <card face="0">
             <multiplier occurrences="3" amount="10"/>

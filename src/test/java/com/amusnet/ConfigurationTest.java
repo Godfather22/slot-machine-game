@@ -177,7 +177,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasInvalidCurrencyFormat_shouldThrowConfigInitException() {
+        void configurationXmlHasInvalidCurrencyFormat_shouldThrowConfigInitException() {
             setInvalidCurrencyFormat();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message(
@@ -186,7 +186,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasInvalidColumnSize_shouldThrowConfigInitException() {
+        void configurationXmlHasInvalidColumnSize_shouldThrowConfigInitException() {
             setInvalidColumnSize();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
@@ -194,7 +194,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasInvalidReelArraysSize_shouldThrowConfigInitException() {
+        void configurationXmlHasInvalidReelArraysSize_shouldThrowConfigInitException() {
             setInvalidReelArraysSize();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
@@ -202,7 +202,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasDuplicateCardInTable_shouldThrowConfigInitException() {
+        void configurationXmlHasDuplicateCardInTable_shouldThrowConfigInitException() {
             setDuplicateCardInTable();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
@@ -210,7 +210,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasDuplicatedOccurrence_shouldThrowConfigInitException() {
+        void configurationXmlHasDuplicatedOccurrence_shouldThrowConfigInitException() {
             setDuplicateOccurrenceInTable();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
@@ -218,7 +218,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasVaryingCardMultipliers_shouldThrowConfigInitException() {
+        void configurationXmlHasVaryingCardMultipliers_shouldThrowConfigInitException() {
             setVaryingCardMultipliers();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
@@ -226,7 +226,7 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasVaryingCardOccurrences_shouldThrowConfigInitException() {
+        void configurationXmlHasVaryingCardOccurrences_shouldThrowConfigInitException() {
             setVaryingCardOccurrences();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
@@ -234,15 +234,23 @@ public class ConfigurationTest {
         }
 
         @Test
-        public void configurationXmlHasMissingCardInTable_shouldThrowConfigInitException() {
+        void configurationXmlHasMissingCardInTable_shouldThrowConfigInitException() {
             setMissingCardInTable();
             Exception e = getException();
             assertEquals(e.getMessage(), errorMessages.message
                     (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_TABLE_MISSING_CARDS));
         }
 
+        @Test
+        void configurationXmlHasScatterNotInTable_shouldThrowConfigInitException() {
+            setScatterNotInTable();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_NONEXISTENT_SCATTER));
+        }
+
         private Exception getException() {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempConfigFile.toFile(), false))){
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempConfigFile.toFile(), false))) {
                 writer.write(invalidXmlContent);
             } catch (IOException e) {
                 log.error("Failed to initialize file reader");
@@ -296,6 +304,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -386,6 +396,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -475,6 +487,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -565,6 +579,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -660,6 +676,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -750,6 +768,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -841,6 +861,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -931,6 +953,8 @@ public class ConfigurationTest {
                         </lineArrays>
 
                         <scatters>7</scatters>
+                        
+                        <wildcards>6</wildcards>
 
                         <multipliers>
                             <card face="0">
@@ -967,6 +991,98 @@ public class ConfigurationTest {
                                 <multiplier occurrences="3" amount="40"/>
                                 <multiplier occurrences="4" amount="400"/>
                                 <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setScatterNotInTable() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>8</scatters>
+
+                        <wildcards>6</wildcards>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
                             </card>
                         </multipliers>
                     </properties>""";
