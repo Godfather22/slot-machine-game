@@ -49,6 +49,7 @@ public class GameConfig {
     private List<List<Integer>> lines;
 
     private Set<Integer> scatters;
+    private Set<Integer> wildcards;
 
     private final MultipliersTable table = new MultipliersTable();
 
@@ -163,6 +164,14 @@ public class GameConfig {
 
     public void setScatters(Set<Integer> scatters) {
         this.scatters = scatters;
+    }
+
+    public Set<Integer> getWildcards() {
+        return wildcards;
+    }
+
+    public void setWildcards(Set<Integer> wildcards) {
+        this.wildcards = wildcards;
     }
 
     public MultipliersTable getTable() {
@@ -371,6 +380,23 @@ public class GameConfig {
         }
 
         // set up wildcards
+        {
+            NodeList nlWildcards = root.getElementsByTagName("wildcards");
+            String strWildcardValues = nlWildcards.item(0).getChildNodes().item(0).getNodeValue();
+            String[] wildcardValues = strWildcardValues.split(",");
+            var existingCards = this.table.data.keySet();
+            this.wildcards = new LinkedHashSet<>();
+            for (String v : wildcardValues) {
+                int value = Integer.parseInt(v);
+                if (!existingCards.contains(value)) {
+                    log.error("Card {} designated as wildcard, but does not exist in multipliers table", value);
+                    throw new ConfigurationInitializationException(errorMessages.message(
+                            "Wildcard based on nonexistent card", "No such card exists to be designated as wildcard"
+                    ));
+                }
+                this.wildcards.add(value);
+            }
+        }
 
         // set row size of reel screen
         {

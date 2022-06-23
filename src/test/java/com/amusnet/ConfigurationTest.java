@@ -249,6 +249,14 @@ public class ConfigurationTest {
                     (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_NONEXISTENT_SCATTER));
         }
 
+        @Test
+        void configurationXmlHasWildcardNotInTable_shouldThrowConfigInitException() {
+            setWildcardNotInTable();
+            Exception e = getException();
+            assertEquals(e.getMessage(), errorMessages.message
+                    (ErrorMessages.DefaultMessageTitles.TITLE_EMSG_NONEXISTENT_WILDCARD));
+        }
+
         private Exception getException() {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempConfigFile.toFile(), false))) {
                 writer.write(invalidXmlContent);
@@ -259,6 +267,8 @@ public class ConfigurationTest {
             return assertThrows(ConfigurationInitializationException.class, () ->
                     new GameConfig(tempConfigFile));
         }
+
+        // TODO manual feeding of invalid xml content is tedious
 
         private void setInvalidCurrencyFormat() {
             invalidXmlContent = """
@@ -1042,6 +1052,98 @@ public class ConfigurationTest {
                         <scatters>8</scatters>
 
                         <wildcards>6</wildcards>
+
+                        <multipliers>
+                            <card face="0">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="1">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="2">
+                                <multiplier occurrences="3" amount="10"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="100"/>
+                            </card>
+                            <card face="3">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="4">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="40"/>
+                                <multiplier occurrences="5" amount="200"/>
+                            </card>
+                            <card face="5">
+                                <multiplier occurrences="3" amount="20"/>
+                                <multiplier occurrences="4" amount="80"/>
+                                <multiplier occurrences="5" amount="400"/>
+                            </card>
+                            <card face="6">
+                                <multiplier occurrences="3" amount="40"/>
+                                <multiplier occurrences="4" amount="400"/>
+                                <multiplier occurrences="5" amount="1000"/>
+                            </card>
+                            <card face="7">
+                                <multiplier occurrences="3" amount="5"/>
+                                <multiplier occurrences="4" amount="20"/>
+                                <multiplier occurrences="5" amount="500"/>
+                            </card>
+                        </multipliers>
+                    </properties>""";
+        }
+
+        private void setWildcardNotInTable() {
+            invalidXmlContent = """
+                    <?xml version="1.0" encoding="UTF-8" ?>
+
+                    <properties>
+                        <rows>3</rows>
+                        <columns>5</columns>
+                        <currency format="round"/>
+                        <balance>100000</balance>
+                        <betlimit>10</betlimit>
+                        <exit>quit</exit>
+
+                        <reelArrays>
+                            <reelArray>6,6,6,1,1,1,0,0,0,3,3,3,4,4,4,2,2,2,5,5,5,1,1,1,7,4,4,4,2,2</reelArray>
+                            <reelArray>6,6,6,2,2,2,1,1,1,0,0,0,5,5,5,1,1,1,7,3,3,3,2,2,2,0,0,0,5,5</reelArray>
+                            <reelArray>6,6,6,4,4,4,0,0,0,1,1,1,5,5,5,2,2,2,7,3,3,3,0,0,0,2,2,2,5,5</reelArray>
+                            <reelArray>6,6,6,2,2,2,4,4,4,0,0,0,5,5,5,3,3,3,1,1,1,7,2,2,2,0,0,0,4,4</reelArray>
+                            <reelArray>6,6,6,1,1,1,4,4,4,2,2,2,5,5,5,0,0,0,7,1,1,1,3,3,3,2,2,2,5,5</reelArray>
+                        </reelArrays>
+
+                        <lineArrays>
+                            <lineArray>1,1,1,1,1</lineArray>
+                            <lineArray>0,0,0,0,0</lineArray>
+                            <lineArray>2,2,2,2,2</lineArray>
+                            <lineArray>0,1,2,1,0</lineArray>
+                            <lineArray>2,1,0,1,2</lineArray>
+                            <lineArray>0,0,1,2,2</lineArray>
+                            <lineArray>2,2,1,0,0</lineArray>
+                            <lineArray>1,2,2,2,1</lineArray>
+                            <lineArray>1,0,0,0,1</lineArray>
+                            <lineArray>0,1,1,1,0</lineArray>
+                            <lineArray>2,1,1,1,2</lineArray>
+                            <lineArray>1,2,1,0,1</lineArray>
+                            <lineArray>1,0,1,2,1</lineArray>
+                            <lineArray>0,1,0,1,0</lineArray>
+                            <lineArray>2,1,2,1,2</lineArray>
+                            <lineArray>1,1,2,1,1</lineArray>
+                            <lineArray>1,1,0,1,1</lineArray>
+                            <lineArray>0,2,0,2,0</lineArray>
+                            <lineArray>2,0,2,0,2</lineArray>
+                            <lineArray>1,0,2,0,1</lineArray>
+                        </lineArrays>
+
+                        <scatters>7</scatters>
+
+                        <wildcards>8</wildcards>
 
                         <multipliers>
                             <card face="0">
