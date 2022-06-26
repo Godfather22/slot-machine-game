@@ -49,7 +49,7 @@ public class GameConfig {
     private List<List<Integer>> lines;
 
     private Set<Integer> scatters;
-    private Set<Integer> wildcards;
+    private int wildcard;
 
     private final MultipliersTable table = new MultipliersTable();
 
@@ -166,12 +166,12 @@ public class GameConfig {
         this.scatters = scatters;
     }
 
-    public Set<Integer> getWildcards() {
-        return wildcards;
+    public Integer getWildcard() {
+        return wildcard;
     }
 
-    public void setWildcards(Set<Integer> wildcards) {
-        this.wildcards = wildcards;
+    public void setWildcard(Integer wildcard) {
+        this.wildcard = wildcard;
     }
 
     public MultipliersTable getTable() {
@@ -289,12 +289,13 @@ public class GameConfig {
                                 "Card occurrence duplication", "Duplicated card occurrence value " +
                                         "in multipliers table"
                         ));
-                    }
-                    else
+                    } else
                         occurrenceCountTrack.add(occurrencesValue);
 
                     // put value in final map to be passed
                     finalOccurrenceCounts.put("x" + strOccurrences, occurrencesValue);
+                    if (table.maxStreakCount < occurrencesValue)
+                        table.maxStreakCount = occurrencesValue;
 
                     // fetch multiplication amount for current multiplier
                     String strAmount = ((Element) multiplier).getAttribute("amount");
@@ -379,22 +380,19 @@ public class GameConfig {
             }
         }
 
-        // set up wildcards
+        // set up wildcard
         {
-            NodeList nlWildcards = root.getElementsByTagName("wildcards");
-            String strWildcardValues = nlWildcards.item(0).getChildNodes().item(0).getNodeValue();
-            String[] wildcardValues = strWildcardValues.split(",");
+            NodeList nlWildcards = root.getElementsByTagName("wildcard");
+            String strWildcardValue = nlWildcards.item(0).getChildNodes().item(0).getNodeValue();
             var existingCards = this.table.data.keySet();
-            this.wildcards = new LinkedHashSet<>();
-            for (String v : wildcardValues) {
-                int value = Integer.parseInt(v);
-                if (!existingCards.contains(value)) {
-                    log.error("Card {} designated as wildcard, but does not exist in multipliers table", value);
-                    throw new ConfigurationInitializationException(errorMessages.message(
-                            "Wildcard based on nonexistent card", "No such card exists to be designated as wildcard"
-                    ));
-                }
-                this.wildcards.add(value);
+
+            this.wildcard = Integer.parseInt(strWildcardValue);
+
+            if (!existingCards.contains(this.wildcard)) {
+                log.error("Card {} designated as wildcard, but does not exist in multipliers table", this.wildcard);
+                throw new ConfigurationInitializationException(errorMessages.message(
+                        "Wildcard based on nonexistent card", "No such card exists to be designated as wildcard"
+                ));
             }
         }
 
@@ -471,6 +469,8 @@ public class GameConfig {
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
         private Map<Integer, Map<Integer, Integer>> data;
 
+        private int maxStreakCount;
+
         public List<Integer> getOccurrenceCounts() {
             return occurrenceCounts;
         }
@@ -485,6 +485,10 @@ public class GameConfig {
 
         public void setData(Map<Integer, Map<Integer, Integer>> data) {
             this.data = data;
+        }
+
+        public int getMaxStreakCount() {
+            return maxStreakCount;
         }
 
         @Override

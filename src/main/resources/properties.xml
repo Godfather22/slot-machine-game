@@ -41,7 +41,7 @@
 
     <scatters>7</scatters>
 
-    <wildcards>6</wildcards>
+    <wildcard>6</wildcard>
 
     <multipliers>
         <card face="0">

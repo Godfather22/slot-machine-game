@@ -315,7 +315,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -407,7 +407,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -498,7 +498,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -590,7 +590,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -687,7 +687,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -779,7 +779,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -872,7 +872,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -964,7 +964,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
                         
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -1051,7 +1051,7 @@ public class ConfigurationTest {
 
                         <scatters>8</scatters>
 
-                        <wildcards>6</wildcards>
+                        <wildcard>6</wildcard>
 
                         <multipliers>
                             <card face="0">
@@ -1143,7 +1143,7 @@ public class ConfigurationTest {
 
                         <scatters>7</scatters>
 
-                        <wildcards>8</wildcards>
+                        <wildcard>8</wildcard>
 
                         <multipliers>
                             <card face="0">
