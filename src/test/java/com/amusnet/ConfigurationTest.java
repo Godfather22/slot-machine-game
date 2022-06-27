@@ -218,6 +218,8 @@ public class ConfigurationTest {
         }
 
         @Test
+        @Disabled
+            // checks made invalid after problem extension
         void configurationXmlHasVaryingCardMultipliers_shouldThrowConfigInitException() {
             setVaryingCardMultipliers();
             Exception e = getException();
@@ -226,6 +228,8 @@ public class ConfigurationTest {
         }
 
         @Test
+        @Disabled
+            // checks made invalid after problem extension
         void configurationXmlHasVaryingCardOccurrences_shouldThrowConfigInitException() {
             setVaryingCardOccurrences();
             Exception e = getException();

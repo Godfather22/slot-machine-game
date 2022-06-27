@@ -302,37 +302,41 @@ public class GameConfig {
                     int amountValue = Integer.parseInt(strAmount);
                     rightColumns.put(occurrencesValue, amountValue);
 
-                    // check if there is a discrepancy with previous amounts of multipliers
-                    if (++multipliersForThisCard > multipliersPerCard)
-                        if (i > 0) {
-                            log.error("Card multipliers until now were {} but encountered a card with {} multipliers",
-                                    multipliersPerCard, multipliersForThisCard);
-                            throw new ConfigurationInitializationException(errorMessages.message(
-                                    "Card multipliers discrepancy", "Cards in multipliers table should " +
-                                            "have consistent amount of multipliers"
-                            ));
-                        }
-                        else
-                            multipliersPerCard = multipliersForThisCard;
+                    //
+                    // Checks made redundant after problem extension
+                    //
 
-                    multiplier = nlMultipliers.item(++j);
+                    // check if there is a discrepancy with previous amounts of multipliers
+//                    if (++multipliersForThisCard > multipliersPerCard)
+//                        if (i > 0) {
+//                            log.error("Card multipliers until now were {} but encountered a card with {} multipliers",
+//                                    multipliersPerCard, multipliersForThisCard);
+//                            throw new ConfigurationInitializationException(errorMessages.message(
+//                                    "Card multipliers discrepancy", "Cards in multipliers table should " +
+//                                            "have consistent amount of multipliers"
+//                            ));
+//                        }
+//                        else
+//                            multipliersPerCard = multipliersForThisCard;
+//
+//                    multiplier = nlMultipliers.item(++j);
                 }
 
                 // make sure occurrence counts (i.e. x3, x4, x5... etc.) are uniform across cards
-                if (i > 0) {
-                    if (!occurrenceCountTrack.equals(finalOccurrenceCounts.values().stream().toList())) {
-//                        var previous = finalOccurrenceCounts.values().stream()
-//                                .limit(finalOccurrenceCounts.values().size() - 1);
-                        Deque<Integer> prev = new ArrayDeque<>(finalOccurrenceCounts.values());
-                        var culprit = prev.pollLast();
-                        log.error("Card occurrence counts until now were {} but encountered an extra one: {}",
-                                prev, culprit);
-                        throw new ConfigurationInitializationException(errorMessages.message(
-                                "Card occurrences discrepancy", "Card occurrences in multipliers table " +
-                                        "should have consistent amount of occurrence counts"
-                        ));
-                    }
-                }
+//                if (i > 0) {
+//                    if (!occurrenceCountTrack.equals(finalOccurrenceCounts.values().stream().toList())) {
+////                        var previous = finalOccurrenceCounts.values().stream()
+////                                .limit(finalOccurrenceCounts.values().size() - 1);
+//                        Deque<Integer> prev = new ArrayDeque<>(finalOccurrenceCounts.values());
+//                        var culprit = prev.pollLast();
+//                        log.error("Card occurrence counts until now were {} but encountered an extra one: {}",
+//                                prev, culprit);
+//                        throw new ConfigurationInitializationException(errorMessages.message(
+//                                "Card occurrences discrepancy", "Card occurrences in multipliers table " +
+//                                        "should have consistent amount of occurrence counts"
+//                        ));
+//                    }
+//                }
                 data.put(cardValue, rightColumns);
             }
 

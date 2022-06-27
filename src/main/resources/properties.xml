@@ -75,6 +75,7 @@
             <multiplier occurrences="5" amount="400"/>
         </card>
         <card face="6">
+            <multiplier occurrences="2" amount="20"/>
             <multiplier occurrences="3" amount="40"/>
             <multiplier occurrences="4" amount="400"/>
             <multiplier occurrences="5" amount="1000"/>
