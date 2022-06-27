@@ -319,7 +319,7 @@ public class GameConfig {
 //                        else
 //                            multipliersPerCard = multipliersForThisCard;
 //
-//                    multiplier = nlMultipliers.item(++j);
+                    multiplier = nlMultipliers.item(++j);
                 }
 
                 // make sure occurrence counts (i.e. x3, x4, x5... etc.) are uniform across cards
