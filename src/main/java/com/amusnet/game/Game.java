@@ -38,7 +38,7 @@ public class Game {
     private final GameState gameState;
 
     private final InfoScreen infoScreen;
-    private GameRound gameRound;
+    private final GameRound gameRound;
 
     /**
      * Creates a fully-configured game instance.
@@ -52,7 +52,7 @@ public class Game {
         this.infoScreen = new InfoScreen(CONFIGURATION, gameState);
 
         // set up game round
-        this.gameRound = new GameRound();
+        this.gameRound = new GameRound(CONFIGURATION);
 
     }
 
