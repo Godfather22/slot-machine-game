@@ -82,7 +82,16 @@ public class GameRound {
         // 0-based, i.e. line with index 0 is the first line, etc...
         for (int i = 0; i < linesPlayed; i++) {
             var currentLine = config.getLines().get(i);
-            var cardOccursAndWin = getOccurrencesForLine(currentLine);    // heavy-lifting happens here
+            List<Integer> lineCards = new ArrayList<>(currentLine.size());
+
+            // construct array containing the cards in current line
+            for (int j = 0; j < currentLine.size(); j++) {
+                var card = this.reelScreen.getCardAt(currentLine.get(j), j);
+                lineCards.add(card);
+            }
+
+            var cardOccursAndWin = getOccurrencesAndWinForLineCards(lineCards);    // heavy-lifting happens here
+
             if (cardOccursAndWin != null) {
                 var winningCardValue = cardOccursAndWin.getValue0();
                 var winningCardOccurrences = cardOccursAndWin.getValue1();
@@ -122,27 +131,22 @@ public class GameRound {
     //* HEAVY-LIFTING METHODS *
     //*************************
 
-    // Note: 'line' in this method's vocabulary is meant in the context of the game
-    // Also note: there is a big difference between 'line' and 'lineCards'
-    private Triplet<Integer, Integer, Double> getOccurrencesForLine(List<Integer> line) {
+    private Triplet<Integer, Integer, Double> getOccurrencesAndWinForLineCards(List<Integer> lineCards) {
 
         var wildcard = this.config.getWildcard();
 
-        // if there are no wildcards in the line
-        if (!line.contains(wildcard))
-            return extractLineWinNoWildcards(line);
+        // if there are no wildcards in the lineCards
+        if (!lineCards.contains(wildcard))
+            return extractLineWinNoWildcards(lineCards);
 
-        List<Integer> lineCards = new ArrayList<>(config.getScreenColumnCount());
         List<Boolean> wildcardMask = new ArrayList<>(config.getScreenColumnCount());
 
-        // extract cards for current line and
+        // extract cards for current lineCards and
         // construct a 'wildcard mask'
-        // e.g. for line 1 6 6 1 2
+        // e.g. for lineCards 1 6 6 1 2
         // mask is       f t t f f
-        for (int i = 0; i < line.size(); ++i) {
-            var card = this.reelScreen.getCardAt(line.get(i), i);
-            lineCards.add(card);
-            wildcardMask.add(wildcard.equals(card));
+        for (Integer lineCard : lineCards) {
+            wildcardMask.add(wildcard.equals(lineCard));
         }
 
         return extractLineWin(lineCards, wildcardMask);
