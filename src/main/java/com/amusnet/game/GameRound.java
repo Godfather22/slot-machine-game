@@ -16,31 +16,15 @@ public class GameRound {
 
     private double winFromLines, winFromScatters;
 
+    @SuppressWarnings("unused")
     public GameRound(GameConfig config, ReelScreen reelScreen) {
         this.config = config;
         this.reelScreen = reelScreen;
     }
 
-    @SuppressWarnings("unused")
-    public GameRound() {
-    }
-
-    @SuppressWarnings("unused")
-    public GameRound(int linesPlayed, double betAmount) {
-        this.linesPlayed = linesPlayed;
-        this.betAmount = betAmount;
-    }
-
-    @SuppressWarnings("unused")
-    public GameRound(ReelScreen reelScreen) {
-        this.reelScreen = reelScreen;
-    }
-
-    @SuppressWarnings("unused")
-    public GameRound(ReelScreen reelScreen, int linesPlayed, double betAmount) {
-        this.reelScreen = reelScreen;
-        this.linesPlayed = linesPlayed;
-        this.betAmount = betAmount;
+    public GameRound(GameConfig config) {
+        this.config = config;
+        this.reelScreen = new ReelScreen(config);
     }
 
     //******************
