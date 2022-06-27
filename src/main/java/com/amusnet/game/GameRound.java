@@ -3,6 +3,7 @@ package com.amusnet.game;
 import com.amusnet.config.GameConfig;
 import org.javatuples.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameRound {
@@ -42,6 +43,10 @@ public class GameRound {
         this.betAmount = betAmount;
     }
 
+    //******************
+    //* ACCESS METHODS *
+    //******************
+
     public ReelScreen getReelScreen() {
         return reelScreen;
     }
@@ -73,6 +78,10 @@ public class GameRound {
     public double getWinFromScatters() {
         return winFromScatters;
     }
+
+    //****************
+    //* MAIN METHODS *
+    //****************
 
     /**
      * Calculates the total win amount for the current bet, that is the sum
@@ -129,27 +138,80 @@ public class GameRound {
     // Note: 'line' in this method's vocabulary is meant in the context of the game
     private Pair<Integer, Integer> getOccurrencesForLine(List<Integer> line) {
 
-        int previousCardValue, currentCardValue;
-        int index = 1, streakCount = 1;
-        do {
-            previousCardValue = reelScreen.fetchScreen()[line.get(index - 1)][index - 1];
-            currentCardValue = reelScreen.fetchScreen()[line.get(index)][index];
-            ++index;
-            if (currentCardValue == previousCardValue)
-                ++streakCount;
-            else
-                break;
+        List<Integer> lineCards = new ArrayList<>(config.getScreenColumnCount());
 
-            if (index >= line.size())
-                break;
+        for (int i = 0; i < line.size(); ++i) {
+            lineCards.add(this.reelScreen.getCardAt(line.get(i), i));
         }
-        while (true);
 
-        if (streakCount < config.getTable().getOccurrenceCounts().get(0))
+        Pair<Integer, Integer> result = null;
+        if (lineCards.size() % 2 == 0)
+            result = extractWinFromLine(lineCards);
+        else {
+            int lastElementIndex = lineCards.size() - 1;
+            var lastCardInLine = lineCards.get(lastElementIndex);
+            var noTailOccurrences = extractWinFromLine(lineCards.subList(0, lastElementIndex));
+            if (noTailOccurrences != null) {
+                if (lastCardInLine.equals(noTailOccurrences.getValue0()))
+                    result = new Pair<>(noTailOccurrences.getValue0(), noTailOccurrences.getValue1() + 1);
+            }
+        }
+        return result;
+    }
+
+    private Pair<Integer, Integer> extractWinFromLine(List<Integer> lineCards) {
+
+        var wildcard = config.getWildcard();
+        var firstCardInLine = lineCards.get(0);
+        var secondCardInLine = lineCards.get(1);
+
+        // small optimization:
+        // if first two cards are not equal and not wildcards
+        // there's no possibility of a streak
+        if (!firstCardInLine.equals(secondCardInLine) &&
+                !firstCardInLine.equals(wildcard) &&
+                !secondCardInLine.equals(wildcard)) {
+            return null;
+        }
+
+        Integer potentialWinningCard = firstCardInLine;
+        boolean initialWildcard = firstCardInLine.equals(wildcard);
+        int potentialOccurrences = 0;
+        int wildcardOccurrences = 0;
+        for (int i = 0; i < lineCards.size(); i += 2) {
+            var leftCard = lineCards.get(i);
+            var rightCard = lineCards.get(i + 1);
+
+            boolean leftIsWildcard = leftCard.equals(wildcard);
+            boolean rightIsWildcard = rightCard.equals(wildcard);
+
+            if (leftIsWildcard) {
+                wildcardOccurrences++;
+            } else {
+                potentialWinningCard = leftCard;
+            }
+            potentialOccurrences++;
+
+            if (rightIsWildcard) {
+                wildcardOccurrences++;
+                potentialOccurrences++;
+            } else {
+                if (!leftIsWildcard)
+                    if (leftCard.equals(rightCard))
+                        potentialOccurrences++;
+                    else
+                        break;
+                else if (potentialWinningCard.equals(rightCard) || potentialWinningCard.equals(wildcard))
+                    potentialOccurrences++;
+                else
+                    break;
+            }
+        }
+
+        if (potentialOccurrences < config.getTable().getOccurrenceCounts().get(0))
             return null;
         else
-            return new Pair<>(previousCardValue, streakCount);
-
+            return new Pair<>(potentialWinningCard, potentialOccurrences);
     }
 
     private double calculateRegularWins(Pair<Integer, Integer> occurs) {
