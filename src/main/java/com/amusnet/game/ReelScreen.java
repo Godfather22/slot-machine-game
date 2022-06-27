@@ -21,6 +21,7 @@ public class ReelScreen {
     private int[][] view;
 
     public ReelScreen(GameConfig config) {
+        this.config = config;
         rowCount = config.getScreenRowCount();
         columnCount = config.getScreenColumnCount();
         view = new int[rowCount][columnCount];
