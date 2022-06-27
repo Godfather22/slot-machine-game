@@ -1,14 +1,15 @@
 package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
-import org.javatuples.Pair;
+import com.amusnet.exception.MissingTableElementException;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameRound {
 
-    private GameConfig config;
+    private final GameConfig config;
     private ReelScreen reelScreen;
 
     private int linesPlayed;
@@ -35,6 +36,7 @@ public class GameRound {
         return reelScreen;
     }
 
+    @SuppressWarnings("unused")
     public void setReelScreen(ReelScreen reelScreen) {
         this.reelScreen = reelScreen;
     }
@@ -77,13 +79,14 @@ public class GameRound {
 
         double totalWinAmount = 0;
 
+        // 0-based, i.e. line with index 0 is the first line, etc...
         for (int i = 0; i < linesPlayed; i++) {
             var currentLine = config.getLines().get(i);
-            var occurs = getOccurrencesForLine(currentLine);
-            if (occurs != null) {
-                var winningCardValue = occurs.getValue0();
-                var winningCardOccurrences = occurs.getValue1();
-                var currentWinAmount = calculateRegularWins(occurs);
+            var cardOccursAndWin = getOccurrencesForLine(currentLine);    // heavy-lifting happens here
+            if (cardOccursAndWin != null) {
+                var winningCardValue = cardOccursAndWin.getValue0();
+                var winningCardOccurrences = cardOccursAndWin.getValue1();
+                var currentWinAmount = cardOccursAndWin.getValue2();
                 if (currentWinAmount != 0.0) {
                     totalWinAmount += currentWinAmount;
                     System.out.printf("Line %d, Card %s x%d, win amount %s%n",
@@ -97,7 +100,7 @@ public class GameRound {
         this.winFromLines = totalWinAmount;
 
         // for the sake of extensibility: in case there are more than one "scatter cards"
-        double scatterWinAmount = 0.0;
+        double scatterWinAmount;
         for (Integer s : config.getScatters()) {
             int scatterCount = getScatterCount(s);
             scatterWinAmount = calculateScatterWins(s, scatterCount);
@@ -115,42 +118,95 @@ public class GameRound {
         return totalWinAmount;
     }
 
-    //*******************
-    //* UTILITY METHODS *
-    //*******************
+    //*************************
+    //* HEAVY-LIFTING METHODS *
+    //*************************
 
     // Note: 'line' in this method's vocabulary is meant in the context of the game
-    private Pair<Integer, Integer> getOccurrencesForLine(List<Integer> line) {
+    // Also note: there is a big difference between 'line' and 'lineCards'
+    private Triplet<Integer, Integer, Double> getOccurrencesForLine(List<Integer> line) {
+
+        var wildcard = this.config.getWildcard();
+
+        // if there are no wildcards in the line
+        if (!line.contains(wildcard))
+            return extractLineWinNoWildcards(line);
 
         List<Integer> lineCards = new ArrayList<>(config.getScreenColumnCount());
+        List<Boolean> wildcardMask = new ArrayList<>(config.getScreenColumnCount());
 
+        // extract cards for current line and
+        // construct a 'wildcard mask'
+        // e.g. for line 1 6 6 1 2
+        // mask is       f t t f f
         for (int i = 0; i < line.size(); ++i) {
-            lineCards.add(this.reelScreen.getCardAt(line.get(i), i));
+            var card = this.reelScreen.getCardAt(line.get(i), i);
+            lineCards.add(card);
+            wildcardMask.add(wildcard.equals(card));
         }
 
-        Pair<Integer, Integer> result = null;
-        if (lineCards.size() % 2 == 0)
-            result = extractWinFromLine(lineCards);
-        else {
-            int lastElementIndex = lineCards.size() - 1;
-            var lastCardInLine = lineCards.get(lastElementIndex);
-            var noTailOccurrences = extractWinFromLine(lineCards.subList(0, lastElementIndex));
-            if (noTailOccurrences != null) {
-                if (lastCardInLine.equals(noTailOccurrences.getValue0()))
-                    result = new Pair<>(noTailOccurrences.getValue0(), noTailOccurrences.getValue1() + 1);
-            }
-        }
-        return result;
+        return extractLineWin(lineCards, wildcardMask);
     }
 
-    private Pair<Integer, Integer> extractWinFromLine(List<Integer> lineCards) {
+    private Triplet<Integer, Integer, Double> extractLineWinNoWildcards(List<Integer> line) {
+
+        int previousCardValue, currentCardValue;
+        int index = 1, streakCount = 1;
+        do {
+            previousCardValue = reelScreen.fetchScreen()[line.get(index - 1)][index - 1];
+            currentCardValue = reelScreen.fetchScreen()[line.get(index)][index];
+            ++index;
+            if (currentCardValue == previousCardValue)
+                ++streakCount;
+            else
+                break;
+
+            if (index >= line.size())
+                break;
+        }
+        while (true);
+
+        var table = this.config.getTable();
+
+        if (streakCount < table.getOccurrenceCounts().get(0))
+            return null;
+        else {
+            // store win from card
+            double win;
+            try {
+                win = table.calculateRegularWin(previousCardValue, streakCount, this.betAmount);
+            } catch (MissingTableElementException e) {
+                throw new RuntimeException(e);
+            }
+
+            // return
+            return new Triplet<>(previousCardValue, streakCount, win);
+        }
+
+    }
+
+    // TODO refactor out wildcardMask?
+
+    /***
+     *
+     * Return a Quartet tuple with the following type arguments:
+     * <br/>
+     * A: Integer indicating the winning card<br/>
+     * B: Integer indicating the win occurrence count for the winning card<br/>
+     * C: Double indicating the win amount after considering A and B<br/>
+     *
+     * @param lineCards The cards as encountered in the current examined line.
+     * @param wildcardMask The wildcard mask for the current line cards
+     * @return A triplet containing the aforementioned information
+     */
+    private Triplet<Integer, Integer, Double> extractLineWin(List<Integer> lineCards, List<Boolean> wildcardMask) {
 
         var wildcard = config.getWildcard();
         var firstCardInLine = lineCards.get(0);
         var secondCardInLine = lineCards.get(1);
 
-        // small optimization:
-        // if first two cards are not equal and not wildcards
+        // small optimization 1:
+        // if first two lineCards are not equal and not wildcards
         // there's no possibility of a streak
         if (!firstCardInLine.equals(secondCardInLine) &&
                 !firstCardInLine.equals(wildcard) &&
@@ -158,51 +214,113 @@ public class GameRound {
             return null;
         }
 
-        Integer potentialWinningCard = firstCardInLine;
-        boolean initialWildcard = firstCardInLine.equals(wildcard);
-        int potentialOccurrences = 0;
-        int wildcardOccurrences = 0;
-        for (int i = 0; i < lineCards.size(); i += 2) {
-            var leftCard = lineCards.get(i);
-            var rightCard = lineCards.get(i + 1);
+        var table = this.config.getTable();
 
-            boolean leftIsWildcard = leftCard.equals(wildcard);
-            boolean rightIsWildcard = rightCard.equals(wildcard);
+        // small optimization 2:
+        // there are only wildcards among the current lineCards
+        if (!wildcardMask.contains(false)) {
+            // store amount of lineCards
+            int lineCardsCount = lineCards.size();
 
-            if (leftIsWildcard) {
-                wildcardOccurrences++;
-            } else {
-                potentialWinningCard = leftCard;
+            // store win from all wildcards (acting as normal cards)
+            double winFromAllWildcards;
+            try {
+                winFromAllWildcards = table.calculateRegularWin(wildcard, lineCardsCount, this.betAmount);
+            } catch (MissingTableElementException e) {
+                throw new RuntimeException(e);
             }
-            potentialOccurrences++;
 
-            if (rightIsWildcard) {
-                wildcardOccurrences++;
-                potentialOccurrences++;
-            } else {
-                if (!leftIsWildcard)
-                    if (leftCard.equals(rightCard))
-                        potentialOccurrences++;
-                    else
-                        break;
-                else if (potentialWinningCard.equals(rightCard) || potentialWinningCard.equals(wildcard))
-                    potentialOccurrences++;
-                else
-                    break;
-            }
+            // return
+            return new Triplet<>(wildcard, lineCards.size(), winFromAllWildcards);
         }
 
-        if (potentialOccurrences < config.getTable().getOccurrenceCounts().get(0))
-            return null;
-        else
-            return new Pair<>(potentialWinningCard, potentialOccurrences);
+        boolean initialWildcard = wildcardMask.get(0).equals(true);
+
+        var potentialWinningCard = firstCardInLine;
+        for (int i = 1; potentialWinningCard.equals(wildcard); ++i)
+            potentialWinningCard = lineCards.get(i);
+
+        // apply mask
+        // e.g. line 1 6 6 1 2
+        // with mask f t t f f
+        //
+        // becomes   1 1 1 1 2
+        List<Integer> appliedMaskLineCards = new ArrayList<>(lineCards.size());
+        for (int i = 0; i < lineCards.size(); ++i) {
+            if (wildcardMask.get(i).equals(true))
+                appliedMaskLineCards.add(i, potentialWinningCard);
+            else
+                appliedMaskLineCards.add(i, lineCards.get(i));
+        }
+
+        // count potential winning card's occurrences in applied mask lineCards
+        int potentialOccurrences = getFirstOccurrencesForCard(potentialWinningCard, appliedMaskLineCards);
+
+        // store win after mask application
+        double appliedMaskWin;
+        try {
+            appliedMaskWin = table.calculateRegularWin(potentialWinningCard, potentialOccurrences, this.betAmount);
+        } catch (MissingTableElementException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (initialWildcard) {
+            // count wildcard occurrences in applied mask lineCards
+            int wildcardOccurrences = getFirstOccurrencesForCard(wildcard, lineCards);
+
+            // store win from wildcards (acting as normal cards)
+            double wildcardWin;
+            try {
+                wildcardWin = table.calculateRegularWin(wildcard, wildcardOccurrences, this.betAmount);
+            } catch (MissingTableElementException e) {
+                throw new RuntimeException(e);
+            }
+
+            /*
+            Compare with appliedMaskWin and return appropriate info.
+            The '>' case is skipped, since it is returned even if
+            program execution does not step into current if statement's
+            body.
+             */
+
+            if (appliedMaskWin < wildcardWin)
+                return new Triplet<>(wildcard, wildcardOccurrences, wildcardWin);
+
+            if (appliedMaskWin == wildcardWin)
+                if (potentialWinningCard > wildcardWin)
+                    return new Triplet<>(potentialWinningCard, potentialOccurrences, appliedMaskWin);
+                else
+                    return new Triplet<>(wildcard, wildcardOccurrences, wildcardWin);
+
+        }
+
+        return new Triplet<>(potentialWinningCard, potentialOccurrences, appliedMaskWin);
+
     }
 
-    private double calculateRegularWins(Pair<Integer, Integer> occurs) {
-        var tableData = config.getTable().getData();
-        var rightSide = tableData.get(occurs.getValue0());
-        var multiplier = rightSide.get(occurs.getValue1());
-        return this.betAmount * multiplier;
+    //*******************
+    //* UTILITY METHODS *
+    //*******************
+
+    /***
+     *
+     * Returns the number of times a card is encountered in the beginning
+     * of the current line of cards.
+     * <br/><br/>
+     * Example:
+     * getFirstOccurrencesForCard(1, {1,1,6,5,2})
+     *      -> will return 2
+     *
+     * @param card The card for which the occurrence count will be returned.
+     * @param lineCards The cards present on the current examined line.
+     * @return The number of times card is *continuously* present from the beginning of the line
+     */
+    private int getFirstOccurrencesForCard(Integer card, List<Integer> lineCards) {
+        int potentialOccurrences = 0;
+        while (potentialOccurrences < lineCards.size()
+                && lineCards.get(potentialOccurrences).equals(card))
+            ++potentialOccurrences;
+        return potentialOccurrences;
     }
 
     private double calculateScatterWins(Integer scatterValue, int scatterCount) {

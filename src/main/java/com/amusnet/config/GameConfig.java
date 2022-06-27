@@ -1,6 +1,7 @@
 package com.amusnet.config;
 
 import com.amusnet.exception.ConfigurationInitializationException;
+import com.amusnet.exception.MissingTableElementException;
 import com.amusnet.util.ErrorMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -294,8 +295,12 @@ public class GameConfig {
 
                     // put value in final map to be passed
                     finalOccurrenceCounts.put("x" + strOccurrences, occurrencesValue);
+
                     if (table.maxStreakCount < occurrencesValue)
                         table.maxStreakCount = occurrencesValue;
+
+                    if (table.minStreakCount > occurrencesValue)
+                        table.minStreakCount = occurrencesValue;
 
                     // fetch multiplication amount for current multiplier
                     String strAmount = ((Element) multiplier).getAttribute("amount");
@@ -462,6 +467,7 @@ public class GameConfig {
 
     }
 
+    // TODO extract as separate class
     /**
      * A nested class within GameConfig which represents a table of multiplication values for
      * the number of occurrences for each card. Used to calculate the player win amounts.
@@ -473,7 +479,7 @@ public class GameConfig {
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
         private Map<Integer, Map<Integer, Integer>> data;
 
-        private int maxStreakCount;
+        private int minStreakCount, maxStreakCount;
 
         public List<Integer> getOccurrenceCounts() {
             return occurrenceCounts;
@@ -494,6 +500,33 @@ public class GameConfig {
         public int getMaxStreakCount() {
             return maxStreakCount;
         }
+
+        public int getMinStreakCount() {
+            return minStreakCount;
+        }
+
+        /*
+        TODO: Refactor this out in com.amusnet.game.components package.
+         Make a new class (WinCalculator?) that takes in a MultipliersTable instance
+         and handles only the simple calculations like in the method below.
+         */
+        public double calculateRegularWin(Integer card, Integer occurrenceCount, double betAmount) throws MissingTableElementException {
+            var targetCardRightColumns = this.data.get(card);
+            if (targetCardRightColumns == null) {
+                log.error("Card {} not in multipliers table", card);
+                throw new MissingTableElementException("No such card in multipliers table");
+            }
+
+            var multiplicationAmount = targetCardRightColumns.get(occurrenceCount);
+            if (multiplicationAmount == null) {
+                log.error("Card occurrence 'x{}' not present in table", occurrenceCount);
+                throw new MissingTableElementException("No such occurrence count card in multipliers table");
+            }
+
+            return betAmount * multiplicationAmount;
+        }
+
+        // TODO make method for calculating scatters - throws exception if invalid scatter
 
         @Override
         public boolean equals(Object o) {
