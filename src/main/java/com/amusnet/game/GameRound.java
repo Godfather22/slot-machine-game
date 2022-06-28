@@ -145,27 +145,26 @@ public class GameRound {
         // construct a 'wildcard mask'
         // e.g. for lineCards 1 6 6 1 2
         // mask is       f t t f f
-        for (Integer lineCard : lineCards) {
+        for (Integer lineCard : lineCards)
             wildcardMask.add(wildcard.equals(lineCard));
-        }
 
         return extractLineWin(lineCards, wildcardMask);
     }
 
-    private Triplet<Integer, Integer, Double> extractLineWinNoWildcards(List<Integer> line) {
+    private Triplet<Integer, Integer, Double> extractLineWinNoWildcards(List<Integer> lineCards) {
 
         int previousCardValue, currentCardValue;
         int index = 1, streakCount = 1;
         do {
-            previousCardValue = reelScreen.fetchScreen()[line.get(index - 1)][index - 1];
-            currentCardValue = reelScreen.fetchScreen()[line.get(index)][index];
+            previousCardValue = lineCards.get(index - 1);
+            currentCardValue = lineCards.get(index);
             ++index;
             if (currentCardValue == previousCardValue)
                 ++streakCount;
             else
                 break;
 
-            if (index >= line.size())
+            if (index >= lineCards.size())
                 break;
         }
         while (true);
@@ -265,7 +264,7 @@ public class GameRound {
         try {
             appliedMaskWin = table.calculateRegularWin(potentialWinningCard, potentialOccurrences, this.betAmount);
         } catch (MissingTableElementException e) {
-            throw new RuntimeException(e);
+            return null;
         }
 
         if (initialWildcard) {
