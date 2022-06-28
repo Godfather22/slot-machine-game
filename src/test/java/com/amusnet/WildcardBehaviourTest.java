@@ -17,6 +17,113 @@ public class WildcardBehaviourTest {
     private int[] diceRolls;
 
     @Test
+        // Requirement 5O
+    void betOn3LinesWithAmount1_genArrayIs0_0_0_0_0_win3000FromLines() {
+        GivenBetOn3LinesFor1AndGenArray0_0_0_0_0();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin3000FromLines();
+    }
+
+    private void ThenShouldWin3000FromLines() {
+        assertWinAmount(3000.0);
+    }
+
+    private void GivenBetOn3LinesFor1AndGenArray0_0_0_0_0() {
+        game.setupNextRound(3, 1.0, false);
+        diceRolls = new int[]{0, 0, 0, 0, 0};
+    }
+
+    @Test
+        // Requirement 5N
+    void betOn1LineWithAmount1_genArrayIs0_0_0_0_0_win1000FromLines() {
+        GivenBetOn1LineFor1AndGenArray0_0_0_0_0();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin1000FromLines();
+    }
+
+    private void ThenShouldWin1000FromLines() {
+        assertWinAmount(1000.0);
+    }
+
+    private void GivenBetOn1LineFor1AndGenArray0_0_0_0_0() {
+        game.setupNextRound(1, 1.0, false);
+        diceRolls = new int[]{0, 0, 0, 0, 0};
+    }
+
+    @Test
+        // Requirement 5M
+    void betOn3LinesWithAmount10_genArrayIs0_0_3_6_25_win400FromLines() {
+        GivenBetOn3LinesFor10AndGenArray0_0_3_6_25();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin1200FromLines();
+    }
+
+    private void GivenBetOn3LinesFor10AndGenArray0_0_3_6_25() {
+        game.setupNextRound(3, 10.0, false);
+        diceRolls = new int[]{0, 0, 3, 6, 25};
+    }
+
+    @Test
+        // Requirement 5L
+    void betOn1LineWithAmount10_genArrayIs0_0_3_6_25_win400FromLines() {
+        GivenBetOn1LineFor10AndGenArray0_0_3_6_25();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin400FromLines();
+    }
+
+    private void GivenBetOn1LineFor10AndGenArray0_0_3_6_25() {
+        game.setupNextRound(1, 10.0, false);
+        diceRolls = new int[]{0, 0, 3, 6, 25};
+    }
+
+    @Test
+        // Requirement 5K
+    void betOn3LinesWithAmount5_genArrayIs3_0_0_22_25_win100FromLines() {
+        GivenBetOn3LinesFor5AndGenArray3_0_0_22_25();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin150FromLines();
+    }
+
+    private void ThenShouldWin150FromLines() {
+        assertWinAmount(150.0);
+    }
+
+    private void GivenBetOn3LinesFor5AndGenArray3_0_0_22_25() {
+        game.setupNextRound(3, 5.0, false);
+        diceRolls = new int[]{3, 0, 0, 22, 25};
+    }
+
+    @Test
+        // Requirement 5J
+    void betOn1LineWithAmount5_genArrayIs3_0_0_22_25_win50FromLines() {
+        GivenBetOn1LineFor5AndGenArray3_0_0_22_25();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin50FromLines();
+    }
+
+    private void ThenShouldWin50FromLines() {
+        assertWinAmount(50.0);
+    }
+
+    private void GivenBetOn1LineFor5AndGenArray3_0_0_22_25() {
+        game.setupNextRound(1, 5.0, false);
+        diceRolls = new int[]{3, 0, 0, 22, 25};
+    }
+
+    @Test
+        // Requirement 5I
+    void betOn1LineWithAmount5_genArrayIs10_0_0_18_25_win100FromLines() {
+        GivenBetOn1LineFor5AndGenArray10_0_0_18_25();
+        WhenGenerationNumbersAreFedToGenerator();
+        ThenShouldWin100FromLines();
+    }
+
+    private void GivenBetOn1LineFor5AndGenArray10_0_0_18_25() {
+        game.setupNextRound(1, 5.0, false);
+        diceRolls = new int[]{10, 0, 0, 18, 25};
+    }
+
+    @Test
         // Requirement 5H
     void betOn3LinesWithAmount10_genArrayIs0_0_0_15_19_win1200FromLines() {
         GivenBetOn3LinesFor10AndGenArray0_0_0_15_19();
