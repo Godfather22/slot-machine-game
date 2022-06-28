@@ -476,10 +476,13 @@ public class GameConfig {
      */
     public class MultipliersTable {
 
+        // TODO Deprecate
         private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
+
         private Map<Integer, Map<Integer, Integer>> data;
 
-        private int minStreakCount, maxStreakCount;
+        private int minStreakCount = Integer.MAX_VALUE;
+        private int maxStreakCount;
 
         public List<Integer> getOccurrenceCounts() {
             return occurrenceCounts;
@@ -514,10 +517,10 @@ public class GameConfig {
         }
 
         /*
-        TODO: Refactor this out in com.amusnet.game.components package.
-         Make a new class (WinCalculator?) that takes in a MultipliersTable instance
-         and handles only the simple calculations like in the method below.
-         */
+                TODO: Refactor this out in com.amusnet.game.components package.
+                 Make a new class (WinCalculator?) that takes in a MultipliersTable instance
+                 and handles only the simple calculations like in the method below.
+                 */
         public double calculateRegularWin(Integer card, Integer occurrenceCount, double betAmount) throws MissingTableElementException {
             var targetCardRightColumns = this.data.get(card);
             if (targetCardRightColumns == null) {
