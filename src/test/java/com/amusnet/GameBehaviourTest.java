@@ -61,7 +61,9 @@ public class GameBehaviourTest {
 
         private void ThenScreenGeneratesWithPredictedContents(List<List<Integer>> predictedContents) {
             var prediction = new ReelScreen(predictedContents);
-            assertThat(rs).isEqualTo(prediction);
+            assertThat(rs).usingRecursiveComparison()
+                    .ignoringFields("config")
+                    .isEqualTo(prediction);
         }
     }
 
