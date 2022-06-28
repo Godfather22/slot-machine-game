@@ -100,7 +100,7 @@ public class ConfigurationTest {
 
         // set up table
         {
-            var occurrenceCounts = List.of(3, 4, 5);
+            var occurrenceCounts = List.of(3, 4, 5, 2);
 
             Map<Integer, Map<Integer, Integer>> tableData = Map.of(
                     0, Map.of(  3, 10,
@@ -112,19 +112,20 @@ public class ConfigurationTest {
                     2, Map.of(  3, 10,
                             4, 20,
                             5, 100),
-                    3, Map.of(  3, 20,
+                    3, Map.of(3, 20,
                             4, 40,
                             5, 200),
-                    4, Map.of(  3, 20,
+                    4, Map.of(3, 20,
                             4, 40,
                             5, 200),
-                    5, Map.of(  3, 20,
+                    5, Map.of(3, 20,
                             4, 80,
                             5, 400),
-                    6, Map.of(  3, 40,
+                    6, Map.of(2, 20,
+                            3, 40,
                             4, 400,
                             5, 1000),
-                    7, Map.of(  3, 5,
+                    7, Map.of(3, 5,
                             4, 20,
                             5, 500)
             );
@@ -135,6 +136,8 @@ public class ConfigurationTest {
         // set scatters
         configuration.setScatters(Set.of(7));
 
+        configuration.setWildcard(6);
+
         // set starting balance
         configuration.setStartingBalance(100000);
 
@@ -144,6 +147,9 @@ public class ConfigurationTest {
         // TODO not thread-safe
         // set currency format
         configuration.getCurrencyFormat().applyPattern("#");
+
+        configuration.getTable().setMaxStreakCount(5);
+        configuration.getTable().setMinStreakCount(2);
     }
 
     @Nested

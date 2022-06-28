@@ -505,6 +505,14 @@ public class GameConfig {
             return minStreakCount;
         }
 
+        public void setMinStreakCount(int minStreakCount) {
+            this.minStreakCount = minStreakCount;
+        }
+
+        public void setMaxStreakCount(int maxStreakCount) {
+            this.maxStreakCount = maxStreakCount;
+        }
+
         /*
         TODO: Refactor this out in com.amusnet.game.components package.
          Make a new class (WinCalculator?) that takes in a MultipliersTable instance
