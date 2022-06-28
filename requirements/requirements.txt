@@ -283,3 +283,59 @@ Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 10
 When: Generation array for reel screen is {0, 0, 0, 15, 19} (figures/fig-5h.txt)
 
 Then: Win amount should be 1200 from lines (see note in figure)
+
+Example I (figures/fig-5i.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 5
+
+When: Generation array for reel screen is {10, 0, 0, 18, 25} (figures/fig-5i.txt)
+
+Then: Win amount should be 100 from lines
+
+Example J (figures/fig-5j.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 5
+
+When: Generation array for reel screen is {3, 0, 0, 22, 25} (figures/fig-5j.txt)
+
+Then: Win amount should be 50 from lines
+
+Example K (figures/fig-5k.txt)
+
+Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 5
+
+When: Generation array for reel screen is {3, 0, 0, 22, 25} (figures/fig-5k.txt)
+
+Then: Win amount should be 150 from lines
+
+Example L (figures/fig-5l.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 10
+
+When: Generation array for reel screen is {0, 0, 3, 6, 25} (figures/fig-5l.txt)
+
+Then: Win amount should be 400 from lines
+
+Example M (figures/fig-5m.txt)
+
+Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 5
+
+When: Generation array for reel screen is {0, 0, 3, 6, 25} (figures/fig-5m.txt)
+
+Then: Win amount should be 1200 from lines
+
+Example N (figures/fig-5n.txt)
+
+Given: Player bets on 1 lines (line 0) with amount of 1
+
+When: Generation array for reel screen is {0, 0, 0, 0, 0} (figures/fig-5n.txt)
+
+Then: Win amount should be 1000 from lines
+
+Example O (figures/fig-5o.txt)
+
+Given: Player bets on 3 lines (lines 0, 1, and 2) with amount of 1
+
+When: Generation array for reel screen is {0, 0, 0, 0, 0} (figures/fig-5o.txt)
+
+Then: Win amount should be 3000 from lines
