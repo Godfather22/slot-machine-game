@@ -530,7 +530,7 @@ public class GameConfig {
 
             var multiplicationAmount = targetCardRightColumns.get(occurrenceCount);
             if (multiplicationAmount == null) {
-                log.error("Card occurrence 'x{}' not present in table", occurrenceCount);
+                //log.warn("Card occurrence 'x{}' not present in table", occurrenceCount);
                 throw new MissingTableElementException("No such occurrence count card in multipliers table");
             }
 
