@@ -1,7 +1,5 @@
 package com.amusnet.config;
 
-import com.amusnet.exception.MissingTableElementException;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,27 +51,6 @@ public class MultipliersTable {
     public void setMinStreakCount(int minStreakCount) {
         this.minStreakCount = minStreakCount;
     }
-
-    /*
-            TODO: Refactor this out in com.amusnet.game.components package.
-             Make a new class (WinCalculator?) that takes in a MultipliersTable instance
-             and handles only the simple calculations like in the method below.
-             */
-    public double calculateRegularWin(Integer card, Integer occurrenceCount, double betAmount) throws MissingTableElementException {
-        var targetCardRightColumns = this.data.get(card);
-        if (targetCardRightColumns == null) {
-            throw new MissingTableElementException("No such card in multipliers table");
-        }
-
-        var multiplicationAmount = targetCardRightColumns.get(occurrenceCount);
-        if (multiplicationAmount == null) {
-            throw new MissingTableElementException("No such occurrence count card in multipliers table");
-        }
-
-        return betAmount * multiplicationAmount;
-    }
-
-    // TODO make method for calculating scatters - throws exception if invalid scatter
 
     @Override
     public boolean equals(Object o) {
