@@ -276,7 +276,7 @@ public class GameRound {
             try {
                 wildcardWin = table.calculateRegularWin(wildcard, wildcardOccurrences, this.betAmount);
             } catch (MissingTableElementException e) {
-                throw new RuntimeException(e);
+                return null;
             }
 
             /*
