@@ -1,4 +1,4 @@
-package com.amusnet.game;
+package com.amusnet.game.components;
 
 /**
  * A simple class to represent a card of integer values.

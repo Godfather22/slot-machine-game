@@ -1,7 +1,7 @@
 package com.amusnet;
 
 import com.amusnet.game.Game;
-import com.amusnet.game.ReelScreen;
+import com.amusnet.game.components.ReelScreen;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

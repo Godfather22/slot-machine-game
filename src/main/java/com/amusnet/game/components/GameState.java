@@ -1,4 +1,4 @@
-package com.amusnet.game;
+package com.amusnet.game.components;
 
 public class GameState {
     private double currentBalance;

@@ -1,4 +1,4 @@
-package com.amusnet.game;
+package com.amusnet.game.components;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.MissingTableElementException;
@@ -17,15 +17,21 @@ public class GameRound {
 
     private double winFromLines, winFromScatters;
 
+    private final WinCalculator calculator;
+
     @SuppressWarnings("unused")
     public GameRound(GameConfig config, ReelScreen reelScreen) {
         this.config = config;
         this.reelScreen = reelScreen;
+
+        this.calculator = new WinCalculator(config.getTable());
     }
 
     public GameRound(GameConfig config) {
         this.config = config;
         this.reelScreen = new ReelScreen(config);
+
+        this.calculator = new WinCalculator(config.getTable());
     }
 
     //******************
@@ -177,7 +183,7 @@ public class GameRound {
             // store win from card
             double win;
             try {
-                win = table.calculateRegularWin(previousCardValue, streakCount, this.betAmount);
+                win = calculator.calculateRegularWin(previousCardValue, streakCount, this.betAmount);
             } catch (MissingTableElementException e) {
                 throw new RuntimeException(e);
             }
@@ -228,7 +234,7 @@ public class GameRound {
             // store win from all wildcards (acting as normal cards)
             double winFromAllWildcards;
             try {
-                winFromAllWildcards = table.calculateRegularWin(wildcard, lineCardsCount, this.betAmount);
+                winFromAllWildcards = calculator.calculateRegularWin(wildcard, lineCardsCount, this.betAmount);
             } catch (MissingTableElementException e) {
                 throw new RuntimeException(e);
             }
@@ -262,7 +268,7 @@ public class GameRound {
         // store win after mask application
         double appliedMaskWin;
         try {
-            appliedMaskWin = table.calculateRegularWin(potentialWinningCard, potentialOccurrences, this.betAmount);
+            appliedMaskWin = calculator.calculateRegularWin(potentialWinningCard, potentialOccurrences, this.betAmount);
         } catch (MissingTableElementException e) {
             return null;
         }
@@ -274,7 +280,7 @@ public class GameRound {
             // store win from wildcards (acting as normal cards)
             double wildcardWin;
             try {
-                wildcardWin = table.calculateRegularWin(wildcard, wildcardOccurrences, this.betAmount);
+                wildcardWin = calculator.calculateRegularWin(wildcard, wildcardOccurrences, this.betAmount);
             } catch (MissingTableElementException e) {
                 return null;
             }

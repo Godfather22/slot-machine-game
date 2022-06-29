@@ -1,7 +1,7 @@
 package com.amusnet;
 
 import com.amusnet.game.Game;
-import com.amusnet.game.ReelScreen;
+import com.amusnet.game.components.ReelScreen;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

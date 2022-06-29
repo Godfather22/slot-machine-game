@@ -2,6 +2,9 @@ package com.amusnet.game;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.ConfigurationInitializationException;
+import com.amusnet.game.components.GameRound;
+import com.amusnet.game.components.GameState;
+import com.amusnet.game.components.InfoScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;

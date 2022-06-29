@@ -1,4 +1,4 @@
-package com.amusnet.game;
+package com.amusnet.game.components;
 
 import com.amusnet.config.GameConfig;
 
