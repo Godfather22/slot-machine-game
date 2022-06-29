@@ -29,7 +29,7 @@ public class Application {
         Jdbi j = Jdbi.getInstance();
 
         LocalDateTime now = LocalDateTime.now();
-        String gameName = "game" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String gameName = "game" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS"));
         try (Handle handle = j.jdbi().open()) {
             handle.execute("CREATE TABLE " + gameName + " (" +
                     "  `turn` INT NOT NULL AUTO_INCREMENT," +
