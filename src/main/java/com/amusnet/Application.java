@@ -117,10 +117,10 @@ public class Application {
 
             // feedback
             System.out.printf("%s\t%s%nBalance: %s%n%n%s%n",
-                    game.getGameRound().getLinesPlayed(),
-                    game.getConfiguration().getCurrencyFormat().format(game.getGameRound().getBetAmount()),
+                    game.getGameState().getGameRound().getLinesPlayed(),
+                    game.getConfiguration().getCurrencyFormat().format(game.getGameState().getGameRound().getBetAmount()),
                     game.getConfiguration().getCurrencyFormat().format(game.getGameState().getCurrentBalance()),
-                    game.getGameRound().getReelScreen()
+                    game.getGameState().getGameRound().getReelScreen()
             );
 
             // side effect - prints necessary info to screen
@@ -131,8 +131,8 @@ public class Application {
                         "(`lines_played`, `bet_amount`, `total_win`)" +
                         "VALUES " +
                         "(:lines, :bet, :win); ");
-                update.bind("lines", game.getGameRound().getLinesPlayed())
-                        .bind("bet", game.getGameRound().getBetAmount())
+                update.bind("lines", game.getGameState().getGameRound().getLinesPlayed())
+                        .bind("bet", game.getGameState().getGameRound().getBetAmount())
                         .bind("win", totalWin);
                 update.execute();
             }

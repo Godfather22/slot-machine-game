@@ -2,37 +2,15 @@ package com.amusnet.game.components;
 
 public class GameState {
     private double currentBalance;
+    private final GameRound gameRound;
 
-    private double lastWinFromLines, lastWinFromScatters;
-
-    public GameState(double currentBalance, double lastWinFromLines, double lastWinFromScatters) {
+    public GameState(double currentBalance, GameRound gameRound) {
         this.currentBalance = currentBalance;
-        this.lastWinFromLines = lastWinFromLines;
-        this.lastWinFromScatters = lastWinFromScatters;
+        this.gameRound = gameRound;
     }
 
     public double getCurrentBalance() {
         return currentBalance;
-    }
-
-    public void setCurrentBalance(double currentBalance) {
-        this.currentBalance = currentBalance;
-    }
-
-    public double getLastWinFromLines() {
-        return lastWinFromLines;
-    }
-
-    public void setLastWinFromLines(double lastWinFromLines) {
-        this.lastWinFromLines = lastWinFromLines;
-    }
-
-    public double getLastWinFromScatters() {
-        return lastWinFromScatters;
-    }
-
-    public void setLastWinFromScatters(double lastWinFromScatters) {
-        this.lastWinFromScatters = lastWinFromScatters;
     }
 
     public void addToBalance(double amount) {
@@ -43,4 +21,7 @@ public class GameState {
         this.currentBalance -= amount;
     }
 
+    public GameRound getGameRound() {
+        return gameRound;
+    }
 }

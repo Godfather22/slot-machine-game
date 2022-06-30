@@ -13,7 +13,7 @@ public class WildcardBehaviourTest {
     private final Logger log = LoggerFactory.getLogger(GameBehaviourTest.class);
 
     private final Game game = new Game();
-    private final ReelScreen rs = game.getGameRound().getReelScreen();
+    private final ReelScreen rs = game.getGameState().getGameRound().getReelScreen();
     private int[] diceRolls;
 
     @Test
@@ -264,9 +264,9 @@ public class WildcardBehaviourTest {
         double oldBalance = game.getGameState().getCurrentBalance();
         assertThat(game.playNextRound()).as("Total win amount")
                 .isEqualTo(fromLines + 0.0);
-        assertThat(game.getGameRound().getWinFromLines()).as("Win from lines")
+        assertThat(game.getGameState().getGameRound().getWinFromLines()).as("Win from lines")
                 .isEqualTo(fromLines);
-        assertThat(game.getGameRound().getWinFromScatters()).as("Win from scatters")
+        assertThat(game.getGameState().getGameRound().getWinFromScatters()).as("Win from scatters")
                 .isEqualTo(0.0);
         assertThat(game.getGameState().getCurrentBalance()).as("New balance amount")
                 .isEqualTo(oldBalance + (fromLines + 0.0));

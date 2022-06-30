@@ -39,9 +39,7 @@ public class Game {
     }
 
     private final GameState gameState;
-
     private final InfoScreen infoScreen;
-    private final GameRound gameRound;
 
     /**
      * Creates a fully-configured game instance.
@@ -49,13 +47,10 @@ public class Game {
     public Game() {
 
         // set up game state
-        this.gameState = new GameState(CONFIGURATION.getStartingBalance(), 0.0, 0.0);
+        this.gameState = new GameState(CONFIGURATION.getStartingBalance(), new GameRound(CONFIGURATION));
 
         // set up info screen
         this.infoScreen = new InfoScreen(CONFIGURATION, gameState);
-
-        // set up game round
-        this.gameRound = new GameRound(CONFIGURATION);
 
     }
 
@@ -69,10 +64,6 @@ public class Game {
 
     public GameState getGameState() {
         return gameState;
-    }
-
-    public GameRound getGameRound() {
-        return gameRound;
     }
 
 //*********************
@@ -89,17 +80,15 @@ public class Game {
 
     public void setupNextRound(int linesPlayed, double betAmount, boolean generateReelScreen) {
         if (generateReelScreen)
-            this.gameRound.getReelScreen().generateScreen();
-        this.gameRound.setLinesPlayed(linesPlayed);
-        this.gameRound.setBetAmount(betAmount);
+            gameState.getGameRound().getReelScreen().generateScreen();
+        gameState.getGameRound().setLinesPlayed(linesPlayed);
+        gameState.getGameRound().setBetAmount(betAmount);
     }
 
     public double playNextRound() {
-        double win = gameRound.playRound();
-        if (win != 0.0) {
-            double balanceUntilNow = gameState.getCurrentBalance();
-            gameState.setCurrentBalance(balanceUntilNow + win);
-        }
+        double win = gameState.getGameRound().playRound();
+        if (win > 0.0)
+            gameState.addToBalance(win);
         return win;
     }
 

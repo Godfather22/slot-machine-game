@@ -17,7 +17,7 @@ public class GameBehaviourTest {
     private final Logger log = LoggerFactory.getLogger(GameBehaviourTest.class);
 
     private final Game game = new Game();
-    private final ReelScreen rs = game.getGameRound().getReelScreen();
+    private final ReelScreen rs = game.getGameState().getGameRound().getReelScreen();
     private int[] diceRolls;
 
     // Testing a game of Integer cards with Integer currency (money) type
@@ -194,9 +194,9 @@ public class GameBehaviourTest {
             double oldBalance = game.getGameState().getCurrentBalance();
             assertThat(game.playNextRound()).as("Total win amount")
                     .isEqualTo(fromLines + fromScatters);
-            assertThat(game.getGameRound().getWinFromLines()).as("Win from lines")
+            assertThat(game.getGameState().getGameRound().getWinFromLines()).as("Win from lines")
                     .isEqualTo(fromLines);
-            assertThat(game.getGameRound().getWinFromScatters()).as("Win from scatters")
+            assertThat(game.getGameState().getGameRound().getWinFromScatters()).as("Win from scatters")
                     .isEqualTo(fromScatters);
             assertThat(game.getGameState().getCurrentBalance()).as("New balance amount")
                     .isEqualTo(oldBalance + (fromLines + fromScatters));
