@@ -177,7 +177,7 @@ public class GameRound {
 
         var table = this.config.getTable();
 
-        if (streakCount < table.getOccurrenceCounts().get(0))
+        if (streakCount < table.getMinStreakCount())
             return null;
         else {
             // store win from card
@@ -336,7 +336,7 @@ public class GameRound {
         var calcTable = config.getTable();
 
         // If the amount of scatters on screen is a valid win amount
-        if (calcTable.getOccurrenceCounts().contains(scatterCount)) {
+        if (calcTable.getData().get(scatterValue).get(scatterCount) != null) {
             // then calculate and return the win amount.
             Integer multiplier = calcTable.getData().get(scatterValue).get(scatterCount);
             var totalBet = this.betAmount * this.linesPlayed;

@@ -1,6 +1,5 @@
 package com.amusnet.config;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -12,21 +11,10 @@ import java.util.Objects;
  */
 public class MultipliersTable {
 
-    // TODO Deprecate
-    private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
-
     private Map<Integer, Map<Integer, Integer>> data;
 
     private int minStreakCount = Integer.MAX_VALUE;
     private int maxStreakCount;
-
-    public List<Integer> getOccurrenceCounts() {
-        return occurrenceCounts;
-    }
-
-    public void setOccurrenceCounts(List<Integer> occurrenceCounts) {
-        this.occurrenceCounts = occurrenceCounts;
-    }
 
     public Map<Integer, Map<Integer, Integer>> getData() {
         return data;
@@ -57,22 +45,20 @@ public class MultipliersTable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MultipliersTable that = (MultipliersTable) o;
-        return occurrenceCounts.equals(that.occurrenceCounts) && data.equals(that.data);
+        return minStreakCount == that.minStreakCount && maxStreakCount == that.maxStreakCount && Objects.equals(data, that.data);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(occurrenceCounts, data);
+        return Objects.hash(data, minStreakCount, maxStreakCount);
     }
 
+    // TODO add missing fields
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("%-10s", "card")).append(" ");
-
-        for (var m : occurrenceCounts)
-            sb.append(String.format("%5s", m));
 
         sb.append(System.lineSeparator());
 
