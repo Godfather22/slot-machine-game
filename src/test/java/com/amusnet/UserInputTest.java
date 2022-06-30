@@ -47,7 +47,7 @@ public class UserInputTest {
             String input = getInputString(new boolean[]{false, true});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INVALID_LINES_INPUT) + System.lineSeparator());
         }
@@ -58,7 +58,7 @@ public class UserInputTest {
             String input = getInputString(new boolean[]{true, false});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INVALID_BET_INPUT) + System.lineSeparator());
         }
@@ -69,7 +69,7 @@ public class UserInputTest {
             String input = getInputString(new boolean[]{false, false});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INVALID_LINES_INPUT) + System.lineSeparator());
         }
@@ -80,7 +80,7 @@ public class UserInputTest {
             String input = getInputString(new int[]{1, 0});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_LINES_INPUT) + System.lineSeparator());
         }
@@ -91,7 +91,7 @@ public class UserInputTest {
             String input = getInputString(new int[]{-1, 0});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_LINES_INPUT) + System.lineSeparator());
         }
@@ -102,7 +102,7 @@ public class UserInputTest {
             String input = getInputString(new int[]{0, 1});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_BET_INPUT) + System.lineSeparator());
         }
@@ -113,7 +113,7 @@ public class UserInputTest {
             String input = getInputString(new int[]{0, -1});
             log.info("Generated input string:\n'{}'", input);
             rewireStandardInputAndOutput(input);
-            Application.main(null);
+            new Game().play();
             assertThat(newError.toString()).isEqualTo
                     (ERROR_MESSAGES.message(TITLE_EMSG_INCORRECT_BET_INPUT) + System.lineSeparator());
         }

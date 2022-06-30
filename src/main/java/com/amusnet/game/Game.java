@@ -47,13 +47,17 @@ public class Game {
         }
     }
 
+    private final String gameName;
+    private final LocalDateTime gameCreated;
+
     private final GameState gameState;
     private final InfoScreen infoScreen;
 
-    /**
-     * Creates a fully-configured game instance.
-     */
-    public Game() {
+    boolean saveHistory;
+
+    {
+        // set creation time
+        this.gameCreated = LocalDateTime.now();
 
         // set up game state
         this.gameState = new GameState(CONFIGURATION.getStartingBalance(), new GameRound(CONFIGURATION));
@@ -61,6 +65,25 @@ public class Game {
         // set up info screen
         this.infoScreen = new InfoScreen(CONFIGURATION, gameState);
 
+        // by default game's history will NOT be tracked
+        this.saveHistory = false;
+    }
+
+    /**
+     * Creates a fully-configured game instance.
+     */
+    public Game() {
+        this.gameName = "game" + this.gameCreated.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS"));
+    }
+
+    /**
+     * Creates a fully-configured game instance.
+     *
+     * @param gameName Name of the game instance.
+     */
+    @SuppressWarnings("unused")
+    public Game(String gameName) {
+        this.gameName = gameName;
     }
 
     //************************
@@ -75,6 +98,11 @@ public class Game {
         return gameState;
     }
 
+    public Game setHistoryTracking(boolean flag) {
+        this.saveHistory = flag;
+        return this;
+    }
+
     //*********************
     //* GAME START METHOD *
     //*********************
@@ -83,36 +111,9 @@ public class Game {
         //log.debug(System.lineSeparator() + game.getConfiguration().toString());
 
         ErrorMessages errorMessages = ErrorMessages.getInstance();
-        DatabaseConnectionJdbi dbc = DatabaseConnectionJdbi.getInstance();
 
-        LocalDateTime now = LocalDateTime.now();
-        String gameName = "game" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS"));
-        try (Handle handle = dbc.jdbi().open()) {
-            handle.execute("""
-                    CREATE TABLE IF NOT EXISTS `games` (
-                      `id` int NOT NULL AUTO_INCREMENT,
-                      `started` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                      `name` varchar(100) NOT NULL,
-                      PRIMARY KEY (`id`),
-                      UNIQUE KEY `id_UNIQUE` (`id`),
-                      UNIQUE KEY `name_UNIQUE` (`name`)
-                    )""");
-
-            handle.execute("""
-                    CREATE TABLE\040""" + gameName + """ 
-                       (
-                      `turn` int NOT NULL AUTO_INCREMENT,
-                      `lines_played` int NOT NULL,
-                      `bet_amount` decimal(10,0) NOT NULL,
-                      `total_win` decimal(10,0) NOT NULL,
-                      PRIMARY KEY (`turn`),
-                      UNIQUE KEY `turn_UNIQUE` (`turn`)
-                    )""");
-
-            Update recordGame = handle.createUpdate("INSERT INTO `games` (started, name) VALUES (:timestamp, :name); ");
-            recordGame.bind("timestamp", now).bind("name", gameName);
-            recordGame.execute();
-        }
+        if (saveHistory)
+            setupGameInstanceTable();
 
         Scanner sc = new Scanner(System.in);
         final int maxLines = this.getConfiguration().getLineCount();
@@ -185,16 +186,12 @@ public class Game {
             // side effect - prints necessary info to screen
             double totalWin = this.playNextRound();
 
-            try (Handle handle = dbc.jdbi().open()) {
-                Update update = handle.createUpdate("INSERT INTO " + gameName + " " +
-                        "(`lines_played`, `bet_amount`, `total_win`)" +
-                        "VALUES " +
-                        "(:lines, :bet, :win); ");
-                update.bind("lines", this.getGameState().getGameRound().getLinesPlayed())
-                        .bind("bet", this.getGameState().getGameRound().getBetAmount())
-                        .bind("win", totalWin);
-                update.execute();
-            }
+            if (saveHistory)
+                writeTurnToDatabase(
+                        this.getGameState().getGameRound().getLinesPlayed(),
+                        this.getGameState().getGameRound().getBetAmount(),
+                        totalWin
+                );
 
             System.out.println();
         }
@@ -224,6 +221,50 @@ public class Game {
         if (win > 0.0)
             gameState.addToBalance(win);
         return win;
+    }
+
+    private void setupGameInstanceTable() {
+        DatabaseConnectionJdbi dbc = DatabaseConnectionJdbi.getInstance();
+        try (Handle handle = dbc.jdbi().open()) {
+            handle.execute("""
+                    CREATE TABLE IF NOT EXISTS `games` (
+                      `id` int NOT NULL AUTO_INCREMENT,
+                      `started` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      `name` varchar(100) NOT NULL,
+                      PRIMARY KEY (`id`),
+                      UNIQUE KEY `id_UNIQUE` (`id`),
+                      UNIQUE KEY `name_UNIQUE` (`name`)
+                    )""");
+
+            handle.execute("""
+                    CREATE TABLE\040""" + gameName + """ 
+                       (
+                      `turn` int NOT NULL AUTO_INCREMENT,
+                      `lines_played` int NOT NULL,
+                      `bet_amount` decimal(10,0) NOT NULL,
+                      `total_win` decimal(10,0) NOT NULL,
+                      PRIMARY KEY (`turn`),
+                      UNIQUE KEY `turn_UNIQUE` (`turn`)
+                    )""");
+
+            Update recordGame = handle.createUpdate("INSERT INTO `games` (started, name) VALUES (:timestamp, :name); ");
+            recordGame.bind("timestamp", this.gameCreated).bind("name", this.gameName);
+            recordGame.execute();
+        }
+    }
+
+    private void writeTurnToDatabase(int lines, double bet, double win) {
+        DatabaseConnectionJdbi dbc = DatabaseConnectionJdbi.getInstance();
+        try (Handle handle = dbc.jdbi().open()) {
+            Update update = handle.createUpdate("INSERT INTO " + gameName + " " +
+                    "(`lines_played`, `bet_amount`, `total_win`)" +
+                    "VALUES " +
+                    "(:lines, :bet, :win); ");
+            update.bind("lines", lines)
+                    .bind("bet", bet)
+                    .bind("win", win);
+            update.execute();
+        }
     }
 
 }
