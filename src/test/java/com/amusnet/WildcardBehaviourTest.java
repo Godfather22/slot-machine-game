@@ -175,7 +175,7 @@ public class WildcardBehaviourTest {
     }
 
     private void GivenBetOn1LineFor5AndGenArray0_0_0_18_19() {
-        game.setupNextRound(1, 5.0);
+        game.setupNextRound(1, 5.0, false);
         diceRolls = new int[]{0, 0, 0, 18, 19};
     }
 
