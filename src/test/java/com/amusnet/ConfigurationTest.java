@@ -147,7 +147,6 @@ public class ConfigurationTest {
         // set max bet amount
         configuration.setBetLimit(10);
 
-        // TODO not thread-safe
         // set currency format
         configuration.getCurrencyFormat().applyPattern("#");
 

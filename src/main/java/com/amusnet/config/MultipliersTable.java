@@ -12,7 +12,6 @@ import java.util.Objects;
  */
 public class MultipliersTable {
 
-    // TODO Deprecate
     private LinkedHashSet<Integer> occurrenceCounts;
 
     private Map<Integer, Map<Integer, Integer>> data;
