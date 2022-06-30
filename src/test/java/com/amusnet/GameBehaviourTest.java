@@ -72,6 +72,19 @@ public class GameBehaviourTest {
     class GameplayTest {
 
         @Test
+            // test case based on encountered bug during gameplay
+        void play1LineFor1_diceRollsAre24_0_21_11_18_win0Total() {
+            GivenBetOn1LineForAmount1AndDiceRolls24_0_21_11_18();
+            WhenGenerationNumbersAreFedToGenerator();
+            ThenShouldWin0Total();
+        }
+
+        private void GivenBetOn1LineForAmount1AndDiceRolls24_0_21_11_18() {
+            makeBet(1, 1.0);
+            diceRolls = new int[]{24, 0, 21, 11, 18};
+        }
+
+        @Test
         void play20LinesFor5_diceRollsAre22_18_17_0_29_win500FromScatters() {
             GivenBetOn20LinesForAmount5AndDiceRolls22_18_17_0_29();
             WhenGenerationNumbersAreFedToGenerator();
