@@ -76,13 +76,24 @@ public class MultipliersTable {
 
         sb.append(System.lineSeparator());
 
-        var keys = data.keySet();
-        keys.forEach(key -> {
-            sb.append(String.format("%-10s", key)).append(" ");
-            var rightCells = data.get(key).values();
-            rightCells.forEach(cell -> sb.append(String.format("%5.2s", cell)).append(" "));
+        var cards = data.keySet();
+        cards.forEach(card -> {
+            sb.append(String.format("%-10s", card)).append(" ");
+            var cardRightColumns = data.get(card);
+            occurrenceCounts.forEach(oc -> {
+                if (cardRightColumns.containsKey(oc))
+                    sb.append(String.format("%5s", cardRightColumns.get(oc)));
+                else
+                    sb.append(String.format("%5s", " "));
+            });
             sb.append(System.lineSeparator());
         });
+
+        sb.append("Minimum streak count: ").append(minStreakCount);
+        sb.append(System.lineSeparator());
+        sb.append("Maximum streak count: ").append(maxStreakCount);
+        sb.append(System.lineSeparator());
+
         return sb.toString();
     }
 
