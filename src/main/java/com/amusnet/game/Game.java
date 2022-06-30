@@ -195,6 +195,9 @@ public class Game {
 
             System.out.println();
         }
+
+        // out of loop, game has ended
+        System.out.println("game over");
     }
 
     //*********************
