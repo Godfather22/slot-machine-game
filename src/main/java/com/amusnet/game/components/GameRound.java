@@ -185,7 +185,7 @@ public class GameRound {
             try {
                 win = calculator.calculateRegularWin(previousCardValue, streakCount, this.betAmount);
             } catch (MissingTableElementException e) {
-                throw new RuntimeException(e);
+                return null;
             }
 
             // return
