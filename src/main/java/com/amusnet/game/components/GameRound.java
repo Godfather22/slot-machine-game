@@ -177,7 +177,7 @@ public class GameRound {
 
         var table = this.config.getTable();
 
-        if (streakCount < table.getOccurrenceCounts().get(0))
+        if (streakCount < table.getMinStreakCount())
             return null;
         else {
             // store win from card

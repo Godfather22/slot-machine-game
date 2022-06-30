@@ -1,6 +1,6 @@
 package com.amusnet.config;
 
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,18 +13,18 @@ import java.util.Objects;
 public class MultipliersTable {
 
     // TODO Deprecate
-    private List<Integer> occurrenceCounts;  // should always be sorted, need order hence not a Set
+    private LinkedHashSet<Integer> occurrenceCounts;
 
     private Map<Integer, Map<Integer, Integer>> data;
 
     private int minStreakCount = Integer.MAX_VALUE;
     private int maxStreakCount;
 
-    public List<Integer> getOccurrenceCounts() {
+    public LinkedHashSet<Integer> getOccurrenceCounts() {
         return occurrenceCounts;
     }
 
-    public void setOccurrenceCounts(List<Integer> occurrenceCounts) {
+    public void setOccurrenceCounts(LinkedHashSet<Integer> occurrenceCounts) {
         this.occurrenceCounts = occurrenceCounts;
     }
 

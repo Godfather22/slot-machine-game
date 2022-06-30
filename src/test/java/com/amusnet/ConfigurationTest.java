@@ -15,9 +15,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -100,7 +103,7 @@ public class ConfigurationTest {
 
         // set up table
         {
-            var occurrenceCounts = List.of(3, 4, 5, 2);
+            var occurrenceCounts = Stream.of(2, 3, 4, 5).collect(Collectors.toCollection(LinkedHashSet::new));
 
             Map<Integer, Map<Integer, Integer>> tableData = Map.of(
                     0, Map.of(  3, 10,
