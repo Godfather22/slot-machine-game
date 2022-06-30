@@ -118,7 +118,12 @@ public class GameRound {
         double scatterWinAmount;
         for (Integer s : config.getScatters()) {
             int scatterCount = getScatterCount(s);
-            scatterWinAmount = calculateScatterWins(s, scatterCount);
+            try {
+                scatterWinAmount = calculator.calculateScatterWin
+                        (s, scatterCount, this.linesPlayed * this.betAmount);
+            } catch (MissingTableElementException e) {
+                throw new RuntimeException(e);
+            }
             this.winFromScatters = scatterWinAmount;
             if (scatterWinAmount != 0.0) {
                 totalWinAmount += scatterWinAmount;
@@ -330,19 +335,6 @@ public class GameRound {
                 && lineCards.get(potentialOccurrences).equals(card))
             ++potentialOccurrences;
         return potentialOccurrences;
-    }
-
-    private double calculateScatterWins(Integer scatterValue, int scatterCount) {
-        var calcTable = config.getTable();
-
-        // If the amount of scatters on screen is a valid win amount
-        if (calcTable.getData().get(scatterValue).get(scatterCount) != null) {
-            // then calculate and return the win amount.
-            Integer multiplier = calcTable.getData().get(scatterValue).get(scatterCount);
-            var totalBet = this.betAmount * this.linesPlayed;
-            return totalBet * multiplier;
-        }
-        return 0.0; // not enough scatters or none at all
     }
 
     private int getScatterCount(int scatterValue) {
