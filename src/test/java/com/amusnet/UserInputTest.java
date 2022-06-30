@@ -17,7 +17,6 @@ import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-// TODO Figure out a way to not create tables for every test case
 public class UserInputTest {
 
     private static final Logger log = LoggerFactory.getLogger(UserInputTest.class);
