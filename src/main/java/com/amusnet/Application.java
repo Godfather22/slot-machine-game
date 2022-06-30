@@ -1,6 +1,6 @@
 package com.amusnet;
 
-import com.amusnet.config.Jdbi;
+import com.amusnet.config.DatabaseConnectionJdbi;
 import com.amusnet.game.Game;
 import com.amusnet.util.ErrorMessages;
 import org.jdbi.v3.core.Handle;
@@ -24,11 +24,11 @@ public class Application {
         log.debug(System.lineSeparator() + game.getConfiguration().toString());
 
         ErrorMessages errorMessages = ErrorMessages.getInstance();
-        Jdbi j = Jdbi.getInstance();
+        DatabaseConnectionJdbi dbc = DatabaseConnectionJdbi.getInstance();
 
         LocalDateTime now = LocalDateTime.now();
         String gameName = "game" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS"));
-        try (Handle handle = j.jdbi().open()) {
+        try (Handle handle = dbc.jdbi().open()) {
             handle.execute("CREATE TABLE " + gameName + " (" +
                     "  `turn` INT NOT NULL AUTO_INCREMENT," +
                     "  `lines_played` INT NOT NULL," +
@@ -113,7 +113,7 @@ public class Application {
             // side effect - prints necessary info to screen
             double totalWin = game.playNextRound();
 
-            try (Handle handle = j.jdbi().open()) {
+            try (Handle handle = dbc.jdbi().open()) {
                 Update update = handle.createUpdate("INSERT INTO " + gameName + " " +
                         "(`lines_played`, `bet_amount`, `total_win`)" +
                         "VALUES " +
