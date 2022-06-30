@@ -360,7 +360,7 @@ public class GameConfig {
             }
 
             // all is good
-            //this.table.setOccurrenceCounts(finalOccurrenceCounts.values().stream().toList());
+            this.table.setOccurrenceCounts(finalOccurrenceCounts.values().stream().toList());
             this.table.setData(data);
         }
 
@@ -470,11 +470,12 @@ public class GameConfig {
      * Sets up the table containing multiplication values for the occurrences
      * of each card which in turn is used for the calculation of player win amounts.
      *
+     * @param occurrenceCounts The columns headers representing the number of times a card is present on screen.
      * @param data The multiplication values for each card's amount of times present on screen.
      * @see MultipliersTable
      */
-    public void setupTable(Map<Integer, Map<Integer, Integer>> data) {
-        //table.setOccurrenceCounts(occurrenceCounts);
+    public void setupTable(List<Integer> occurrenceCounts, Map<Integer, Map<Integer, Integer>> data) {
+        table.setOccurrenceCounts(occurrenceCounts);
         table.setData(data);
     }
 

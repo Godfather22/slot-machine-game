@@ -130,7 +130,7 @@ public class ConfigurationTest {
                             5, 500)
             );
 
-            configuration.setupTable(tableData);
+            configuration.setupTable(occurrenceCounts, tableData);
         }
 
         // set scatters

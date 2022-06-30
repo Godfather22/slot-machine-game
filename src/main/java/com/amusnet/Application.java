@@ -18,6 +18,8 @@ public class Application {
 
     public static void main(String[] args) {
 
+        // TODO migrate to com.amusnet.game
+
         final Game game = new Game();
         final Logger log = LoggerFactory.getLogger(Application.class);
 
