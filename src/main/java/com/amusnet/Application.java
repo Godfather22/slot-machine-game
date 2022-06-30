@@ -29,13 +29,26 @@ public class Application {
         LocalDateTime now = LocalDateTime.now();
         String gameName = "game" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS"));
         try (Handle handle = dbc.jdbi().open()) {
-            handle.execute("CREATE TABLE " + gameName + " (" +
-                    "  `turn` INT NOT NULL AUTO_INCREMENT," +
-                    "  `lines_played` INT NOT NULL," +
-                    "  `bet_amount` DECIMAL NOT NULL," +
-                    "  `total_win` DECIMAL NOT NULL," +
-                    "  PRIMARY KEY (`turn`)," +
-                    "  UNIQUE INDEX `turn_UNIQUE` (`turn` ASC) VISIBLE); ");
+            handle.execute("""
+                    CREATE TABLE IF NOT EXISTS `games` (
+                      `id` int NOT NULL AUTO_INCREMENT,
+                      `started` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                      `name` varchar(100) NOT NULL,
+                      PRIMARY KEY (`id`),
+                      UNIQUE KEY `id_UNIQUE` (`id`),
+                      UNIQUE KEY `name_UNIQUE` (`name`)
+                    )""");
+
+            handle.execute("""
+                    CREATE TABLE\040""" + gameName + """ 
+                       (
+                      `turn` int NOT NULL AUTO_INCREMENT,
+                      `lines_played` int NOT NULL,
+                      `bet_amount` decimal(10,0) NOT NULL,
+                      `total_win` decimal(10,0) NOT NULL,
+                      PRIMARY KEY (`turn`),
+                      UNIQUE KEY `turn_UNIQUE` (`turn`)
+                    )""");
 
             Update recordGame = handle.createUpdate("INSERT INTO `games` (started, name) VALUES (:timestamp, :name); ");
             recordGame.bind("timestamp", now).bind("name", gameName);
