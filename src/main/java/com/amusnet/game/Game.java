@@ -6,6 +6,7 @@ import com.amusnet.exception.ConfigurationInitializationException;
 import com.amusnet.game.components.GameRound;
 import com.amusnet.game.components.GameState;
 import com.amusnet.game.components.InfoScreen;
+import com.amusnet.game.components.ReelScreen;
 import com.amusnet.util.ErrorMessages;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.statement.Update;
@@ -214,11 +215,14 @@ public class Game {
         setupNextRound(linesPlayed, betAmount, true);
     }
 
-    public void setupNextRound(int linesPlayed, double betAmount, boolean generateReelScreen) {
+    @SuppressWarnings("UnusedReturnValue")
+    public ReelScreen setupNextRound(int linesPlayed, double betAmount, boolean generateReelScreen) {
+        ReelScreen rs = null;
         if (generateReelScreen)
-            gameState.getGameRound().getReelScreen().generateScreen();
+            rs = gameState.getGameRound().getReelScreen().generateScreen();
         gameState.getGameRound().setLinesPlayed(linesPlayed);
         gameState.getGameRound().setBetAmount(betAmount);
+        return rs;
     }
 
     public double playNextRound() {
