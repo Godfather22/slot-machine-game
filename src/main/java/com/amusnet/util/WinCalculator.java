@@ -1,7 +1,8 @@
-package com.amusnet.game.components;
+package com.amusnet.util;
 
 import com.amusnet.config.MultipliersTable;
 import com.amusnet.exception.MissingTableElementException;
+
 
 public class WinCalculator {
     private final MultipliersTable table;
