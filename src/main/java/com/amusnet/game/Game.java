@@ -33,12 +33,12 @@ public class Game {
 
     public static final GameConfig CONFIGURATION;
     private static final Logger log = LoggerFactory.getLogger(Game.class);
-    private static final Path xmlConfig = Path.of("src/main/resources/properties.xml");           // configuration file
-    private static final Path xsdValidation = Path.of("src/main/resources/properties.xsd");       // configuration file validation
+    private static final Path XML_CONFIG = Path.of("src/main/resources/properties.xml");           // configuration file
+    private static final Path XSD_VALIDATION = Path.of("src/main/resources/properties.xsd");       // configuration file validation
 
     static {
         try {
-            CONFIGURATION = new GameConfig(xmlConfig, xsdValidation);
+            CONFIGURATION = new GameConfig(XML_CONFIG, XSD_VALIDATION);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             log.error("Fatal error while configuring game");
             throw new RuntimeException(e);
