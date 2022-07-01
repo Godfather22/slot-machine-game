@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
@@ -122,7 +123,7 @@ public class Game {
 
         final String exitCommand = this.getConfiguration().getExitCommand();
 
-        // main this loop
+        // main loop
         while (this.getGameState().getCurrentBalance() >= 0.0) {
 
             this.prompt();
@@ -173,7 +174,7 @@ public class Game {
                 }
             }
 
-            this.setupNextRound(linesInput, betInput);
+            ReelScreen rs = this.setupNextRound(linesInput, betInput);
             this.getGameState().subtractFromBalance(betInput * linesInput);
 
             // feedback
@@ -191,7 +192,8 @@ public class Game {
                 writeTurnToDatabase(
                         this.getGameState().getGameRound().getLinesPlayed(),
                         this.getGameState().getGameRound().getBetAmount(),
-                        totalWin
+                        totalWin,
+                        rs.getDiceRolls()
                 );
 
             System.out.println();
@@ -210,11 +212,10 @@ public class Game {
         infoScreen.print();
     }
 
-    private void setupNextRound(int linesPlayed, double betAmount) {
-        setupNextRound(linesPlayed, betAmount, true);
+    private ReelScreen setupNextRound(int linesPlayed, double betAmount) {
+        return setupNextRound(linesPlayed, betAmount, true);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
     public ReelScreen setupNextRound(int linesPlayed, double betAmount, boolean generateReelScreen) {
         ReelScreen rs = null;
         if (generateReelScreen)
@@ -234,6 +235,7 @@ public class Game {
     private void setupGameInstanceTable() {
         DatabaseConnectionJdbi dbc = DatabaseConnectionJdbi.getInstance();
         try (Handle handle = dbc.jdbi().open()) {
+            // create the main `games` table if it does not exist
             handle.execute("""
                     CREATE TABLE IF NOT EXISTS `games` (
                       `id` int NOT NULL AUTO_INCREMENT,
@@ -244,6 +246,7 @@ public class Game {
                       UNIQUE KEY `name_UNIQUE` (`name`)
                     )""");
 
+            // create the history table for the current game instance
             handle.execute("""
                     CREATE TABLE\040""" + gameName + """ 
                        (
@@ -251,26 +254,29 @@ public class Game {
                       `lines_played` int NOT NULL,
                       `bet_amount` decimal(10,0) NOT NULL,
                       `total_win` decimal(10,0) NOT NULL,
+                      `reel_rolls` varchar(100) NOT NULL,
                       PRIMARY KEY (`turn`),
                       UNIQUE KEY `turn_UNIQUE` (`turn`)
                     )""");
 
+            // add basic info about game instance in main `games` table
             Update recordGame = handle.createUpdate("INSERT INTO `games` (started, name) VALUES (:timestamp, :name); ");
             recordGame.bind("timestamp", this.gameCreated).bind("name", this.gameName);
             recordGame.execute();
         }
     }
 
-    private void writeTurnToDatabase(int lines, double bet, double win) {
+    private void writeTurnToDatabase(int lines, double bet, double win, int[] reelRolls) {
         DatabaseConnectionJdbi dbc = DatabaseConnectionJdbi.getInstance();
         try (Handle handle = dbc.jdbi().open()) {
             Update update = handle.createUpdate("INSERT INTO " + gameName + " " +
-                    "(`lines_played`, `bet_amount`, `total_win`)" +
+                    "(`lines_played`, `bet_amount`, `total_win`, `reel_rolls`)" +
                     "VALUES " +
-                    "(:lines, :bet, :win); ");
+                    "(:lines, :bet, :win, :rolls); ");
             update.bind("lines", lines)
                     .bind("bet", bet)
-                    .bind("win", win);
+                    .bind("win", win)
+                    .bind("rolls", Arrays.toString(reelRolls));
             update.execute();
         }
     }

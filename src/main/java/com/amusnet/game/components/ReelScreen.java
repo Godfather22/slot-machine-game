@@ -18,6 +18,8 @@ public class ReelScreen {
 
     private int[][] view;
 
+    private int[] diceRolls;
+
     public ReelScreen(GameConfig config) {
         this.config = config;
         rowCount = config.getScreenRowCount();
@@ -65,6 +67,10 @@ public class ReelScreen {
         return columnCount;
     }
 
+    public int[] getDiceRolls() {
+        return diceRolls;
+    }
+
     /**
      * Generates a two-dimensional array of integers which represents the game screen.
      *
@@ -103,6 +109,8 @@ public class ReelScreen {
      * @see ReelScreen
      */
     public ReelScreen generateScreen(int[] diceRolls) {
+
+        this.diceRolls = diceRolls;
 
         var reelArrays = config.getReels();
         int screenReelSize = config.getScreenRowCount();

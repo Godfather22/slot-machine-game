@@ -128,6 +128,10 @@ public class DatabaseTest {
             // TODO find an elegant way to check for exact sum
             assertThat(gameInstanceTable).column("total_win")
                     .value(i).isGreaterThanOrEqualTo(0.0);
+
+            // TODO find an elegant way to check for exact roll
+            assertThat(gameInstanceTable).column("reel_rolls")
+                    .value(i).isNotNull();
         }
 
     }
