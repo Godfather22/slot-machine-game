@@ -17,7 +17,9 @@ public class MultipliersTable {
     private Map<Integer, Map<Integer, Integer>> data;
 
     private int minStreakCount = Integer.MAX_VALUE;
-    private int maxStreakCount;
+    private int maxStreakCount = Integer.MIN_VALUE;
+
+    private int largestMultiplierAmount = Integer.MIN_VALUE;
 
     public LinkedHashSet<Integer> getOccurrenceCounts() {
         return occurrenceCounts;
@@ -49,6 +51,14 @@ public class MultipliersTable {
 
     public void setMinStreakCount(int minStreakCount) {
         this.minStreakCount = minStreakCount;
+    }
+
+    public int getLargestMultiplierAmount() {
+        return largestMultiplierAmount;
+    }
+
+    public void setLargestMultiplierAmount(int largestMultiplierAmount) {
+        this.largestMultiplierAmount = largestMultiplierAmount;
     }
 
     @Override

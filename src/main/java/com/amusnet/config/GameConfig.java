@@ -306,8 +306,11 @@ public class GameConfig {
                     int amountValue = Integer.parseInt(strAmount);
                     rightColumns.put(occurrencesValue, amountValue);
 
+                    if (table.getLargestMultiplierAmount() < amountValue)
+                        table.setLargestMultiplierAmount(amountValue);
+
                     //
-                    // Checks made redundant after problem extension
+                    // Checks below made redundant after problem extension
                     //
 
                     // check if there is a discrepancy with previous amounts of multipliers
