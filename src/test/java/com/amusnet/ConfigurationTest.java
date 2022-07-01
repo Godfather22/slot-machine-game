@@ -280,7 +280,11 @@ public class ConfigurationTest {
                     new GameConfig(tempConfigFile));
         }
 
-        // TODO manual feeding of invalid xml content is tedious
+        /*
+        TODO substitute manual feeding of invalid xml content with more practical method
+        Probably by copying regular properties.xml and replacing
+        a particular line with an invalid one
+         */
 
         private void setInvalidCurrencyFormat() {
             invalidXmlContent = """
