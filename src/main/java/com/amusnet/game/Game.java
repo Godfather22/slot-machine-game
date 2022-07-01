@@ -107,7 +107,8 @@ public class Game {
     //* GAME START METHOD *
     //*********************
 
-    public void play() {
+    @SuppressWarnings("UnusedReturnValue")
+    public String play() {
         //log.debug(System.lineSeparator() + game.getConfiguration().toString());
 
         ErrorMessages errorMessages = ErrorMessages.getInstance();
@@ -198,6 +199,7 @@ public class Game {
 
         // out of loop, game has ended
         System.out.println("game over");
+        return this.gameName;
     }
 
     //*********************
