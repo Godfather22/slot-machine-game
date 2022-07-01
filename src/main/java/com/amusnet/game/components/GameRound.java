@@ -2,11 +2,15 @@ package com.amusnet.game.components;
 
 import com.amusnet.config.GameConfig;
 import com.amusnet.exception.MissingTableElementException;
+import com.amusnet.util.WinCalculator;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles the game's iterations (rounds), i.e. the looping of user input and game feedback.
+ */
 public class GameRound {
 
     private final GameConfig config;
@@ -201,7 +205,7 @@ public class GameRound {
 
     // TODO refactor out wildcardMask?
 
-    /***
+    /**
      *
      * Return a Quartet tuple with the following type arguments:
      * <br/>
@@ -227,8 +231,6 @@ public class GameRound {
                 !secondCardInLine.equals(wildcard)) {
             return null;
         }
-
-        var table = this.config.getTable();
 
         // small optimization 2:
         // there are only wildcards among the current lineCards
@@ -316,7 +318,7 @@ public class GameRound {
     //* UTILITY METHODS *
     //*******************
 
-    /***
+    /**
      *
      * Returns the number of times a card is encountered in the beginning
      * of the current line of cards.

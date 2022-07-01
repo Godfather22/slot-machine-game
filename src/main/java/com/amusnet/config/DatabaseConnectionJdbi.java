@@ -4,6 +4,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Container for the database connection data, using JDBI.
+ */
 public class DatabaseConnectionJdbi {
 
     private static volatile DatabaseConnectionJdbi instance;
@@ -16,6 +19,11 @@ public class DatabaseConnectionJdbi {
                 (properties.getProperty("url"), properties);
     }
 
+    /**
+     * Fetch the singleton instance of the container.
+     *
+     * @return The singleton instance of the jdbi connection container.
+     */
     public static DatabaseConnectionJdbi getInstance() {
         DatabaseConnectionJdbi result = instance;
         if (result != null)
@@ -32,6 +40,11 @@ public class DatabaseConnectionJdbi {
         }
     }
 
+    /**
+     * Retrieve the jdbi main entry point to the database.
+     *
+     * @return Main entry point to database JDBI object
+     */
     public org.jdbi.v3.core.Jdbi jdbi() {
         return this.jdbi;
     }

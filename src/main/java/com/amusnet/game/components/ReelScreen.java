@@ -8,8 +8,6 @@ import java.util.Random;
 
 /**
  * A simple class for representing the game screen.
- *
- * @since 1.0
  */
 public class ReelScreen {
 

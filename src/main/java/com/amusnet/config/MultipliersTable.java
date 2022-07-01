@@ -5,10 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A nested class within GameConfig which represents a table of multiplication values for
- * the number of occurrences for each card. Used to calculate the player win amounts.
- *
- * @since 1.0
+ * Class that represents a table of multiplication values for
+ * the number of occurrences for each card.
  */
 public class MultipliersTable {
 

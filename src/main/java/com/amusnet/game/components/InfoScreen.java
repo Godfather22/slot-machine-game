@@ -2,6 +2,9 @@ package com.amusnet.game.components;
 
 import com.amusnet.config.GameConfig;
 
+/**
+ * Handles the printing of game information to the user.
+ */
 public class InfoScreen {
 
     private final GameConfig config;

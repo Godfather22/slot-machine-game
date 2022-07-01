@@ -26,10 +26,7 @@ import java.util.stream.Collectors;
 
 /**
  * Class that loads XML configuration for the game.
- *
- * @since 1.0
  */
-
 public class GameConfig {
 
     private static final Logger log = LoggerFactory.getLogger(GameConfig.class);
@@ -104,10 +101,6 @@ public class GameConfig {
 
     public DecimalFormat getCurrencyFormat() {
         return currencyFormat;
-    }
-
-    public void setCurrencyFormat(DecimalFormat currencyFormat) {
-        this.currencyFormat = currencyFormat;
     }
 
     public double getStartingBalance() {
@@ -253,7 +246,7 @@ public class GameConfig {
             Map<String, Integer> finalOccurrenceCounts = new LinkedHashMap<>();
             Map<Integer, Map<Integer, Integer>> data = new LinkedHashMap<>();
             List<Integer> cards = new ArrayList<>();     // to keep track of the cards in the table
-            int j = 0, multipliersPerCard = 0;
+            int j = 0;
             for (int i = 0; i < nlCardColumn.getLength(); i++) {
 
                 // fetch current card value ("face")
@@ -275,7 +268,6 @@ public class GameConfig {
                 Map<Integer, Integer> rightColumns = new LinkedHashMap<>();
                 List<Integer> occurrenceCountTrack = new ArrayList<>();     // to keep track of potential duplicated or unwanted extras
                 var multiplier = nlMultipliers.item(j);
-                int multipliersForThisCard = 0;
                 while (multiplier != null && multiplier.getParentNode().equals(card)) {
 
                     // fetch occurrence count for current multiplier
@@ -309,41 +301,8 @@ public class GameConfig {
                     if (table.getLargestMultiplierAmount() < amountValue)
                         table.setLargestMultiplierAmount(amountValue);
 
-                    //
-                    // Checks below made redundant after problem extension
-                    //
-
-                    // check if there is a discrepancy with previous amounts of multipliers
-//                    if (++multipliersForThisCard > multipliersPerCard)
-//                        if (i > 0) {
-//                            log.error("Card multipliers until now were {} but encountered a card with {} multipliers",
-//                                    multipliersPerCard, multipliersForThisCard);
-//                            throw new ConfigurationInitializationException(errorMessages.message(
-//                                    "Card multipliers discrepancy", "Cards in multipliers table should " +
-//                                            "have consistent amount of multipliers"
-//                            ));
-//                        }
-//                        else
-//                            multipliersPerCard = multipliersForThisCard;
-//
                     multiplier = nlMultipliers.item(++j);
                 }
-
-                // make sure occurrence counts (i.e. x3, x4, x5... etc.) are uniform across cards
-//                if (i > 0) {
-//                    if (!occurrenceCountTrack.equals(finalOccurrenceCounts.values().stream().toList())) {
-////                        var previous = finalOccurrenceCounts.values().stream()
-////                                .limit(finalOccurrenceCounts.values().size() - 1);
-//                        Deque<Integer> prev = new ArrayDeque<>(finalOccurrenceCounts.values());
-//                        var culprit = prev.pollLast();
-//                        log.error("Card occurrence counts until now were {} but encountered an extra one: {}",
-//                                prev, culprit);
-//                        throw new ConfigurationInitializationException(errorMessages.message(
-//                                "Card occurrences discrepancy", "Card occurrences in multipliers table " +
-//                                        "should have consistent amount of occurrence counts"
-//                        ));
-//                    }
-//                }
                 data.put(cardValue, rightColumns);
             }
 

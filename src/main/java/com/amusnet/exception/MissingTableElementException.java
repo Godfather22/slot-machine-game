@@ -1,5 +1,8 @@
 package com.amusnet.exception;
 
+/**
+ * Indicates that an element/value is missing in some part of the Multipliers table.
+ */
 public class MissingTableElementException extends Exception {
     @SuppressWarnings("unused")
     public MissingTableElementException() {

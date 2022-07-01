@@ -27,7 +27,6 @@ import static com.amusnet.util.ErrorMessages.DefaultMessageTitles.*;
  * Represents a configured game. Game logic and calculations are provided.
  *
  * @see GameConfig
- * @since 1.0
  */
 public class Game {
 

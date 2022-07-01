@@ -6,6 +6,7 @@ package com.amusnet.game.components;
  * @deprecated No other type of card values are required for API other than integer.
  */
 @Deprecated
+@SuppressWarnings("unused")
 public class Card {
 
     private final int value;

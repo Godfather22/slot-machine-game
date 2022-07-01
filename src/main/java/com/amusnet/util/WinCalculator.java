@@ -3,7 +3,9 @@ package com.amusnet.util;
 import com.amusnet.config.MultipliersTable;
 import com.amusnet.exception.MissingTableElementException;
 
-
+/**
+ * A utility class for handling separate calculations for cards.
+ */
 public class WinCalculator {
     private final MultipliersTable table;
 
